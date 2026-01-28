@@ -47,8 +47,17 @@ function tryGetPromptContext(): PromptContext {
   // Try to attach to /dev/tty on Unix.
   if (process.platform !== 'win32') {
     try {
-      const input = fsSync.createReadStream('/dev/tty');
-      const output = fsSync.createWriteStream('/dev/tty');
+      // createReadStream('/dev/tty') can emit async errors that bypass try/catch.
+      // Use openSync so we can fail fast and safely.
+      const inFd = fsSync.openSync('/dev/tty', 'r');
+      const outFd = fsSync.openSync('/dev/tty', 'w');
+
+      const input = fsSync.createReadStream('', { fd: inFd, autoClose: true });
+      const output = fsSync.createWriteStream('', { fd: outFd, autoClose: true });
+
+      input.on('error', () => {});
+      output.on('error', () => {});
+
       return { input, output };
     } catch {
       return undefined;
@@ -261,6 +270,6 @@ async function main(): Promise<void> {
 
 main().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
-  process.stderr.write(`assistagents-setup failed: ${message}\n`);
+  process.stderr.write(`assistagents failed: ${message}\n`);
   process.exitCode = 1;
 });

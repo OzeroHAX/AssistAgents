@@ -5,7 +5,11 @@
   "license": "MIT",
   "type": "module",
   "bin": {
+    "assistagents": "dist/cli.js",
     "assistagents-setup": "dist/cli.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "dist",
