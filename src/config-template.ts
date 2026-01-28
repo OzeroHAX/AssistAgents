@@ -1,0 +1,94 @@
+export type KeyFiles = {
+  zaiApi: string;
+  context7: string;
+  tavily: string;
+};
+
+export function renderGlobalConfigJsonc(keyFiles: KeyFiles): string {
+  // Keep this close to the repo's existing opencode.jsonc layout.
+  return `{
+  "$schema": "https://opencode.ai/config.json",
+  "keybinds": {
+    "messages_undo": "ctrl+alt+z",
+    "session_new": "ctrl+alt+n",
+    "command_list": "ctrl+alt+p"
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      ".venv/**",
+      "bin/**"
+    ]
+  },
+  "permission": {
+    "bash": "deny",
+    "codesearch": "deny",
+    "doom_loop": "deny",
+    "edit": "deny",
+    "external_directory": "deny",
+    "glob": "deny",
+    "grep": "deny",
+    "list": "deny",
+    "lsp": "deny",
+    "question": "deny",
+    "read": "deny",
+    "task": "deny",
+    "todoread": "deny",
+    "todowrite": "deny",
+    "webfetch": "deny",
+    "websearch": "deny",
+    "skill": "deny",
+    // MCP
+    "tavily-search*": "deny",
+    "ddg-search*": "deny",
+    "zai-web-search*": "deny",
+    "zai-web-reader*": "deny",
+    "context7*": "deny",
+    "github-grep*": "deny",
+    "pencil": "deny"
+  },
+  "agent": {
+    "explore": { "disable": true },
+    "build": { "disable": true },
+    "plan": { "disable": true }
+  },
+  "mcp": {
+    "tavily-search": {
+      "type": "remote",
+      "url": "https://mcp.tavily.com/mcp/?tavilyApiKey={file:${keyFiles.tavily}}"
+    },
+    "ddg-search": {
+      "type": "local",
+      "command": ["uvx", "duckduckgo-mcp-server"]
+    },
+    "zai-web-search": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
+      "headers": {
+        "Authorization": "Bearer {file:${keyFiles.zaiApi}}"
+      }
+    },
+    "zai-web-reader": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
+      "headers": {
+        "Authorization": "Bearer {file:${keyFiles.zaiApi}}"
+      }
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "{file:${keyFiles.context7}}"
+      }
+    },
+    "github-grep": {
+      "type": "remote",
+      "url": "https://mcp.grep.app"
+    }
+  }
+}
+`;
+}

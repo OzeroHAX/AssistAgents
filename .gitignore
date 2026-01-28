@@ -1,0 +1,19 @@
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# OpenCode local assets
+.opencode/
+ai-docs/
+
+# Pack artifacts
+*.tgz

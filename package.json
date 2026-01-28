@@ -1,0 +1,35 @@
+{
+  "name": "@ozeroHAX/assistagents",
+  "version": "0.1.0",
+  "description": "npx installer for OpenCode agents/skills and key files",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "assistagents-setup": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.4.1",
+    "archiver": "^7.0.1"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/node": "^20.11.30",
+    "tsx": "^4.19.2",
+    "tsup": "^8.0.2",
+    "typescript": "^5.5.4"
+  }
+}
