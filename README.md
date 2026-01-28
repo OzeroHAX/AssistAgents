@@ -35,7 +35,7 @@
 ## Установка / обновление
 
 ```bash
-npx @ozeroHAX/assistagents
+npx -g @ozerohax/assistagents@0.1.1
 ```
 
 В TUI ты:
