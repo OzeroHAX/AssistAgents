@@ -1,3 +1,5 @@
+<img src="banner.png" alt="Banner" width="1200" />
+
 Ready-made agents and skills for OpenCode, built for developers who want control. You define the goal and constraints, the agent follows rules (skills/Context7/LSP), and you run the loop: generate → run → fix → verify.
 Installs into `~/.opencode/`:
 - `agents/` — roles
@@ -73,4 +75,3 @@ npm run dev
 ---
 
 OpenCode is a trademark of its respective owner. This project is not affiliated with or endorsed by OpenCode.
-
