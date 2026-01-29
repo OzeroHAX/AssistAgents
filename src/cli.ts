@@ -11,6 +11,8 @@ import { chmod600IfPossible, copyDir, ensureDir, isNonEmptyDir, pathExists, remo
 import { getInstallPaths, getKeyFileRefs } from './paths.js';
 import { ALL_LANGUAGES, buildSkillCopyPlan, type LanguageKey } from './skill-selection.js';
 
+const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
+
 function getTemplatesRoot(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
   // dist/cli.js -> packageRoot/templates
@@ -82,14 +84,14 @@ async function promptForMissingKeys(opts: {
   const promptCtx = tryGetPromptContext();
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
   if (!interactive) {
-    throw new Error('Нет TTY для интерактивного режима (запусти из терминала).');
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
   }
 
   const askOne = async (label: string, filePath: string): Promise<string | undefined> => {
     const filled = await isKeyFileFilled(filePath);
     if (filled) {
       const keep = await confirm(
-        { message: `${label}: файл уже заполнен (${filePath}). Оставить как есть?`, default: true },
+        { message: `${label}: file already has a value (${filePath}). Keep it?`, default: true },
         promptCtx
       );
       if (keep) return undefined;
@@ -97,9 +99,9 @@ async function promptForMissingKeys(opts: {
 
     const value = await password(
       {
-        message: `Введите ${label} (сохраним в ${filePath})`,
+        message: `Enter ${label} (we will store it in ${filePath})`,
         mask: '*',
-        validate: (v) => (v.trim().length > 0 ? true : 'Нужно непустое значение'),
+        validate: (v) => (v.trim().length > 0 ? true : 'Value cannot be empty'),
       },
       promptCtx
     );
@@ -121,22 +123,41 @@ async function promptLanguages(): Promise<LanguageKey[]> {
   const promptCtx = tryGetPromptContext();
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
   if (!interactive) {
-    throw new Error('Нет TTY для интерактивного режима (запусти из терминала).');
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
   }
 
   const selected = await checkbox<LanguageKey>(
     {
-      message: 'Какие языки добавить?',
+      message: 'Which languages should be installed?',
       choices: [
         { name: 'TypeScript', value: 'typescript', checked: true },
         { name: 'Rust', value: 'rust', checked: true },
         { name: 'C#', value: 'csharp', checked: true },
       ],
-      validate: (values) => (values.length > 0 ? true : 'Выбери хотя бы один язык'),
+      validate: (values) => (values.length > 0 ? true : 'Select at least one language'),
     },
     promptCtx
   );
   return selected;
+}
+
+async function promptResponseLanguage(): Promise<string> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  const responseLanguage = await input(
+    {
+      message: 'Preferred response language?',
+      default: 'English',
+      validate: (value) => (value.trim().length > 0 ? true : 'Please enter a language'),
+    },
+    promptCtx
+  );
+
+  return responseLanguage.trim();
 }
 
 async function backupExistingOpencode(paths: { targetRoot: string; backupDir: string }, dryRun: boolean): Promise<string | undefined> {
@@ -164,13 +185,13 @@ async function main(): Promise<void> {
   const promptCtx = tryGetPromptContext();
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
   if (!interactive) {
-    throw new Error('Этот установщик работает только в интерактивном TUI режиме (TTY не найден).');
+    throw new Error('This installer only works in interactive TUI mode (TTY not found).');
   }
 
-  const doBackup = await confirm({ message: 'Сделать zip-бэкап текущего ~/.opencode перед заменой?', default: true }, promptCtx);
+  const doBackup = await confirm({ message: 'Create a zip backup of current ~/.opencode before replacing?', default: true }, promptCtx);
   const backupDir = doBackup
     ? await input(
-        { message: 'Куда сохранить бэкапы?', default: '~/.opencode-backups', required: true },
+        { message: 'Where should backups be stored?', default: '~/.opencode-backups', required: true },
         promptCtx
       )
     : undefined;
@@ -199,10 +220,16 @@ async function main(): Promise<void> {
     report.push('Backup: skipped');
   }
 
+  const responseLanguage = await promptResponseLanguage();
+  report.push(`Response language: ${responseLanguage}`);
+
   // Replace agents
   await removeIfExists(paths.targetAgents);
   report.push(`Replace: ${paths.targetAgents} <= ${templatesAgents}`);
   await copyDir(templatesAgents, paths.targetAgents);
+
+  const agentReplacements = await replaceResponseLanguagePlaceholders(paths.targetAgents, responseLanguage);
+  report.push(`Agents language placeholders: ${agentReplacements} replaced`);
 
   // Replace skills (selective)
   const languages = await promptLanguages();
@@ -273,3 +300,29 @@ main().catch((error: unknown) => {
   process.stderr.write(`assistagents failed: ${message}\n`);
   process.exitCode = 1;
 });
+
+async function replaceResponseLanguagePlaceholders(rootDir: string, responseLanguage: string): Promise<number> {
+  let replacements = 0;
+
+  const entries = await fs.readdir(rootDir, { withFileTypes: true });
+  for (const entry of entries) {
+    const entryPath = path.join(rootDir, entry.name);
+    if (entry.isDirectory()) {
+      replacements += await replaceResponseLanguagePlaceholders(entryPath, responseLanguage);
+      continue;
+    }
+
+    if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+
+    const content = await fs.readFile(entryPath, 'utf8');
+    if (!content.includes(RESPONSE_LANGUAGE_PLACEHOLDER)) continue;
+
+    const updated = content.split(RESPONSE_LANGUAGE_PLACEHOLDER).join(responseLanguage);
+    if (updated !== content) {
+      await writeFileAtomic(entryPath, updated);
+      replacements += 1;
+    }
+  }
+
+  return replacements;
+}
