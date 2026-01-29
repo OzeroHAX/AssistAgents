@@ -14,9 +14,11 @@ description: Guidelines for effective web research using "assist/research/web-re
 <task_formulation>
   <principles>
     <principle>Be specific about technology and version</principle>
+    <principle>One request = one topic/goal (1–3 subpoints max)</principle>
     <principle>State expected output format</principle>
     <principle>Include context about intended use</principle>
     <principle>Specify depth level when needed: standard, deep, expert</principle>
+    <principle>Multi-stage research is orchestrated by the caller (separate requests per stage)</principle>
   </principles>
   <examples>
     <good>
@@ -31,6 +33,10 @@ description: Guidelines for effective web research using "assist/research/web-re
       <task>Learn about React</task>
       <why>Too broad, no specific goal or deliverable</why>
     </bad>
+    <good>
+      <task>Split a wide request into separate topics: (1) Run CLIProxy in docker/compose, (2) Configure multiple instances, (3) Add accounts/credentials</task>
+      <why>One topic per request; caller coordinates multi-step research</why>
+    </good>
   </examples>
 </task_formulation>
 <research_strategies>
@@ -39,10 +45,11 @@ description: Guidelines for effective web research using "assist/research/web-re
     <stage order="2" goal="deep-dive">Detailed analysis of selected options</stage>
     <stage order="3" goal="validation">Edge cases and real-world examples</stage>
     <example>
-      <stage1>Overview of modern React state management solutions in 2025</stage1>
-      <stage2>Deep dive into Zustand: architecture, performance patterns, TypeScript best practices</stage2>
-      <stage3>Find production Zustand examples: large-scale apps, testing patterns</stage3>
+      <stage1>Overview of modern React state management solutions in 2025 (separate request)</stage1>
+      <stage2>Deep dive into Zustand: architecture, performance patterns, TypeScript best practices (separate request)</stage2>
+      <stage3>Find production Zustand examples: large-scale apps, testing patterns (separate request)</stage3>
     </example>
+    <note>Multi-stage research must be orchestrated by the caller as separate requests (one topic per request)</note>
   </strategy>
   <strategy name="comparative" use_for="Technology decisions">
     <template>Compare [A] vs [B] for [use-case]: [criteria-1], [criteria-2], [criteria-3]. Include recent benchmarks.</template>

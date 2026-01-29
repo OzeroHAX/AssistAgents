@@ -1,90 +1,77 @@
+![Banner](banner.jpeg)
 
-Набор готовых агентов и skills для AI‑ассистированного кодинга в OpenCode: от быстрого “вайб‑прототипа” до аккуратной реализации с планированием, тестированием и ревью.
-Пак ставит в `~/.opencode/`:
-- `agents/` — роли (build/dev, planning, review, test, ask + research сабагенты)
-- `skills/` — плейбуки (planning/review/testing/research + coder skills по языкам)
-- `keys/` и `opencode.jsonc` — хранение ключей и глобальная конфигурация
-Главная идея: ты говоришь “что хочу получить”, агент ведёт процесс и соблюдает правила (skills/Context7/LSP), а ты управляешь итерациями “сгенерировал → запустил → исправил → проверил”.
+Ready-made agents and skills for OpenCode, built for developers who want control. You define the goal and constraints, the agent follows rules (skills/Context7/LSP), and you run the loop: generate → run → fix → verify.
+Installs into `~/.opencode/`:
+- `agents/` — roles
+- `skills/` — playbooks
+- `keys/` and `opencode.jsonc` — keys + global config
 
-ВАЖНО! Это первая тестовая версия, если что не так - welcome to issue/pr
+> [!WARNING]
+> IMPORTANT: this is an early test version; if something is off, feel free to open an issue/PR.
 
-
-### Quickstart
-1) Скажи цель одной фразой: что сделать + ограничения + критерий готовности.
-2) Запусти `planning/plan`: попроси краткий план, список файлов, риски, что тестировать.
-3) Запусти `build/dev`: реализуй по плану, минимальными правками, без "улучшим всё рядом".
-4) Запусти проект/сборку локально, собери ошибку/лог.
-5) Вставь ошибку в `build/dev` (как есть) и попроси минимальный фикс + объяснение причины.
-6) Запусти `test/tester`: попроси покрыть критерии готовности тестами/ручной проверкой.
-7) Запусти `review/reviewer`: пусть проверит correctness/security/tests и точки риска.
-8) Повтори короткий круг `build/dev → test → review`, пока не станет скучно.
-
-### Как выбирать агента (в двух словах)
-- `build/dev` — когда нужно менять код (фича/фикс/рефактор).
-- `planning/plan` — когда задача мутная или хочется минимизировать риск до правок.
-- `review/reviewer` — когда уже есть изменения и нужно понять, не наделали ли бед.
-- `test/tester` — когда нужно проверить руками/через API/браузер, особенно после правок.
-- `ask/ask` — когда вопрос “где/что/почему” и хочется быстрый ответ или делегацию в research.
-
-### Важно: чего не делать
-- Не вставляй ключи/токены/PII в промпты и в репозиторий; ключи храни в `~/.opencode/keys/`.
-- Не тащи "Accept All" в прод: для high-risk зон (auth/payments/migrations/public APIs/deploy) всегда `planning → build/dev → test → review`.
-- Context7 используй для публичной документации/примеров, а не для секретов.
-- LSP/диагностику не игнорируй: тип-ошибки/линт/тесты должны давать чистый сигнал.
-
-## Установка / обновление
+## Install / update
 
 ```bash
-npx -g @ozerohax/assistagents@0.1.1
+npx -g @ozerohax/assistagents@latest
 ```
 
-В TUI ты:
+In the TUI you:
+- choose languages for `skills/coder/*` (currently: TypeScript, Rust, C#)
+- enter the preferred response language (default: English)
+- decide whether to make a zip backup and where to store it
+- enter/update keys (if a key file is empty it asks; if it is filled it asks to keep or overwrite)
 
-- выбираешь языки, для которых поставить `skills/coder/*` (сейчас: TypeScript, Rust, C#)
-- решаешь, делать ли zip-бэкап и куда его класть
-- вводишь/обновляешь ключи (если файл ключа пустой — спросит; если заполнен — спросит, оставить или перезаписать)
+### Quickstart
+1) State the goal in one sentence: what to build + constraints + done criteria.
+2) Run `planning/plan`: ask for a short plan, file list, risks, and what to test.
+3) Run `build/dev`: implement the plan with minimal changes, no "fix everything nearby".
+4) Run the project/build locally and capture the error/log.
+5) Paste the error into `build/dev` (verbatim) and ask for a minimal fix + root cause.
+6) Run `test/tester`: ask to cover done criteria with tests/manual checks.
+7) Run `review/reviewer`: review correctness/security/tests and risk points.
+8) Repeat `build/dev → test → review` in short loops until it is boring.
 
-## Что именно устанавливается
+### Choosing an agent
+- `build/dev` — change code
+- `planning/plan` — reduce risk before edits
+- `review/reviewer` — safety check
+- `test/tester` — manual/API/browser verification
+- `ask/ask` — quick answers or research
 
-Целевая структура:
+## What gets installed
 
-- `~/.opencode/agents/` — описания агентов (YAML frontmatter + инструкции)
-- `~/.opencode/skills/` — skills (структурированные инструкции/плейбуки)
-- `~/.opencode/keys/` — ключи провайдеров (файлы)
-- `~/.opencode/opencode.jsonc` — глобальный конфиг OpenCode, который ссылается на ключи
+Target structure:
 
-## Агенты (templates/agents)
+- `~/.opencode/agents/` — agent definitions (YAML frontmatter + instructions)
+- `~/.opencode/skills/` — skills (structured instructions/playbooks)
+- `~/.opencode/keys/` — provider keys (files)
+- `~/.opencode/opencode.jsonc` — OpenCode global config that references key files
 
-В пакете есть несколько «ролей», которые подхватываются OpenCode:
+## Agents (templates/agents)
 
-- `build/dev` — основной агент для имплементации/рефакторинга/фиксов. Перед правками обязан подгружать релевантные skills, при необходимости пользоваться Context7 (внешние либы) и LSP (переходы/диагностика). Для неоднозначностей — вопросы только через `question` tool.
-- `planning/plan` — планировщик (read-only): исследует репозиторий и пишет план, но не редактирует файлы. План может сохранять только в `/ai-docs/plan/` и только после явного подтверждения.
-- `planning/project` — планировщик проекта (read-only): делает быстрый/стандартный план по продукту/проекту; если режим не задан — обязан спросить через `question` tool.
-- `review/reviewer` — агент код-ревью: работает по review skills (стратегия + чеклисты), фокус на correctness/security/tests, формат «Conventional Comments».
-- `test/tester` — агент ручного тестирования API/браузера: собирает сценарии, использует curl/DevTools (в зависимости от окружения) и документирует результаты; опасные запросы/действия подтверждает через `question` tool.
-- `ask/ask` — «спроси о чём угодно»: отвечает на вопросы, выбирая режим (свои инструменты vs сабагенты). Для сложного анализа может делегировать в `assist/research/*`.
-- `assist/research/code-research` — сабагент для локального code research (read-only, с обязательной доказательной базой: файлы/строки).
-- `assist/research/web-research` — сабагент для web research (поиск/выгрузка страниц; подходит для актуальной документации/примеров).
+Short list of roles the pack ships:
+
+- `build/dev` — implementation/refactor/fixes, strict skills/Context7/LSP
+- `planning/plan` and `planning/project` — read-only planning
+- `review/reviewer` — correctness/security/tests review
+- `test/tester` — manual/API/browser verification
+- `ask/ask` + `assist/research/*` — Q&A and delegated research
 
 ## Skills (templates/skills)
 
-Skills — это «плейбуки», которые агенты обязаны подгружать перед работой (в зависимости от задачи).
+Skills are playbooks agents load before work. Main groups: `planning/*`, `research-strategy/*`, `review/*`, `testing/*`, `coder/<language>/*` (selected in the TUI).
 
-Основные группы:
+Note: if a skill is missing for a technology, the agent should say so and proceed cautiously.
 
-- `planning/code/*` — планирование изменений в коде:
-  - `planning-code-feature` — как планировать фичи (scope → декомпозиция → план реализации/тестирования)
-  - `planning-code-fix` — как планировать фиксы/баги (repro → root cause → безопасный fix + тест-план)
-- `planning/project/*` — планирование проекта/продукта (fast/standard + общие shared навыки)
-- `research-strategy/*` — как правильно формулировать запросы для сабагентов:
-  - `research-strategy-code`
-  - `research-strategy-web`
-- `review/*` — стратегия ревью и чеклисты:
-  - `review-strategy`, `review-checklists`, `review-requirements`
-- `testing/*` — стратегия ручного тестирования, чеклисты, тест-кейсы, triage багов, web-автоматизация
-- `coder/<language>/*` — языковые best practices (ставятся по выбору в TUI):
-  - TypeScript: conventions, error-handling, logging, performance, security, async, testing + Vue 3 skills (core/reactivity/composables/performance/testing/PrimeVue)
-  - Rust: conventions, error-handling, logging, performance, security, async, testing + Axum/Tokio/Serde/SQLx/Tower
-  - C#: conventions, error-handling, logging, performance, security, async, testing + ASP.NET Core API + EF Core
+## Local development
 
-Примечание: если под конкретную технологию skill отсутствует, агент должен явно это отметить и действовать осторожно.
+Requirements: Node.js >= 18.
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+OpenCode is a trademark of its respective owner. This project is not affiliated with or endorsed by OpenCode.

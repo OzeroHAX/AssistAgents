@@ -7,7 +7,7 @@ description: Decompose a story/requirement into implementable tasks with clear i
   <purpose>Turn a story into a small, verifiable task list that can be implemented without ambiguity.</purpose>
   <triggers>
     <trigger>You have a story with acceptance criteria but no implementation breakdown</trigger>
-    <trigger>User asks "разбей на задачи" / "нужна декомпозиция"</trigger>
+    <trigger>User asks "break it into tasks" / "need a decomposition"</trigger>
     <trigger>You need a safe order of work with dependencies</trigger>
   </triggers>
 </skill_overview>
