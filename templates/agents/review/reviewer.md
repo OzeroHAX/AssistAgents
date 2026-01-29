@@ -9,7 +9,6 @@ permission:
     glob: allow
     list: allow
     lsp: allow
-    edit: ask
     question: allow
     webfetch: allow
     context7*: allow

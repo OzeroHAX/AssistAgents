@@ -23,12 +23,15 @@ permission:
       "head *": allow
       "tree *": allow
       "pwd": allow
+      "date *": allow
    lsp: allow
    read: allow
    grep: allow
    glob: allow
    list: allow
-   edit: ask
+   edit: 
+      "*": deny
+      "ai-docs/plan/**.md": allow
    question: allow
    todoread: allow
    todowrite: allow

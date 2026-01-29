@@ -7,7 +7,7 @@ permission:
       "research-*": allow
     task:
       "assist/research/*": allow
-    bash: allow
+    bash: ask
     lsp: allow
     read: allow
     grep: allow
