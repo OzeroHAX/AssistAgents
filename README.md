@@ -12,7 +12,7 @@ Installs into `~/.opencode/`:
 ## Install / update
 
 ```bash
-npx -g @ozerohax/assistagents@0.1.1
+npx -g @ozerohax/assistagents@latest
 ```
 
 In the TUI you:
