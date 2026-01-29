@@ -1,6 +1,6 @@
 {
   "name": "@ozerohax/assistagents",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "npx installer for OpenCode agents/skills and key files",
   "license": "MIT",
   "type": "module",
