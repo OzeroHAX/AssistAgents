@@ -60,3 +60,17 @@ Short list of roles the pack ships:
 Skills are playbooks agents load before work. Main groups: `planning/*`, `research-strategy/*`, `review/*`, `testing/*`, `coder/<language>/*` (selected in the TUI).
 
 Note: if a skill is missing for a technology, the agent should say so and proceed cautiously.
+
+## Local development
+
+Requirements: Node.js >= 18.
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+OpenCode is a trademark of its respective owner. This project is not affiliated with or endorsed by OpenCode.
+
