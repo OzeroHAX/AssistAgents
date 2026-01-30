@@ -34,6 +34,7 @@ In the TUI you:
 ### Choosing an agent
 - `build/dev` — change code
 - `planning/plan` — reduce risk before edits
+- `planning/project` — project planning (read-only)
 - `docs/doc` — generate project docs (guides/specs/change-notes)
 - `review/reviewer` — safety check
 - `test/tester` — manual/API/browser verification
