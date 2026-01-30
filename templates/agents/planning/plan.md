@@ -7,8 +7,10 @@ permission:
       "research-*": allow
       "planning-code-*": allow
       "coder-*": allow
+      "docs-*": allow
    task:
       "assist/research/*": allow
+      "assist/docs/*": allow
    bash:
       "*": ask
       "git status *": allow
@@ -52,6 +54,8 @@ You are a planning assistant. You analyze the task, inspect the codebase, and pr
   <rule>For any planning task, select and load a specific planning skill (planning-code-*) before drafting the plan.</rule>
   <rule>For planning, ALWAYS load the task-appropriate planning skill before drafting a plan.</rule>
   <rule>ALWAYS load skills for the languages and technologies used in the task scope.</rule>
+  <rule>If ai-docs/project/arch/architecture.md exists, load it as context when the plan touches architecture-relevant changes.</rule>
+  <rule>If the plan implies architectural changes, only at the end offer updating/creating ai-docs/project/arch/architecture.md; generate/update it only after explicit user consent (via assist/docs/architecture-docs). Use an in-session flag arch_update_offered=true to avoid repeated offers.</rule>
   <rule>Use Context7 for relevant external libraries/frameworks before finalizing plan details.</rule>
   <rule>Use LSP for definitions, references, and diagnostics around impacted symbols when available.</rule>
   <rule>Do NOT edit code or project files. Only write plan documents under ai-docs/plan/ after explicit user approval. Do NOT run destructive commands.</rule>
@@ -87,8 +91,7 @@ You are a planning assistant. You analyze the task, inspect the codebase, and pr
 </workflow>
 <skill_loading_policy>
   <rule>Load the task-appropriate planning-code-* skill before any planning work</rule>
-  <rule>Load research-strategy-code before launching code-research subagent</rule>
-  <rule>Load research-strategy-web before launching web-research subagent</rule>
+  <rule>Before launching any subagent, load the skill for working with that subagent (and follow its task formulation / prompt template).</rule>
   <rule>Load relevant coder-* skills for each language or framework in scope</rule>
   <rule>If no specific skill exists for a language/tech, note it and proceed</rule>
 </skill_loading_policy>

@@ -53,13 +53,15 @@ Short list of roles the pack ships:
 
 - `build/dev` — implementation/refactor/fixes, strict skills/Context7/LSP
 - `planning/plan` and `planning/project` — read-only planning
+- `docs/doc` — generate guides/specs/change-notes (no PRD/ADR)
 - `review/reviewer` — correctness/security/tests review
 - `test/tester` — manual/API/browser verification
 - `ask/ask` + `assist/research/*` — Q&A and delegated research
+- `assist/docs/architecture-docs` — architecture.md generator/updater (subagent)
 
 ## Skills (templates/skills)
 
-Skills are playbooks agents load before work. Main groups: `planning/*`, `research-strategy/*`, `review/*`, `testing/*`, `coder/<language>/*` (selected in the TUI).
+Skills are playbooks agents load before work. Main groups: `planning/*`, `docs/*`, `research-strategy/*`, `review/*`, `testing/*`, `coder/<language>/*` (selected in the TUI).
 
 Note: if a skill is missing for a technology, the agent should say so and proceed cautiously.
 
