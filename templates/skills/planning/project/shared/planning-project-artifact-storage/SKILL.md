@@ -16,7 +16,7 @@ description: Standardized storage rules for planning artifacts under ai-docs/pro
   <rule>Default base directory for ALL planning artifacts: ai-docs/project (create if missing).</rule>
   <rule>Use ASCII-only slugs and file names unless the repo already uses Unicode for docs.</rule>
   <rule>Every artifact must link to its upstream artifact(s) (e.g., epic -> PRD; story -> epic + ADRs).</rule>
-  <rule>Prefer stable filenames for canonical docs (PRD.md, architecture.md) and timestamped filenames for drafts/revisions.</rule>
+  <rule>Prefer stable filenames for canonical docs (PRD.md, arch/architecture.md) and timestamped filenames for drafts/revisions.</rule>
 </rules>
 
 <recommended_structure>
@@ -24,7 +24,7 @@ description: Standardized storage rules for planning artifacts under ai-docs/pro
     <when>Small project, minimal docs</when>
     <layout>
       <item>ai-docs/project/PRD.md</item>
-      <item>ai-docs/project/architecture.md</item>
+      <item>ai-docs/project/arch/architecture.md</item>
       <item>ai-docs/project/epics-<slug>.md</item>
       <item>ai-docs/project/story-<slug>.md</item>
       <item>ai-docs/project/tasks-<slug>.md</item>
@@ -35,7 +35,7 @@ description: Standardized storage rules for planning artifacts under ai-docs/pro
     <layout>
       <item>ai-docs/project/brief/</item>
       <item>ai-docs/project/prd/</item>
-      <item>ai-docs/project/architecture/</item>
+      <item>ai-docs/project/arch/</item>
       <item>ai-docs/project/epics/</item>
       <item>ai-docs/project/stories/</item>
       <item>ai-docs/project/tasks/</item>
@@ -46,7 +46,7 @@ description: Standardized storage rules for planning artifacts under ai-docs/pro
 <naming>
   <canonical_docs>
     <rule>PRD: ai-docs/project/PRD.md</rule>
-    <rule>Architecture: ai-docs/project/architecture.md</rule>
+    <rule>Architecture: ai-docs/project/arch/architecture.md</rule>
   </canonical_docs>
   <timestamped_docs>
     <rule>Format: YYYYMMDD-HHMMSS-{slug}.md</rule>
@@ -61,7 +61,7 @@ description: Standardized storage rules for planning artifacts under ai-docs/pro
   <rule>Each doc starts with a short "Context" block listing upstream docs and current status.</rule>
   <template>
     ## Context
-    - Upstream: PRD.md, architecture.md
+    - Upstream: PRD.md, arch/architecture.md
     - This doc: ...
     - Status: draft|ready|deprecated
   </template>

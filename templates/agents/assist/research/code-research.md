@@ -4,6 +4,7 @@ temperature: 0.1
 mode: subagent
 permission:
    bash:
+      "*": deny
       "git status *": allow
       "git diff --stat *": allow
       "git diff *": allow
@@ -16,7 +17,6 @@ permission:
       "head *": allow
       "tree *": allow
       "pwd": allow
-      "*": deny
    lsp: allow
    read: allow
    grep: allow
