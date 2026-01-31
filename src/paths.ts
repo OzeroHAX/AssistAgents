@@ -10,6 +10,13 @@ export type InstallPaths = {
   backupDir: string;
 };
 
+export type ClaudePaths = {
+  root: string;
+  agents: string;
+  skills: string;
+  settings: string;
+};
+
 export function getInstallPaths(backupDirFlag?: string): InstallPaths {
   const home = os.homedir();
   const targetRoot = path.join(home, '.opencode');
@@ -38,5 +45,17 @@ export function getKeyFileRefs(): { zaiApi: string; context7: string; tavily: st
     zaiApi: '~/.opencode/keys/zai_api.txt',
     context7: '~/.opencode/keys/context7.txt',
     tavily: '~/.opencode/keys/tavily_search.txt',
+  };
+}
+
+export function getClaudePaths(): ClaudePaths {
+  const home = os.homedir();
+  const root = path.join(home, '.claude');
+
+  return {
+    root,
+    agents: path.join(root, 'agents'),
+    skills: path.join(root, 'skills'),
+    settings: path.join(root, 'settings.json'),
   };
 }
