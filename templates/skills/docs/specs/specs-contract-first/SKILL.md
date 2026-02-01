@@ -17,6 +17,7 @@ description: Spec-first / contract-first documentation workflow for APIs (OpenAP
 </skill_overview>
 
 <storage>
+  <rule>Directory map + write access lives in docs-storage-artifact-registry</rule>
   <rule>Store specifications under ai-docs/project/specs/ (project-specific structure).</rule>
   <rule>Contract tests live in the codebase (not in ai-docs/); docs must link to their locations.</rule>
   <rule>If the project already has spec validation tooling, document the exact commands used (lint/validate/generate).</rule>

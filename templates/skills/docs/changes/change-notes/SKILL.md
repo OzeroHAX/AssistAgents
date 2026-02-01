@@ -21,5 +21,5 @@ description: Minimal change-note template for documenting fixes/changes (stored 
 </template>
 
 <naming>
-  <rule>Prefer timestamped files: ai-docs/project/changes/YYYYMMDD-HHMMSS-<slug>.md</rule>
+  <rule>Use skill docs-storage-artifact-registry</rule>
 </naming>

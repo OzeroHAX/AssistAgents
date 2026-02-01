@@ -28,7 +28,7 @@ description: Decompose a story/requirement into implementable tasks with clear i
 
 <task_template>
   <template>
-  - id: T1
+  - id: TASK-001
     title: ...
     intent: Why this task exists (1 sentence)
     inputs: What it needs (APIs, config, data, decisions)

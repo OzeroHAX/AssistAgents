@@ -31,12 +31,12 @@ permission:
    grep: allow
    glob: allow
    list: allow
-   edit: 
-      "*": deny
-      "ai-docs/project/specs/**": allow
-      "ai-docs/project/changes/**": allow
-      "ai-docs/project/guides/**": allow
-   question: allow
+    edit: 
+       "*": deny
+       "ai-docs/project/**": allow
+       
+
+question: allow
    todoread: allow
    todowrite: allow
    webfetch: allow
