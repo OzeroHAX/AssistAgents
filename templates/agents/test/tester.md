@@ -3,23 +3,23 @@ description: API & Browser Testing Agent
 temperature: 0.1
 mode: primary
 permission:
-    bash: ask
-    read: allow
-    grep: allow
-    glob: allow
-    list: allow
-    lsp: allow
-    edit: ask
-    question: allow
-    chrome-devtools*: allow
-    webfetch: allow
-    context7*: allow
-    github-grep*: allow
-    skill:
-       "research-*": allow
-       "coder-*": allow
-    task:
-       "assist/research/*": allow
+     skill:
+        "research-*": allow
+        "coder-*": allow
+     task:
+        "assist/research/*": allow
+     bash: ask
+     lsp: allow
+     read: allow
+     grep: allow
+     glob: allow
+     list: allow
+     edit: ask
+     question: allow
+     webfetch: allow
+     context7*: allow
+     github-grep*: allow
+     chrome-devtools*: allow
 ---
 
 <agent_info>
@@ -38,6 +38,7 @@ You are a manual QA testing assistant. You test APIs using curl commands and per
   <rule>Use Context7 when working with unfamiliar testing frameworks or APIs to ensure best practices.</rule>
   <rule>Use LSP for definitions and references when analyzing code to understand test coverage.</rule>
   <rule>ALWAYS use the question tool for user confirmation. Do NOT ask questions in chat.</rule>
+  <rule>All approvals and confirmations must use the question tool. Do NOT ask for approval in chat.</rule>
 </mandatory_rules>
 
 <decision_tree>
@@ -71,6 +72,7 @@ You are a manual QA testing assistant. You test APIs using curl commands and per
 </decision_tree>
 
 <workflow>
+  <step id="0">Load `agent-common-rules` (shared)</step>
   <step id="1">Understand test requirements - what to test (API endpoint, URL, functionality)</step>
   <step id="2">Find relevant API endpoints or UI elements (grep, read code, navigate browser)</step>
   <step id="3">Execute test - run curl command or perform browser action via chrome-devtools</step>

@@ -3,32 +3,32 @@ description: Architecture Docs
 temperature: 0.1
 mode: subagent
 permission:
-   skill:
-      "docs-*": allow
-      "research-*": allow
-   bash:
-      "*": deny
-      "git status *": allow
-      "git diff --stat *": allow
-      "git diff *": allow
-      "git log --oneline -n *": allow
-      "git show --stat *": allow
-      "git ls-files *": allow
-      "git rev-parse --show-toplevel": allow
-      "ls *": allow
-      "find *": allow
-      "head *": allow
-      "tree *": allow
-      "pwd": allow
-   lsp: allow
-   read: allow
-   grep: allow
-   glob: allow
-   list: allow
-   edit:
-      "*": deny
-      "ai-docs/project/arch/**": allow
-   question: allow
+    skill:
+       "docs-*": allow
+       "research-*": allow
+    bash:
+       "*": deny
+       "git status *": allow
+       "git diff --stat *": allow
+       "git diff *": allow
+       "git log --oneline -n *": allow
+       "git show --stat *": allow
+       "git ls-files *": allow
+       "git rev-parse --show-toplevel": allow
+       "ls *": allow
+       "find *": allow
+       "head *": allow
+       "tree *": allow
+       "pwd": allow
+    lsp: allow
+    read: allow
+    grep: allow
+    glob: allow
+    list: allow
+    edit:
+       "*": deny
+       "ai-docs/project/arch/**": allow
+    question: allow
 ---
 
 <agent_info>
@@ -48,9 +48,12 @@ You are invoked by another agent (dev or project planner) and MUST NOT run witho
   <rule>Always read the current ai-docs/project/arch/architecture.md first if it exists.</rule>
   <rule>If updating an existing file, produce a clear diff-style summary and ask for approval via question tool before writing changes.</rule>
   <rule>Only write under ai-docs/project/arch/.</rule>
+  <rule>All user questions must use the question tool. Do NOT ask questions in chat.</rule>
+  <rule>All approvals and confirmations must use the question tool. Do NOT ask for approval in chat.</rule>
 </mandatory_rules>
 
 <workflow>
+  <step>0. Load `agent-common-rules` (shared)</step>
   <step>1. Gather inputs from the parent agent: what changed, why it is architectural, and any relevant diffs/links.</step>
   <step>2. Read current ai-docs/project/arch/architecture.md (if present).</step>
   <step>3. Draft a proposed updated architecture document (Architecture Full format).</step>

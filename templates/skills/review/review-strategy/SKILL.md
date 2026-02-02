@@ -23,7 +23,7 @@ description: Best practices for code review, focusing on logic, security, and ma
 </persona>
 
 <severity_levels>
-  <level name="🔴 CRITICAL (Blocking)">
+  <level name="BLOCKER">
     <description>Must be fixed before merging.</description>
     <criteria>
       - Bugs / Logical errors
@@ -34,7 +34,7 @@ description: Best practices for code review, focusing on logic, security, and ma
     </criteria>
   </level>
 
-  <level name="🟡 MAJOR (Strong Suggestion)">
+  <level name="MAJOR">
     <description>Should be addressed, but might have valid exceptions.</description>
     <criteria>
       - Performance issues (N+1 queries, expensive loops)
@@ -45,7 +45,7 @@ description: Best practices for code review, focusing on logic, security, and ma
     </criteria>
   </level>
 
-  <level name="🟢 MINOR (Nitpick/Optional)">
+  <level name="MINOR">
     <description>Nice to have, non-blocking.</description>
     <criteria>
       - Naming suggestions (clarity)
@@ -105,7 +105,7 @@ description: Best practices for code review, focusing on logic, security, and ma
   <format>Conventional Comments</format>
   <examples>
     <example>`suggestion: This function is doing two things. Consider splitting it into 'fetchData' and 'processData'.`</example>
-    <example>`critical: This SQL query is vulnerable to injection. Use parameterized queries instead.`</example>
+    <example>`blocker: This SQL query is vulnerable to injection. Use parameterized queries instead.`</example>
     <example>`question: I don't see where 'user_id' is validated. Can you point me to the validation logic?`</example>
     <example>`praise: Great use of the Strategy pattern here! Much cleaner.`</example>
     <example>`nit: Typo in the variable name 'reciever' -> 'receiver'.`</example>
