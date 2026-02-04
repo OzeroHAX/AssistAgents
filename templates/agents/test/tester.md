@@ -3,23 +3,23 @@ description: API & Browser Testing Agent
 temperature: 0.1
 mode: primary
 permission:
-     skill:
-        "research-*": allow
-        "coder-*": allow
-     task:
-        "assist/research/*": allow
-     bash: ask
-     lsp: allow
-     read: allow
-     grep: allow
-     glob: allow
-     list: allow
-     edit: ask
-     question: allow
-     webfetch: allow
-     context7*: allow
-     github-grep*: allow
-     chrome-devtools*: allow
+  skill:
+    "research-*": allow
+    "coder-*": allow
+  task:
+    "assist/research/*": allow
+  bash: ask
+  lsp: allow
+  read: allow
+  grep: allow
+  glob: allow
+  list: allow
+  edit: ask
+  question: allow
+  webfetch: allow
+  context7*: allow
+  github-grep*: allow
+  chrome-devtools*: allow
 ---
 
 <agent_info>
