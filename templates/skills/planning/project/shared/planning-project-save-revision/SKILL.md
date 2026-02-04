@@ -12,9 +12,7 @@ description: Plan saving and revision rules: what to change, how to document upd
 </skill_overview>
 
 <file_naming>
-  <rule>Default directory for planning docs: ai-docs/project (create if missing).</rule>
-  <rule>Format: YYYYMMDD-HHMMSS-{slug}.md</rule>
-  <rule>slug: ASCII, lowercase, words-with-hyphens, max 60 chars.</rule>
+  <rule>Directory map + naming rules live in docs-storage-artifact-registry</rule>
 </file_naming>
 
 <revision_rules>

@@ -47,7 +47,8 @@ export function renderGlobalConfigJsonc(keyFiles: KeyFiles): string {
     "zai-web-reader*": "deny",
     "context7*": "deny",
     "github-grep*": "deny",
-    "pencil": "deny"
+    "pencil*": "deny",
+    "chrome-devtools*": "deny"
   },
   "agent": {
     "explore": { "disable": true },
@@ -87,6 +88,14 @@ export function renderGlobalConfigJsonc(keyFiles: KeyFiles): string {
     "github-grep": {
       "type": "remote",
       "url": "https://mcp.grep.app"
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
     }
   }
 }

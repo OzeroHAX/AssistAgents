@@ -11,6 +11,7 @@ export function buildSkillCopyPlan(languages: ReadonlyArray<LanguageKey>): Skill
   const relDirs: string[] = [];
 
   // Always install these.
+  relDirs.push('shared');
   relDirs.push('planning');
   relDirs.push('review');
   relDirs.push('testing');

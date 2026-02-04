@@ -4,6 +4,7 @@ temperature: 0.1
 mode: subagent
 permission:
    bash:
+      "*": deny
       "git status *": allow
       "git diff --stat *": allow
       "git diff *": allow
@@ -16,12 +17,13 @@ permission:
       "head *": allow
       "tree *": allow
       "pwd": allow
-      "*": deny
    lsp: allow
    read: allow
    grep: allow
    glob: allow
    list: allow
+   edit: deny
+   question: allow
 ---
 
 <agent_info>
@@ -90,10 +92,12 @@ You are an expert code research assistant. You explore the local codebase using 
     - path/to/file.ext:line — what this supports
   </section>
   <section name="code_examples" optional="true">
+    Code snippets when helpful:
     ```language
     // path/to/file.ext:line
     code snippet
-      </section>
+    ```
+  </section>
   <section name="open_questions" optional="true">Follow-ups needed for full certainty</section>
 </response_format>
 <guidelines>

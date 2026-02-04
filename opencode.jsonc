@@ -39,8 +39,8 @@
         "zai-web-reader*": "deny",
         "context7*": "deny",
         "github-grep*": "deny",
-        "pencil":"deny",
-        "chrome-devtools": "deny"
+        "pencil*":"deny",
+        "chrome-devtools*": "deny"
     },
     "agent": {
         "explore": { "disable": true },

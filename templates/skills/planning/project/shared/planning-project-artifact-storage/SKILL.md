@@ -13,47 +13,37 @@ description: Standardized storage rules for planning artifacts under ai-docs/pro
 </skill_overview>
 
 <rules>
+  <rule>Source of truth for directory map + naming + agent write access: docs-storage-artifact-registry</rule>
   <rule>Default base directory for ALL planning artifacts: ai-docs/project (create if missing).</rule>
   <rule>Use ASCII-only slugs and file names unless the repo already uses Unicode for docs.</rule>
   <rule>Every artifact must link to its upstream artifact(s) (e.g., epic -> PRD; story -> epic + ADRs).</rule>
-  <rule>Prefer stable filenames for canonical docs (PRD.md, architecture.md) and timestamped filenames for drafts/revisions.</rule>
+  <rule>Prefer stable filenames for canonical docs (PRD.md, arch/architecture.md) and timestamped filenames for drafts/revisions.</rule>
 </rules>
 
 <recommended_structure>
   <option name="flat">
     <when>Small project, minimal docs</when>
     <layout>
-      <item>ai-docs/project/PRD.md</item>
-      <item>ai-docs/project/architecture.md</item>
-      <item>ai-docs/project/epics-<slug>.md</item>
-      <item>ai-docs/project/story-<slug>.md</item>
-      <item>ai-docs/project/tasks-<slug>.md</item>
+      <item>Use skill docs-storage-artifact-registry</item>
     </layout>
   </option>
   <option name="grouped">
     <when>Multiple epics/stories or long-lived project</when>
     <layout>
-      <item>ai-docs/project/brief/</item>
-      <item>ai-docs/project/prd/</item>
-      <item>ai-docs/project/architecture/</item>
-      <item>ai-docs/project/epics/</item>
-      <item>ai-docs/project/stories/</item>
-      <item>ai-docs/project/tasks/</item>
+      <item>Use skill docs-storage-artifact-registry</item>
     </layout>
   </option>
 </recommended_structure>
 
 <naming>
   <canonical_docs>
-    <rule>PRD: ai-docs/project/PRD.md</rule>
-    <rule>Architecture: ai-docs/project/architecture.md</rule>
+    <rule>Canonical paths live in docs-storage-artifact-registry</rule>
   </canonical_docs>
   <timestamped_docs>
-    <rule>Format: YYYYMMDD-HHMMSS-{slug}.md</rule>
-    <rule>slug: ASCII, lowercase, words-with-hyphens, max 60 chars</rule>
+    <rule>Use skill docs-storage-artifact-registry</rule>
   </timestamped_docs>
   <story_files>
-    <rule>Format: story-{slug}.md (or story-{NNN}-{slug}.md if ordering matters)</rule>
+    <rule>Use skill docs-storage-artifact-registry</rule>
   </story_files>
 </naming>
 
@@ -61,7 +51,7 @@ description: Standardized storage rules for planning artifacts under ai-docs/pro
   <rule>Each doc starts with a short "Context" block listing upstream docs and current status.</rule>
   <template>
     ## Context
-    - Upstream: PRD.md, architecture.md
+    - Upstream: PRD.md, arch/architecture.md
     - This doc: ...
     - Status: draft|ready|deprecated
   </template>
