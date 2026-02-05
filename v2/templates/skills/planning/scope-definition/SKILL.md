@@ -1,23 +1,23 @@
 ---
 name: planning-scope-definition
-description: Определение границ задачи (in/out), допущения и не-цели
+description: Define task boundaries (in/out), assumptions, and non-goals
 ---
 
 <purpose>
-  <item>Стабилизировать план: зафиксировать, что делаем и что не делаем</item>
+  <item>Stabilize the plan: capture what we do and what we do not do</item>
 </purpose>
 
 <inputs>
-  <required>Goal или требования</required>
-  <optional>Ограничения по срокам/риску/процессу</optional>
-  <optional>Смежные области, которые трогать нельзя</optional>
+  <required>Goal or requirements</required>
+  <optional>Timeline/risk/process constraints</optional>
+  <optional>Adjacent areas that must not be touched</optional>
 </inputs>
 
 <method>
-  <step>Сформировать список In scope как конечные результаты/поведения</step>
-  <step>Сформировать список Out of scope как явные исключения (с причинами)</step>
-  <step>Выписать допущения, которые влияют на реализацию</step>
-  <step>Выписать открытые вопросы, которые меняют scope или приоритеты</step>
+  <step>Write the In scope list as finite outcomes/behaviors</step>
+  <step>Write the Out of scope list as explicit exclusions (with reasons)</step>
+  <step>List assumptions that affect implementation</step>
+  <step>List open questions that change scope or priorities</step>
 </method>
 
 <output_format>
@@ -28,6 +28,6 @@ description: Определение границ задачи (in/out), допу
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">In/Out формулируются как проверяемые утверждения, а не общие слова</rule>
-  <rule importance="high">Out of scope конкретен (чтобы защититься от расползания)</rule>
+  <rule importance="critical">In/Out are stated as verifiable claims, not vague wording</rule>
+  <rule importance="high">Out of scope is specific (to protect against scope creep)</rule>
 </quality_rules>

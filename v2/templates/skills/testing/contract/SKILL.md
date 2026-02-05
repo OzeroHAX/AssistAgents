@@ -1,55 +1,55 @@
 ---
 name: testing-contract
-description: Контрактное тестирование API (OpenAPI/Pact, совместимость)
+description: API contract testing (OpenAPI/Pact, compatibility)
 ---
 
 <input_requirements>
-  <required>Провайдеры и потребители (consumer/provider)</required>
-  <required>Источник контракта (OpenAPI/Pact) и версия</required>
-  <required>Окружения для проверки провайдера и потребителя</required>
-  <optional>Правила версионирования и совместимости</optional>
-  <optional>Список критичных контрактов и эндпоинтов</optional>
+  <required>Providers and consumers (consumer/provider)</required>
+  <required>Contract source (OpenAPI/Pact) and version</required>
+  <required>Environments for provider and consumer verification</required>
+  <optional>Versioning and compatibility rules</optional>
+  <optional>List of critical contracts and endpoints</optional>
 </input_requirements>
 
 <design_rules>
-  <rule importance="critical">Контракт описывает обязательные и опциональные поля</rule>
-  <rule importance="high">Контракт включает успешные и ошибочные ответы</rule>
-  <rule importance="high">Изменения контракта версионируются</rule>
-  <rule importance="medium">Контракт не содержит секретов и реальных данных</rule>
+  <rule importance="critical">The contract specifies required and optional fields</rule>
+  <rule importance="high">The contract includes success and error responses</rule>
+  <rule importance="high">Contract changes are versioned</rule>
+  <rule importance="medium">The contract contains no secrets or real data</rule>
 </design_rules>
 
 <execution_rules>
-  <rule importance="critical">Провайдер проходит проверку контракта</rule>
-  <rule importance="high">Потребительские ожидания проверяются автоматически</rule>
-  <rule importance="high">Проверяется обратная совместимость при изменениях</rule>
-  <rule importance="high">Версии контрактов и сервисов фиксируются</rule>
-  <rule importance="medium">Ошибки классифицируются как breaking/non-breaking</rule>
+  <rule importance="critical">The provider passes contract verification</rule>
+  <rule importance="high">Consumer expectations are verified automatically</rule>
+  <rule importance="high">Backward compatibility is verified on changes</rule>
+  <rule importance="high">Contract and service versions are recorded</rule>
+  <rule importance="medium">Failures are classified as breaking/non-breaking</rule>
 </execution_rules>
 
 <coverage>
   <focus>
-    <item>Обязательные поля и типы данных</item>
-    <item>Опциональные поля и дефолтные значения</item>
-    <item>Коды ошибок и формат ошибок</item>
-    <item>Пагинация/сортировка/фильтрация</item>
-    <item>Авторизация и права доступа</item>
+    <item>Required fields and data types</item>
+    <item>Optional fields and default values</item>
+    <item>Error codes and error format</item>
+    <item>Pagination/sorting/filtering</item>
+    <item>Authorization and access control</item>
   </focus>
 </coverage>
 
 <quality_rules>
-  <rule importance="critical">Все проверки воспроизводимы и документированы</rule>
-  <rule importance="high">Есть связь между контрактом и тестом/проверкой</rule>
-  <rule importance="high">Результаты включают версии и идентификаторы контрактов</rule>
-  <rule importance="medium">Фиксируются артефакты (reports/лог)</rule>
+  <rule importance="critical">All checks are reproducible and documented</rule>
+  <rule importance="high">There is a link between the contract and the test/check</rule>
+  <rule importance="high">Results include contract versions and identifiers</rule>
+  <rule importance="medium">Artifacts are recorded (reports/logs)</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не публиковать контракты без прохождения проверок</item>
-  <item importance="high">Не смешивать окружения потребителя и провайдера</item>
-  <item importance="high">Не принимать breaking изменения без повышения версии</item>
+  <item importance="critical">Do not publish contracts without passing verification</item>
+  <item importance="high">Do not mix consumer and provider environments</item>
+  <item importance="high">Do not accept breaking changes without bumping the version</item>
 </do_not>
 
 <example_checks>
-  <check>Проверка, что провайдер возвращает обязательные поля по контракту</check>
-  <check>Проверка формата ошибок и кодов ответов</check>
+  <check>Verify that the provider returns required fields per contract</check>
+  <check>Verify error format and response codes</check>
 </example_checks>

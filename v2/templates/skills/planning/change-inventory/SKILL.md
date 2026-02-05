@@ -1,22 +1,22 @@
 ---
 name: planning-change-inventory
-description: Инвентаризация изменений: список файлов/компонентов и что меняется в каждом
+description: Change inventory: list files/components and what changes in each
 ---
 
 <purpose>
-  <item>Сделать план исполнимым: зафиксировать конкретные точки правок и порядок</item>
+  <item>Make the plan executable: capture concrete edit points and the order</item>
 </purpose>
 
 <inputs>
-  <required>Цель/требования + зоны влияния</required>
-  <optional>Ограничения по архитектуре/стеку</optional>
+  <required>Goal/requirements + impact areas</required>
+  <optional>Architecture/stack constraints</optional>
 </inputs>
 
 <method>
-  <step>Составить список артефактов (файлы/модули/конфиги/миграции)</step>
-  <step>Для каждого указать: что меняем и зачем (связь с AC/bug)</step>
-  <step>Отметить зависимости и порядок (что нужно сделать раньше)</step>
-  <step>Отметить изменения с высоким риском (для доп. проверки)</step>
+  <step>Make a list of artifacts (files/modules/configs/migrations)</step>
+  <step>For each, state: what changes and why (tie to AC/bug)</step>
+  <step>Mark dependencies and order (what must happen first)</step>
+  <step>Mark high-risk changes (for additional verification)</step>
 </method>
 
 <output_format>
@@ -26,6 +26,6 @@ description: Инвентаризация изменений: список фа�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Список конечный и конкретный (не «поменять пару файлов»)</rule>
-  <rule importance="high">Каждое изменение связано с целью или AC</rule>
+  <rule importance="critical">The list is finite and specific (not "change a couple of files")</rule>
+  <rule importance="high">Every change is tied to the goal or AC</rule>
 </quality_rules>

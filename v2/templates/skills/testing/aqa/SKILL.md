@@ -1,58 +1,58 @@
 ---
 name: testing-aqa
-description: Automated QA (playwright/selenium/cypress паттерны, page object model)
+description: Automated QA (playwright/selenium/cypress patterns, page object model)
 ---
 
 <input_requirements>
-  <required>Цель автотеста и сценарии</required>
-  <required>Окружение и доступы</required>
-  <required>Выбранный фреймворк и версии</required>
-  <required>Стратегия тестовых данных и очистки</required>
-  <optional>Данные и фикстуры</optional>
-  <optional>Требования к стабильности (flake rate)</optional>
-  <optional>Требования к артефактам (скриншоты/видео/trace)</optional>
-  <optional>Правила ретраев (если допускаются)</optional>
+  <required>Autotest goal and scenarios</required>
+  <required>Environment and access</required>
+  <required>Selected framework and versions</required>
+  <required>Test data and cleanup strategy</required>
+  <optional>Data and fixtures</optional>
+  <optional>Stability requirements (flake rate)</optional>
+  <optional>Artifacts requirements (screenshots/video/trace)</optional>
+  <optional>Retry rules (if allowed)</optional>
 </input_requirements>
 
 <design_rules>
-  <rule importance="critical">Тесты независимы и изолированы</rule>
-  <rule importance="critical">Каждый тест имеет ясный критерий успеха</rule>
-  <rule importance="high">Использовать устойчивые селекторы и паттерны</rule>
-  <rule importance="high">Ассерты на бизнес-значимые состояния, не на детали реализации</rule>
-  <rule importance="high">Минимизировать дублирование через POM/fixtures</rule>
-  <rule importance="high">Параметризовать проверки при вариативных данных</rule>
-  <rule importance="medium">Разделять UI, API и интеграционные тесты</rule>
+  <rule importance="critical">Tests are independent and isolated</rule>
+  <rule importance="critical">Each test has a clear success criterion</rule>
+  <rule importance="high">Use stable selectors and patterns</rule>
+  <rule importance="high">Assert business-meaningful states, not implementation details</rule>
+  <rule importance="high">Minimize duplication via POM/fixtures</rule>
+  <rule importance="high">Parameterize checks for variable data</rule>
+  <rule importance="medium">Separate UI, API, and integration tests</rule>
 </design_rules>
 
 <execution_rules>
-  <rule importance="critical">Тесты детерминированы и повторяемы</rule>
-  <rule importance="high">Ошибки локализуются (понятная причина падения)</rule>
-  <rule importance="high">Флейки устраняются, а не маскируются</rule>
-  <rule importance="high">Собирать артефакты при падении (screenshot/video/trace)</rule>
-  <rule importance="medium">Тесты должны быть быстрыми и параллелизуемыми</rule>
-  <rule importance="medium">Ретраи ограничены и документированы</rule>
+  <rule importance="critical">Tests are deterministic and repeatable</rule>
+  <rule importance="high">Failures are localized (clear failure reason)</rule>
+  <rule importance="high">Flakes are fixed, not masked</rule>
+  <rule importance="high">Collect artifacts on failure (screenshot/video/trace)</rule>
+  <rule importance="medium">Tests should be fast and parallelizable</rule>
+  <rule importance="medium">Retries are limited and documented</rule>
 </execution_rules>
 
 <coverage>
   <focus>
-    <item>Критические пользовательские пути</item>
-    <item>Авторизация и права доступа</item>
-    <item>Основные CRUD операции</item>
-    <item>Ошибки и валидация</item>
+    <item>Critical user paths</item>
+    <item>Authorization and access control</item>
+    <item>Core CRUD operations</item>
+    <item>Errors and validation</item>
   </focus>
 </coverage>
 
 <do_not>
-  <item importance="critical">Не использовать sleep вместо ожиданий по состоянию</item>
-  <item importance="high">Не завязываться на нестабильные селекторы</item>
-  <item importance="high">Не смешивать несколько сценариев в одном тесте</item>
-  <item importance="high">Не делать тесты зависимыми от порядка выполнения</item>
-  <item importance="high">Не использовать общий mutable state между тестами</item>
+  <item importance="critical">Do not use sleep instead of state-based waits</item>
+  <item importance="high">Do not depend on unstable selectors</item>
+  <item importance="high">Do not mix multiple scenarios in one test</item>
+  <item importance="high">Do not make tests depend on execution order</item>
+  <item importance="high">Do not share mutable state between tests</item>
 </do_not>
 
 <example_patterns>
-  <pattern>Page Object Model с изолированными действиями и ассерциями</pattern>
-  <pattern>Фикстуры для данных и авторизации</pattern>
-  <pattern>Явные ожидания по состоянию интерфейса</pattern>
-  <pattern>Селекторы по role/data-testid/aria</pattern>
+  <pattern>Page Object Model with isolated actions and assertions</pattern>
+  <pattern>Fixtures for data and auth</pattern>
+  <pattern>Explicit waits for UI state</pattern>
+  <pattern>Selectors by role/data-testid/aria</pattern>
 </example_patterns>

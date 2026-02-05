@@ -1,76 +1,76 @@
 ---
 name: testing-browser-manual
-description: UI тестирование через Playwright MCP (snapshot-driven)
+description: UI testing via Playwright MCP (snapshot-driven)
 ---
 
 <input_requirements>
-  <required>URL окружения и доступы</required>
-  <required>Список ключевых пользовательских сценариев</required>
-  <required>Критерии успеха для каждого сценария</required>
-  <optional>Поддерживаемые браузеры и версии</optional>
-  <optional>Ключевые разрешения/брейкпоинты</optional>
-  <optional>Тестовые учетные записи и данные</optional>
-  <optional>Ограничения окружения (rate limits, feature flags)</optional>
+  <required>Environment URL and access</required>
+  <required>Key user scenarios list</required>
+  <required>Success criteria for each scenario</required>
+  <optional>Supported browsers and versions</optional>
+  <optional>Key resolutions/breakpoints</optional>
+  <optional>Test accounts and data</optional>
+  <optional>Environment constraints (rate limits, feature flags)</optional>
 </input_requirements>
 
 <preparation>
   <steps>
-    <step>Проверить окружение и актуальность сборки</step>
-    <step>Создать новый контекст/страницу через MCP</step>
-    <step>Сделать первую навигацию для начала логов network/console</step>
-    <step>Зафиксировать viewport, язык и локаль</step>
-    <step>Очистить cookies/localStorage при необходимости</step>
+    <step>Verify the environment and build freshness</step>
+    <step>Create a new context/page via MCP</step>
+    <step>Do the first navigation to start network/console logging</step>
+    <step>Fix viewport, language, and locale</step>
+    <step>Clear cookies/localStorage when needed</step>
   </steps>
 </preparation>
 
 <execution_rules>
-  <rule importance="critical">Шаги выполняются инструментами агента и воспроизводимы</rule>
-  <rule importance="critical">Действия выполняются по snapshot ref, а не по скриншоту</rule>
-  <rule importance="critical">Проверять UI и системные реакции (ошибки, состояния)</rule>
-  <rule importance="high">Покрывать positive и negative сценарии</rule>
-  <rule importance="high">Проверять доступность (keyboard navigation, focus, aria)</rule>
-  <rule importance="high">Проверять responsive на ключевых брейкпоинтах</rule>
-  <rule importance="high">Отмечать зависимости от данных и состояния</rule>
-  <rule importance="medium">Фиксировать признаки регрессии и визуальные артефакты</rule>
+  <rule importance="critical">Steps are executed via agent tools and are reproducible</rule>
+  <rule importance="critical">Actions are done by snapshot ref, not by screenshot</rule>
+  <rule importance="critical">Verify UI and system reactions (errors, states)</rule>
+  <rule importance="high">Cover positive and negative scenarios</rule>
+  <rule importance="high">Verify accessibility (keyboard navigation, focus, aria)</rule>
+  <rule importance="high">Verify responsive behavior at key breakpoints</rule>
+  <rule importance="high">Note dependencies on data and state</rule>
+  <rule importance="medium">Record regression signals and visual artifacts</rule>
 </execution_rules>
 
 <coverage>
   <focus>
-    <item>Основные пользовательские пути</item>
-    <item>Валидация форм и ошибок</item>
-    <item>Состояния загрузки и пустые состояния</item>
-    <item>Навигация и маршрутизация</item>
+    <item>Primary user paths</item>
+    <item>Form validation and errors</item>
+    <item>Loading states and empty states</item>
+    <item>Navigation and routing</item>
   </focus>
 </coverage>
 
 <quality_rules>
-  <rule importance="critical">Ожидаемый результат формулируется однозначно</rule>
-  <rule importance="high">Нет дубликатов сценариев с разной формулировкой</rule>
-  <rule importance="high">Ошибки UI и ошибки сети различаются и проверяются отдельно</rule>
-  <rule importance="high">Логи network/console проверяются после навигации или действий</rule>
-  <rule importance="high">Viewport/браузер фиксируются в результате проверки</rule>
-  <rule importance="medium">Если фиксация результата нужна, использовать единый формат</rule>
+  <rule importance="critical">Expected outcome is stated unambiguously</rule>
+  <rule importance="high">No duplicate scenarios with different wording</rule>
+  <rule importance="high">UI errors and network errors are distinguished and verified separately</rule>
+  <rule importance="high">Network/console logs are checked after navigation or actions</rule>
+  <rule importance="high">Viewport/browser are recorded in the result</rule>
+  <rule importance="medium">If result recording is needed, use a single consistent format</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не тестировать прод окружение без разрешения</item>
-  <item importance="high">Не использовать реальные пользовательские данные</item>
-  <item importance="high">Не игнорировать ошибки в console и network логах</item>
-  <item importance="high">Не полагаться на визуальное совпадение без проверки состояния DOM</item>
+  <item importance="critical">Do not test production without permission</item>
+  <item importance="high">Do not use real user data</item>
+  <item importance="high">Do not ignore errors in console and network logs</item>
+  <item importance="high">Do not rely on visual match without checking DOM state</item>
 </do_not>
 
 <agent_checklist>
-  <item importance="critical">Цель теста и критерий успеха сформулированы</item>
-  <item importance="critical">Окружение и доступы подтверждены</item>
-  <item importance="high">Определен стартовый маршрут и состояние сессии</item>
-  <item importance="high">Viewport/браузер/локаль зафиксированы</item>
-  <item importance="high">Шаги и ожидаемые состояния UI перечислены</item>
-  <item importance="high">Проверки network/console запланированы</item>
-  <item importance="medium">Границы проверки и исключения зафиксированы</item>
+  <item importance="critical">Test goal and success criteria are stated</item>
+  <item importance="critical">Environment and access are confirmed</item>
+  <item importance="high">Start route and session state are defined</item>
+  <item importance="high">Viewport/browser/locale are fixed</item>
+  <item importance="high">Steps and expected UI states are listed</item>
+  <item importance="high">Network/console checks are planned</item>
+  <item importance="medium">Test boundaries and exclusions are captured</item>
 </agent_checklist>
 
 <example_checks>
-  <check>Проверка отображения ошибки валидации при пустом обязательном поле</check>
-  <check>Проверка корректной обработки 401/403 при истекшей сессии</check>
-  <check>Проверка навигации по форме клавиатурой и видимого focus</check>
+  <check>Verify validation error display for an empty required field</check>
+  <check>Verify correct handling of 401/403 for an expired session</check>
+  <check>Verify keyboard form navigation and visible focus</check>
 </example_checks>

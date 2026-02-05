@@ -1,62 +1,62 @@
 ---
 name: planning-task-classifier
-description: Классификация задачи (bug/feature/refactor/migration) и ожидания к плану
+description: Classify a task (bug/feature/refactor/migration) and what the plan must emphasize
 ---
 
 <purpose>
-  <item>Определить тип задачи и «что важно» именно для этого типа</item>
-  <item>Снизить ошибки планирования (например, планировать баг как фичу)</item>
+  <item>Determine the task type and what matters most for that type</item>
+  <item>Reduce planning mistakes (e.g., planning a bug like a feature)</item>
 </purpose>
 
 <inputs>
-  <required>Краткое описание задачи</required>
-  <optional>Артефакты: логи/ошибки/AC/скриншоты/ссылки на инцидент</optional>
+  <required>Short task description</required>
+  <optional>Artifacts: logs/errors/AC/screenshots/incident links</optional>
 </inputs>
 
 <classification>
   <type id="bug">
     <signals>
-      <item>Есть «ожидаемое vs фактическое»</item>
-      <item>Есть ошибка/падение/регрессия/инцидент</item>
-      <item>Есть воспроизведение или условия проявления</item>
+      <item>There is "expected vs actual"</item>
+      <item>There is an error/crash/regression/incident</item>
+      <item>There is a repro or conditions under which it occurs</item>
     </signals>
     <planning_focus>
-      <item>Подтверждение воспроизведения</item>
-      <item>Минимальный фикс</item>
-      <item>Быстрый rollback</item>
+      <item>Confirm the repro</item>
+      <item>Minimal fix</item>
+      <item>Fast rollback</item>
     </planning_focus>
   </type>
   <type id="feature">
     <signals>
-      <item>Новая функциональность/поведение</item>
-      <item>Пользовательская ценность и критерии приемки (AC)</item>
+      <item>New functionality/behavior</item>
+      <item>User value and acceptance criteria (AC)</item>
     </signals>
     <planning_focus>
-      <item>Ясные AC и edge-cases</item>
-      <item>Границы in/out of scope</item>
-      <item>Rollout и мониторинг</item>
+      <item>Clear AC and edge cases</item>
+      <item>In/out-of-scope boundaries</item>
+      <item>Rollout and monitoring</item>
     </planning_focus>
   </type>
   <type id="refactor">
     <signals>
-      <item>Цель: качество/поддерживаемость/производительность без смены внешнего поведения</item>
-      <item>Есть метрики/боль/долг</item>
+      <item>Goal: quality/maintainability/performance without changing external behavior</item>
+      <item>There are metrics/pain/debt</item>
     </signals>
     <planning_focus>
-      <item>Сохранение поведения</item>
-      <item>Метрики улучшения</item>
-      <item>Инкрементальные шаги и регрессия</item>
+      <item>Preserve behavior</item>
+      <item>Improvement metrics</item>
+      <item>Incremental steps and regression coverage</item>
     </planning_focus>
   </type>
   <type id="migration">
     <signals>
-      <item>Схема/данные/контракты/инфраструктура меняются так, что требуется совместимость</item>
-      <item>Есть объем данных/окна/dual-write/backfill</item>
+      <item>Schema/data/contracts/infra change in a way that requires compatibility</item>
+      <item>There is data volume/windows/dual-write/backfill</item>
     </signals>
     <planning_focus>
-      <item>Целостность данных</item>
+      <item>Data integrity</item>
       <item>Backward compatibility</item>
-      <item>Пошаговая миграция и проверка</item>
+      <item>Step-by-step migration and verification</item>
     </planning_focus>
   </type>
 </classification>
@@ -69,6 +69,6 @@ description: Классификация задачи (bug/feature/refactor/migra
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Тип задачи обоснован сигналами из входных данных</rule>
-  <rule importance="high">Если уверенность низкая, это явно указано и вынесены вопросы</rule>
+  <rule importance="critical">Task type is justified by signals from the input</rule>
+  <rule importance="high">If confidence is low, state it explicitly and list questions</rule>
 </quality_rules>

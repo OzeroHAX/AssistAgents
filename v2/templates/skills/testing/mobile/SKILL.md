@@ -1,66 +1,66 @@
 ---
 name: testing-mobile
-description: Мобильное тестирование (native/hybrid/web, жесты, оффлайн, прерывания)
+description: Mobile testing (native/hybrid/web, gestures, offline, interruptions)
 ---
 
 <input_requirements>
-  <required>Платформы и версии ОС (iOS/Android)</required>
-  <required>Тип приложения (native/hybrid/mobile web)</required>
-  <required>Список ключевых пользовательских сценариев</required>
-  <required>Критерии успеха для каждого сценария</required>
-  <optional>Список устройств/эмуляторов и их приоритет</optional>
-  <optional>Ограничения сети (2G/3G/LTE/Wi-Fi, offline)</optional>
-  <optional>Поддерживаемые языки и регионы</optional>
-  <optional>Ограничения окружения (feature flags, тестовые стенды)</optional>
+  <required>Platforms and OS versions (iOS/Android)</required>
+  <required>App type (native/hybrid/mobile web)</required>
+  <required>Key user scenarios list</required>
+  <required>Success criteria for each scenario</required>
+  <optional>Device/emulator list and priority</optional>
+  <optional>Network constraints (2G/3G/LTE/Wi-Fi, offline)</optional>
+  <optional>Supported languages and regions</optional>
+  <optional>Environment constraints (feature flags, test environments)</optional>
 </input_requirements>
 
 <preparation>
   <steps>
-    <step>Установить актуальную сборку и проверить версию</step>
-    <step>Подготовить чистый профиль (fresh install) при необходимости</step>
-    <step>Настроить разрешения (камера, гео, уведомления)</step>
-    <step>Зафиксировать устройство, ОС, язык и часовой пояс</step>
-    <step>Включить сбор логов/консоли, если доступно</step>
+    <step>Install the latest build and verify the version</step>
+    <step>Prepare a clean profile (fresh install) if needed</step>
+    <step>Configure permissions (camera, location, notifications)</step>
+    <step>Record device, OS, language, and timezone</step>
+    <step>Enable log/console collection if available</step>
   </steps>
 </preparation>
 
 <execution_rules>
-  <rule importance="critical">Сценарии воспроизводимы на указанном устройстве и версии ОС</rule>
-  <rule importance="critical">Покрывать touch/gesture взаимодействия и системные диалоги</rule>
-  <rule importance="high">Проверять поведение при смене ориентации экрана</rule>
-  <rule importance="high">Проверять фоновый режим, возврат и прерывания (звонок/уведомление)</rule>
-  <rule importance="high">Проверять поведение при изменении сети (offline/slow)</rule>
-  <rule importance="medium">Проверять время запуска и основные перформанс показатели</rule>
-  <rule importance="medium">Фиксировать особенности устройства в результате</rule>
+  <rule importance="critical">Scenarios are reproducible on the specified device and OS version</rule>
+  <rule importance="critical">Cover touch/gesture interactions and system dialogs</rule>
+  <rule importance="high">Verify behavior on orientation change</rule>
+  <rule importance="high">Verify backgrounding/return and interruptions (call/notification)</rule>
+  <rule importance="high">Verify behavior on network changes (offline/slow)</rule>
+  <rule importance="medium">Verify launch time and key performance metrics</rule>
+  <rule importance="medium">Record device-specific details in the result</rule>
 </execution_rules>
 
 <coverage>
   <focus>
-    <item>Установка/обновление/удаление</item>
-    <item>Авторизация и ключевые пользовательские потоки</item>
-    <item>Разрешения и системные диалоги</item>
-    <item>Offline/online и деградация сети</item>
-    <item>Ориентация, клавиатура, ввод</item>
-    <item>Deep links и push уведомления</item>
+    <item>Install/update/uninstall</item>
+    <item>Auth and key user flows</item>
+    <item>Permissions and system dialogs</item>
+    <item>Offline/online and network degradation</item>
+    <item>Orientation, keyboard, input</item>
+    <item>Deep links and push notifications</item>
   </focus>
 </coverage>
 
 <quality_rules>
-  <rule importance="critical">Ожидаемый результат однозначен и проверяем</rule>
-  <rule importance="high">Указаны устройство, ОС, сборка и сеть</rule>
-  <rule importance="high">Нет дубликатов проверок между устройствами без причины</rule>
-  <rule importance="medium">Данные и состояние приложения фиксируются</rule>
+  <rule importance="critical">Expected outcome is unambiguous and verifiable</rule>
+  <rule importance="high">Device, OS, build, and network are stated</rule>
+  <rule importance="high">No duplicate checks across devices without a reason</rule>
+  <rule importance="medium">App data and state are recorded</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не тестировать прод окружение без разрешения</item>
-  <item importance="high">Не использовать реальные пользовательские данные</item>
-  <item importance="high">Не ограничиваться эмуляторами для сенсоров/камеры</item>
-  <item importance="high">Не пропускать очистку данных между сценариями при необходимости</item>
+  <item importance="critical">Do not test production without permission</item>
+  <item importance="high">Do not use real user data</item>
+  <item importance="high">Do not rely only on emulators for sensors/camera</item>
+  <item importance="high">Do not skip data cleanup between scenarios when needed</item>
 </do_not>
 
 <example_checks>
-  <check>Проверка логина после поворота экрана и возврата из фонового режима</check>
-  <check>Проверка загрузки списка при переходе 4G -> offline -> 4G</check>
-  <check>Проверка запроса гео-права и корректной обработки отказа</check>
+  <check>Verify login after rotation and returning from background</check>
+  <check>Verify list loading on 4G -> offline -> 4G transition</check>
+  <check>Verify location permission request and correct denial handling</check>
 </example_checks>

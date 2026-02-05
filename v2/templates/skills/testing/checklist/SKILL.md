@@ -1,55 +1,55 @@
 ---
 name: testing-checklist
-description: Чеклисты для smoke/sanity/regression тестирования
+description: Checklists for smoke/sanity/regression testing
 ---
 
 <input_requirements>
-  <required>Цель проверки (smoke/sanity/regression)</required>
-  <required>Список критичных сценариев и модулей</required>
-  <optional>Ограничения окружения и доступы</optional>
-  <optional>Список недавних изменений/фиксов</optional>
-  <optional>Риски и приоритеты релиза</optional>
+  <required>Verification goal (smoke/sanity/regression)</required>
+  <required>List of critical scenarios and modules</required>
+  <optional>Environment constraints and access</optional>
+  <optional>List of recent changes/fixes</optional>
+  <optional>Release risks and priorities</optional>
 </input_requirements>
 
 <checklist_types>
-  <type name="smoke">Быстрая проверка, что система в целом работает</type>
-  <type name="sanity">Проверка конкретной области после изменений</type>
-  <type name="regression">Проверка, что изменения не сломали существующее</type>
+  <type name="smoke">Quick check that the system works overall</type>
+  <type name="sanity">Check a specific area after changes</type>
+  <type name="regression">Check that changes did not break existing behavior</type>
 </checklist_types>
 
 <prioritization>
-  <level name="P0">Блокирует релиз</level>
-  <level name="P1">Критично, но есть обход</level>
-  <level name="P2">Важно для UX, но не блокирует</level>
+  <level name="P0">Blocks the release</level>
+  <level name="P1">Critical, but has a workaround</level>
+  <level name="P2">Important for UX, but not blocking</level>
 </prioritization>
 
 <construction_rules>
-  <rule importance="critical">Пункты чеклиста проверяемы и однозначны</rule>
-  <rule importance="high">Каждый пункт связан с пользовательской ценностью</rule>
-  <rule importance="high">Нет дубликатов и пересечений между пунктами</rule>
-  <rule importance="high">Пункты короткие и выполняются быстро</rule>
-  <rule importance="medium">Если фиксация нужна, использовать единый формат</rule>
+  <rule importance="critical">Checklist items are verifiable and unambiguous</rule>
+  <rule importance="high">Each item is tied to user value</rule>
+  <rule importance="high">No duplicates or overlaps between items</rule>
+  <rule importance="high">Items are short and quick to execute</rule>
+  <rule importance="medium">If result recording is needed, use a single consistent format</rule>
 </construction_rules>
 
 <coverage>
   <focus>
-    <item>Критические пользовательские пути</item>
-    <item>Авторизация и права доступа</item>
-    <item>Основные CRUD операции</item>
-    <item>Ошибки и валидация данных</item>
+    <item>Critical user paths</item>
+    <item>Authorization and access control</item>
+    <item>Core CRUD operations</item>
+    <item>Errors and data validation</item>
   </focus>
 </coverage>
 
 <do_not>
-  <item importance="critical">Не превращать чеклист в полный набор тест-кейсов</item>
-  <item importance="high">Не включать пункты без четкого критерия успеха</item>
-  <item importance="high">Не смешивать smoke и regression в одном списке</item>
-  <item importance="high">Не включать пункты, зависящие от другого пункта без явной связи</item>
+  <item importance="critical">Do not turn a checklist into a full set of test cases</item>
+  <item importance="high">Do not include items without a clear success criterion</item>
+  <item importance="high">Do not mix smoke and regression in one list</item>
+  <item importance="high">Do not include items that depend on another item without an explicit link</item>
 </do_not>
 
 <example_items>
-  <item>Вход в систему с валидными учетными данными</item>
-  <item>Создание сущности через основную форму</item>
-  <item>Отображение ошибки при пустом обязательном поле</item>
-  <item>P0: Проверка доступа роли администратора к ключевым разделам</item>
+  <item>Log in with valid credentials</item>
+  <item>Create an entity via the primary form</item>
+  <item>Show an error for an empty required field</item>
+  <item>P0: Verify admin role access to key sections</item>
 </example_items>

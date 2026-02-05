@@ -1,16 +1,16 @@
 ---
 name: planning-risk-assessment
-description: Оценка рисков: вероятность/влияние, меры снижения, остаточный риск
+description: Risk assessment: likelihood/impact, mitigations, residual risk
 ---
 
 <purpose>
-  <item>Выявить риски, оценить их и сформировать конкретные меры снижения</item>
+  <item>Identify risks, assess them, and define concrete mitigations</item>
 </purpose>
 
 <inputs>
-  <required>Описание изменения + зоны влияния (если есть)</required>
-  <optional>Критичные бизнес-процессы и SLA</optional>
-  <optional>Ограничения по релизам/окнам/процессу</optional>
+  <required>Change description + impact areas (if available)</required>
+  <optional>Critical business processes and SLA</optional>
+  <optional>Release/window/process constraints</optional>
 </inputs>
 
 <risk_categories>
@@ -23,10 +23,10 @@ description: Оценка рисков: вероятность/влияние, �
 </risk_categories>
 
 <method>
-  <step>Сформировать список рисков, привязанных к конкретным изменениям</step>
-  <step>Оценить вероятность и влияние (qualitative: low/medium/high)</step>
-  <step>Для каждого high-impact риска добавить mitigation (тест/флаг/поэтапный rollout/ограничение scope/мониторинг)</step>
-  <step>Определить остаточный риск и решение (принимаем/снижаем/избегаем)</step>
+  <step>Create a list of risks tied to specific planned changes</step>
+  <step>Assess likelihood and impact (qualitative: low/medium/high)</step>
+  <step>For each high-impact risk, add a mitigation (test/flag/staged rollout/scope reduction/monitoring)</step>
+  <step>Define residual risk and the decision (accept/reduce/avoid)</step>
 </method>
 
 <output_format>
@@ -37,6 +37,6 @@ description: Оценка рисков: вероятность/влияние, �
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Риски не общие, а привязаны к планируемым изменениям</rule>
-  <rule importance="high">У high-impact рисков есть конкретные mitigation действия</rule>
+  <rule importance="critical">Risks are not generic; they are tied to planned changes</rule>
+  <rule importance="high">High-impact risks have concrete mitigation actions</rule>
 </quality_rules>

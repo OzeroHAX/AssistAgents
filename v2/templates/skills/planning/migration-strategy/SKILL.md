@@ -1,16 +1,16 @@
 ---
 name: planning-migration-strategy
-description: Стратегия миграции данных/схем/контрактов: совместимость, фазы, проверки
+description: Migration strategy for data/schemas/contracts: compatibility, phases, verification
 ---
 
 <purpose>
-  <item>Спроектировать миграцию так, чтобы сохранить целостность данных и совместимость</item>
+  <item>Design a migration that preserves data integrity and compatibility</item>
 </purpose>
 
 <inputs>
-  <required>Что мигрируем (схема/данные/API) и зачем</required>
-  <optional>Объем данных, окна, ограничения по downtime</optional>
-  <optional>Требования к backward compatibility</optional>
+  <required>What we migrate (schema/data/API) and why</required>
+  <optional>Data volume, time windows, downtime constraints</optional>
+  <optional>Backward-compatibility requirements</optional>
 </inputs>
 
 <common_patterns>
@@ -21,11 +21,11 @@ description: Стратегия миграции данных/схем/конт�
 </common_patterns>
 
 <method>
-  <step>Определить объекты миграции и зависимости (таблицы, индексы, consumers)</step>
-  <step>Выбрать паттерн миграции и обосновать (почему он подходит под ограничения)</step>
-  <step>Разбить на фазы: подготовка → совместимость → перенос → переключение → уборка</step>
-  <step>Определить проверки целостности/корректности (checksums, counts, sampling)</step>
-  <step>Явно описать совместимость на период миграции (какие версии живут вместе)</step>
+  <step>Identify migration objects and dependencies (tables, indexes, consumers)</step>
+  <step>Select a migration pattern and justify it (why it fits the constraints)</step>
+  <step>Split into phases: preparation -> compatibility -> transfer -> cutover -> cleanup</step>
+  <step>Define integrity/correctness verification (checksums, counts, sampling)</step>
+  <step>Explicitly describe compatibility during the migration window (which versions coexist)</step>
 </method>
 
 <output_format>
@@ -37,6 +37,6 @@ description: Стратегия миграции данных/схем/конт�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Есть проверка целостности данных (не только «прогнали миграцию»)</rule>
-  <rule importance="high">Совместимость на период миграции описана явно</rule>
+  <rule importance="critical">Data integrity verification exists (not only "ran the migration")</rule>
+  <rule importance="high">Compatibility during the migration window is described explicitly</rule>
 </quality_rules>

@@ -1,24 +1,24 @@
 ---
 name: planning-scope-minimization
-description: Минимизация правок для багов/инцидентов: самый маленький безопасный фикс
+description: Minimize changes for bugs/incidents: the smallest safe fix
 ---
 
 <purpose>
-  <item>Сузить план до минимального изменения, которое устраняет баг и снижает риск регрессий</item>
+  <item>Narrow the plan to the minimal change that fixes the bug and reduces regression risk</item>
 </purpose>
 
 <inputs>
-  <required>Описание бага + observed vs expected</required>
-  <optional>Repro шаги, окружение, логи/stacktrace</optional>
-  <optional>Критичность (SLA, инцидент) и дедлайн</optional>
+  <required>Bug description + observed vs expected</required>
+  <optional>Repro steps, environment, logs/stacktrace</optional>
+  <optional>Criticality (SLA, incident) and deadline</optional>
 </inputs>
 
 <method>
-  <step>Определить минимальный критерий «починено» (одно предложение)</step>
-  <step>Найти узкую точку изменения: самый близкий к причине слой (guard/валидация/условие)</step>
-  <step>Запретить «улучшения заодно»: рефакторинг/переименования/форматирование — только если необходимо для фикса</step>
-  <step>Зафиксировать, что явно НЕ меняем (API, схемы, UX и т.п.)</step>
-  <step>Сформировать минимальный регрессионный набор проверок вокруг точки изменения</step>
+  <step>Define the minimal "fixed" criterion (one sentence)</step>
+  <step>Find a narrow change point: the layer closest to the cause (guard/validation/condition)</step>
+  <step>Ban "nice-to-have improvements": refactor/renames/formatting only if necessary for the fix</step>
+  <step>Capture what we explicitly do NOT change (API, schemas, UX, etc.)</step>
+  <step>Define a minimal regression verification set around the change point</step>
 </method>
 
 <output_format>
@@ -30,11 +30,11 @@ description: Минимизация правок для багов/инциде�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Изменение минимально и напрямую связано с observed behavior</rule>
-  <rule importance="high">Есть быстрый rollback путь (revert/flag/переключение)</rule>
+  <rule importance="critical">The change is minimal and directly tied to the observed behavior</rule>
+  <rule importance="high">There is a fast rollback path (revert/flag/switch-over)</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не расширять scope за пределы бага</item>
-  <item importance="high">Не делать «большой рефакторинг» под видом фикса</item>
+  <item importance="critical">Do not expand scope beyond the bug</item>
+  <item importance="high">Do not do a "big refactor" under the guise of a fix</item>
 </do_not>

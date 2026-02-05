@@ -1,24 +1,24 @@
 ---
 name: planning-rollback-mechanism
-description: Механика и сценарий отката: критерии, шаги, влияние на данные, восстановление
+description: Rollback mechanics and scenario: criteria, steps, data impact, recovery
 ---
 
 <purpose>
-  <item>Сформировать быстрый и безопасный путь возврата при деградации</item>
+  <item>Create a fast and safe path to revert in case of degradation</item>
 </purpose>
 
 <inputs>
-  <required>Описание изменения + стратегия выката</required>
-  <optional>Ограничения по данным/совместимости (особенно при миграции)</optional>
-  <optional>Доступные механизмы: revert, feature flag, blue-green</optional>
+  <required>Change description + rollout strategy</required>
+  <optional>Data/compatibility constraints (especially for migrations)</optional>
+  <optional>Available mechanisms: revert, feature flag, blue-green</optional>
 </inputs>
 
 <method>
-  <step>Определить критерии отката (сигналы деградации, пороги, время)</step>
-  <step>Выбрать механизм отката и оценить время восстановления (RTO)</step>
-  <step>Описать шаги отката (операционные действия) и порядок</step>
-  <step>Описать влияние на данные и совместимость после отката</step>
-  <step>Определить проверку после отката (минимум: ключевые сценарии + метрики)</step>
+  <step>Define rollback criteria (degradation signals, thresholds, time)</step>
+  <step>Select a rollback mechanism and estimate recovery time (RTO)</step>
+  <step>Describe rollback steps (operational actions) and order</step>
+  <step>Describe data impact and compatibility after rollback</step>
+  <step>Define post-rollback verification (at minimum: key scenarios + metrics)</step>
 </method>
 
 <output_format>
@@ -30,11 +30,11 @@ description: Механика и сценарий отката: критерии
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Rollback выполним за понятное время и описан пошагово</rule>
-  <rule importance="high">Указано влияние на данные (что будет с частично примененными изменениями)</rule>
+  <rule importance="critical">Rollback is feasible within a clear timeframe and described step-by-step</rule>
+  <rule importance="high">Data impact is stated (what happens to partially applied changes)</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не оставлять rollback как «если что, откатим» без механики</item>
-  <item importance="high">Не планировать rollback, который требует ручной правки данных без проверки</item>
+  <item importance="critical">Do not leave rollback as "we will roll back if needed" without mechanics</item>
+  <item importance="high">Do not plan a rollback that requires manual data edits without verification</item>
 </do_not>

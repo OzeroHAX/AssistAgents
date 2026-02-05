@@ -1,22 +1,22 @@
 ---
 name: planning-estimation
-description: Оценка времени/объема: метод, диапазон, предпосылки и неопределенность
+description: Time/effort estimation: method, range, assumptions, uncertainty
 ---
 
 <purpose>
-  <item>Дать прозрачную оценку, привязанную к декомпозиции и рискам</item>
+  <item>Provide a transparent estimate tied to decomposition and risks</item>
 </purpose>
 
 <inputs>
-  <required>Инвентаризация изменений или декомпозиция работ</required>
-  <optional>Блокеры/зависимости/качество/процессные ограничения</optional>
+  <required>Change inventory or work decomposition</required>
+  <optional>Blockers/dependencies/quality/process constraints</optional>
 </inputs>
 
 <method>
-  <step>Оценить по этапам (analysis/implementation/tests/rollout) или по компонентам</step>
-  <step>Выбрать метод оценки (three-point, t-shirt, points) и назвать его</step>
-  <step>Дать диапазон (min/likely/max) и предпосылки</step>
-  <step>Указать факторы, которые могут сдвинуть оценку</step>
+  <step>Estimate by phases (analysis/implementation/tests/rollout) or by components</step>
+  <step>Pick an estimation method (three-point, t-shirt, points) and name it</step>
+  <step>Provide a range (min/likely/max) and assumptions</step>
+  <step>List factors that can move the estimate</step>
 </method>
 
 <output_format>
@@ -28,11 +28,11 @@ description: Оценка времени/объема: метод, диапаз�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Оценка основана на декомпозиции, а не на «ощущениях»</rule>
-  <rule importance="critical">Есть диапазон и предпосылки</rule>
+  <rule importance="critical">The estimate is based on decomposition, not on "gut feel"</rule>
+  <rule importance="critical">A range and assumptions are provided</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не давать точное число без диапазона, если есть неопределенность</item>
-  <item importance="high">Не смешивать оценку и обещание сроков</item>
+  <item importance="critical">Do not give a single exact number without a range when there is uncertainty</item>
+  <item importance="high">Do not mix an estimate with a delivery commitment</item>
 </do_not>

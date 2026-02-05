@@ -1,22 +1,22 @@
 ---
 name: planning-approach-selection
-description: Выбор подхода к реализации: сравнение вариантов и обоснование решения
+description: Implementation approach selection: compare options and justify the decision
 ---
 
 <purpose>
-  <item>Сравнить 1-3 реалистичных подхода и выбрать лучший по критериям</item>
+  <item>Compare 1-3 realistic approaches and pick the best by explicit criteria</item>
 </purpose>
 
 <inputs>
-  <required>Цель/требования + ограничения</required>
-  <optional>Риски и процессные ограничения (релизы, окна, SLA)</optional>
+  <required>Goal/requirements + constraints</required>
+  <optional>Risks and process constraints (releases, windows, SLA)</optional>
 </inputs>
 
 <method>
-  <step>Определить 3-6 критериев выбора (риск, скорость, стоимость, поддерживаемость, совместимость)</step>
-  <step>Описать 1-3 варианта решения в 2-4 пунктах каждый</step>
-  <step>Сравнить trade-offs по критериям и выбрать вариант</step>
-  <step>Явно указать, что теряем/получаем выбранным вариантом</step>
+  <step>Define 3-6 selection criteria (risk, speed, cost, maintainability, compatibility)</step>
+  <step>Describe 1-3 solution options in 2-4 bullets each</step>
+  <step>Compare trade-offs against the criteria and choose an option</step>
+  <step>Explicitly state what you gain/lose with the chosen option</step>
 </method>
 
 <output_format>
@@ -27,6 +27,6 @@ description: Выбор подхода к реализации: сравнени
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Выбор подхода обоснован критериями, а не «кажется лучше»</rule>
-  <rule importance="high">Trade-offs сформулированы явно</rule>
+  <rule importance="critical">The choice is justified by criteria, not by "it feels better"</rule>
+  <rule importance="high">Trade-offs are stated explicitly</rule>
 </quality_rules>

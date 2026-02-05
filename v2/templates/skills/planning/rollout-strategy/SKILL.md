@@ -1,23 +1,23 @@
 ---
 name: planning-rollout-strategy
-description: Стратегия выката: этапы, аудитории, механика включения, точки остановки
+description: Rollout strategy: stages, audiences, enablement mechanics, stop points
 ---
 
 <purpose>
-  <item>Снизить риск деградации при выкате и обеспечить управляемость включения</item>
+  <item>Reduce rollout degradation risk and keep enablement controllable</item>
 </purpose>
 
 <inputs>
-  <required>Описание изменения + риски/критичность</required>
-  <optional>Доступные механизмы (feature flags, canary, blue-green)</optional>
-  <optional>Ограничения по релизам/окнам</optional>
+  <required>Change description + risks/criticality</required>
+  <optional>Available mechanisms (feature flags, canary, blue-green)</optional>
+  <optional>Release/window constraints</optional>
 </inputs>
 
 <method>
-  <step>Выбрать механику выката (flag/canary/blue-green) под риск и процесс</step>
-  <step>Определить этапы (аудитория/процент/время) и критерии перехода между этапами</step>
-  <step>Определить точки остановки и действия при деградации</step>
-  <step>Зафиксировать коммуникации/ответственных (если влияет на прод)</step>
+  <step>Select a rollout mechanism (flag/canary/blue-green) based on risk and process</step>
+  <step>Define stages (audience/percent/time) and criteria to move between stages</step>
+  <step>Define stop points and actions on degradation</step>
+  <step>Capture communications/owners (if it affects prod)</step>
 </method>
 
 <output_format>
@@ -28,6 +28,6 @@ description: Стратегия выката: этапы, аудитории, м
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Этапы и gates конкретны (процент/время/условия)</rule>
-  <rule importance="high">Есть явные действия при деградации, не «посмотрим»</rule>
+  <rule importance="critical">Stages and gates are specific (percent/time/conditions)</rule>
+  <rule importance="high">There are explicit actions on degradation, not "we will see"</rule>
 </quality_rules>

@@ -1,24 +1,24 @@
 ---
 name: planning-impact-analysis
-description: Анализ зон влияния изменений: системы, контракты, данные, регрессии
+description: Change impact analysis: systems, contracts, data, regressions
 ---
 
 <purpose>
-  <item>Найти, что реально затрагивают правки, чтобы не пропустить критичные места</item>
+  <item>Identify what the changes truly affect to avoid missing critical areas</item>
 </purpose>
 
 <inputs>
-  <required>Краткое описание изменения или цели</required>
-  <optional>Известные модули/файлы/сервисы</optional>
-  <optional>Интеграции и внешние контракты (API, события, очереди)</optional>
+  <required>Short description of the change or goal</required>
+  <optional>Known modules/files/services</optional>
+  <optional>Integrations and external contracts (API, events, queues)</optional>
 </inputs>
 
 <method>
-  <step>Определить входные точки и путь данных/запроса</step>
-  <step>Выписать затронутые компоненты (UI/API/worker/DB/infra)</step>
-  <step>Выписать контракты: публичные API, события, форматы, схемы</step>
-  <step>Описать влияние на данные: схема, миграции, индексы, целостность</step>
-  <step>Отметить вероятные регрессии и зоны повышенной критичности</step>
+  <step>Identify entry points and the data/request path</step>
+  <step>List affected components (UI/API/worker/DB/infra)</step>
+  <step>List contracts: public APIs, events, formats, schemas</step>
+  <step>Describe data impact: schema, migrations, indexes, integrity</step>
+  <step>Mark likely regressions and higher-criticality hotspots</step>
 </method>
 
 <output_format>
@@ -29,6 +29,6 @@ description: Анализ зон влияния изменений: систем
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Зоны влияния конкретны и проверяемы</rule>
-  <rule importance="high">Внешние контракты перечислены явно</rule>
+  <rule importance="critical">Impact areas are specific and verifiable</rule>
+  <rule importance="high">External contracts are listed explicitly</rule>
 </quality_rules>

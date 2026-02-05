@@ -1,24 +1,24 @@
 ---
 name: planning-requirements-extraction
-description: Извлечение требований из запроса: поведение, AC, ограничения, для бага — repro
+description: Extract requirements from a request: behavior, AC, constraints; for bugs - repro
 ---
 
 <purpose>
-  <item>Преобразовать исходный запрос в проверяемые требования и сигналы приемки</item>
+  <item>Convert the original request into verifiable requirements and acceptance signals</item>
 </purpose>
 
 <inputs>
-  <required>Описание задачи</required>
-  <optional>Для бага: шаги воспроизведения, окружение, логи/stacktrace</optional>
-  <optional>Для фичи: пользовательская цель, ограничения, желаемый UX</optional>
+  <required>Task description</required>
+  <optional>For a bug: repro steps, environment, logs/stacktrace</optional>
+  <optional>For a feature: user goal, constraints, desired UX</optional>
 </inputs>
 
 <method>
-  <step>Сформулировать цель как изменение поведения/результата</step>
-  <step>Выписать функциональные требования (что должно происходить)</step>
-  <step>Выписать нефункциональные требования (perf, security, reliability) только если они релевантны</step>
-  <step>Сформировать 3-7 критериев приемки (AC), проверяемых тестом или наблюдением</step>
-  <step>Для бага: зафиксировать observed vs expected и repro (или явно указать, что repro неизвестен)</step>
+  <step>State the goal as a behavior/outcome change</step>
+  <step>List functional requirements (what must happen)</step>
+  <step>List non-functional requirements (perf, security, reliability) only if relevant</step>
+  <step>Define 3-7 acceptance criteria (AC) that are verifiable by a test or observation</step>
+  <step>For a bug: capture observed vs expected and repro (or explicitly state that repro is unknown)</step>
 </method>
 
 <output_format>
@@ -31,12 +31,12 @@ description: Извлечение требований из запроса: по
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">AC конкретны, проверяемы и не содержат деталей реализации</rule>
-  <rule importance="high">Ограничения/зависимости не теряются (если они влияют на план)</rule>
-  <rule importance="high">Для бага явно отделены факты от гипотез</rule>
+  <rule importance="critical">AC are specific, verifiable, and contain no implementation details</rule>
+  <rule importance="high">Constraints/dependencies are not lost (if they affect the plan)</rule>
+  <rule importance="high">For bugs, facts are explicitly separated from hypotheses</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не превращать требования в список технических задач</item>
-  <item importance="high">Не придумывать AC без подтверждения — если данных нет, это вопрос</item>
+  <item importance="critical">Do not turn requirements into a list of technical tasks</item>
+  <item importance="high">Do not invent AC without evidence - if data is missing, it is an open question</item>
 </do_not>

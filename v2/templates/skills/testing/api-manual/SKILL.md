@@ -1,61 +1,61 @@
 ---
 name: testing-api-manual
-description: Ручное тестирование API через curl в bash
+description: Manual API testing via curl in bash
 ---
 
 <input_requirements>
-  <required>Базовый URL окружения</required>
-  <required>Схема авторизации и доступы</required>
-  <required>Список эндпоинтов и контрактов (параметры, тела, ответы)</required>
-  <optional>Спецификация (OpenAPI/Swagger) и версия API</optional>
-  <optional>Тестовые данные и начальное состояние</optional>
-  <optional>Ограничения по rate limit и таймаутам</optional>
+  <required>Base environment URL</required>
+  <required>Auth scheme and access</required>
+  <required>Endpoints and contracts list (params, bodies, responses)</required>
+  <optional>Spec (OpenAPI/Swagger) and API version</optional>
+  <optional>Test data and initial state</optional>
+  <optional>Rate limit and timeout constraints</optional>
 </input_requirements>
 
 <preparation>
   <steps>
-    <step>Проверить доступность окружения и базовый health</step>
-    <step>Подготовить токены/ключи и сохранить в переменные</step>
-    <step>Собрать минимальный набор curl-шаблонов для запросов</step>
-    <step>Настроить переменные для request-id/correlation-id (если используются)</step>
+    <step>Verify environment availability and basic health</step>
+    <step>Prepare tokens/keys and store them in variables</step>
+    <step>Prepare a minimal set of reusable curl templates</step>
+    <step>Set up request-id/correlation-id variables (if used)</step>
   </steps>
 </preparation>
 
 <execution_rules>
-  <rule importance="critical">Каждый запрос должен быть воспроизводимым</rule>
-  <rule importance="critical">Проверять статус-код и контракт ответа</rule>
-  <rule importance="high">Покрывать positive и negative сценарии</rule>
-  <rule importance="high">Фиксировать влияющие заголовки и параметры</rule>
-  <rule importance="high">Проверять схему ответа и типизацию полей</rule>
-  <rule importance="high">Проверять пагинацию, сортировку и фильтры</rule>
-  <rule importance="high">Проверять идемпотентность, где применимо</rule>
-  <rule importance="medium">Отмечать зависимости между запросами (chain)</rule>
+  <rule importance="critical">Every request must be reproducible</rule>
+  <rule importance="critical">Verify status code and response contract</rule>
+  <rule importance="high">Cover positive and negative scenarios</rule>
+  <rule importance="high">Record headers and parameters that affect behavior</rule>
+  <rule importance="high">Verify response schema and field types</rule>
+  <rule importance="high">Verify pagination, sorting, and filtering</rule>
+  <rule importance="high">Verify idempotency where applicable</rule>
+  <rule importance="medium">Note dependencies between requests (chain)</rule>
 </execution_rules>
 
 <coverage>
   <focus>
-    <item>CRUD сценарии</item>
-    <item>Валидация входных данных</item>
-    <item>Авторизация и права доступа</item>
-    <item>Ошибки и пограничные случаи</item>
-    <item>Пагинация/фильтрация/сортировка</item>
-    <item>Rate limiting и коды ошибок</item>
+    <item>CRUD scenarios</item>
+    <item>Input validation</item>
+    <item>Authorization and access control</item>
+    <item>Errors and edge cases</item>
+    <item>Pagination/filtering/sorting</item>
+    <item>Rate limiting and error codes</item>
   </focus>
 </coverage>
 
 <quality_rules>
-  <rule importance="critical">Ожидаемый результат формулируется однозначно</rule>
-  <rule importance="high">Нет дубликатов сценариев с разной формулировкой</rule>
-  <rule importance="high">Ошибки сервера и клиента различаются и проверяются отдельно</rule>
-  <rule importance="high">Фиксируются request-id/correlation-id при наличии</rule>
-  <rule importance="medium">Если фиксация результата нужна, использовать единый формат</rule>
+  <rule importance="critical">Expected outcome is stated unambiguously</rule>
+  <rule importance="high">No duplicate scenarios with different wording</rule>
+  <rule importance="high">Server and client errors are distinguished and verified separately</rule>
+  <rule importance="high">Record request-id/correlation-id when available</rule>
+  <rule importance="medium">If result recording is needed, use a single consistent format</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не выполнять destructive запросы в прод окружении</item>
-  <item importance="high">Не использовать реальные пользовательские данные</item>
-  <item importance="high">Не менять состояние, если это не предусмотрено сценарием</item>
-  <item importance="high">Не сохранять токены/ключи в историю shell или логи</item>
+  <item importance="critical">Do not run destructive requests in production</item>
+  <item importance="high">Do not use real user data</item>
+  <item importance="high">Do not mutate state unless the scenario requires it</item>
+  <item importance="high">Do not leak tokens/keys into shell history or logs</item>
 </do_not>
 
 <example_templates>

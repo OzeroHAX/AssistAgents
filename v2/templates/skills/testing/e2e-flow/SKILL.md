@@ -1,55 +1,55 @@
 ---
 name: testing-e2e-flow
-description: End-to-end сценарии (пользовательские пути, интеграционные цепочки)
+description: End-to-end scenarios (user paths, integration chains)
 ---
 
 <input_requirements>
-  <required>Ключевые пользовательские потоки</required>
-  <required>Системы/сервисы, участвующие в цепочке</required>
-  <required>Окружение и доступы</required>
-  <required>Стратегия тестовых данных (создание/очистка)</required>
-  <optional>Данные и фикстуры</optional>
-  <optional>Критичность сценариев</optional>
+  <required>Key user flows</required>
+  <required>Systems/services involved in the chain</required>
+  <required>Environment and access</required>
+  <required>Test data strategy (create/cleanup)</required>
+  <optional>Data and fixtures</optional>
+  <optional>Scenario criticality</optional>
 </input_requirements>
 
 <design_rules>
-  <rule importance="critical">Сценарий покрывает полный путь пользователя</rule>
-  <rule importance="critical">Явно указаны точки интеграции и зависимости</rule>
-  <rule importance="high">Сценарии независимы и могут выполняться в любом порядке</rule>
-  <rule importance="high">Учитываются ошибки внешних сервисов и таймауты</rule>
-  <rule importance="high">Шаги воспроизводимы и детерминированы</rule>
-  <rule importance="medium">Минимум сценариев при максимальной ценности</rule>
-  <rule importance="medium">Определен жизненный цикл тестовых данных</rule>
+  <rule importance="critical">The scenario covers the full user path</rule>
+  <rule importance="critical">Integration points and dependencies are explicitly stated</rule>
+  <rule importance="high">Scenarios are independent and can run in any order</rule>
+  <rule importance="high">External service failures and timeouts are considered</rule>
+  <rule importance="high">Steps are reproducible and deterministic</rule>
+  <rule importance="medium">Minimum number of scenarios for maximum value</rule>
+  <rule importance="medium">Test data lifecycle is defined</rule>
 </design_rules>
 
 <execution_rules>
-  <rule importance="critical">Фиксировать результаты на каждом ключевом этапе</rule>
-  <rule importance="high">Отделять ошибки инфраструктуры от логики приложения</rule>
-  <rule importance="high">Проверять идемпотентность критичных операций</rule>
-  <rule importance="high">Фиксировать версии сервисов/фич-флаги и конфигурацию окружения</rule>
-  <rule importance="high">Управлять тестовыми данными (создание/очистка)</rule>
-  <rule importance="medium">Собирать логи по всем затронутым сервисам</rule>
-  <rule importance="medium">Записывать время ключевых шагов и причины падений</rule>
+  <rule importance="critical">Record results at each key stage</rule>
+  <rule importance="high">Separate infrastructure failures from application logic failures</rule>
+  <rule importance="high">Verify idempotency of critical operations</rule>
+  <rule importance="high">Record service versions/feature flags and environment configuration</rule>
+  <rule importance="high">Manage test data (create/cleanup)</rule>
+  <rule importance="medium">Collect logs from all involved services</rule>
+  <rule importance="medium">Record timing for key steps and failure reasons</rule>
 </execution_rules>
 
 <coverage>
   <focus>
-    <item>Критические пользовательские потоки</item>
-    <item>Интеграционные точки и внешние зависимости</item>
-    <item>Ошибки и отказоустойчивость</item>
-    <item>Согласованность данных</item>
-    <item>Критичные NFR (время отклика, стабильность)</item>
+    <item>Critical user flows</item>
+    <item>Integration points and external dependencies</item>
+    <item>Errors and resilience</item>
+    <item>Data consistency</item>
+    <item>Critical NFRs (response time, stability)</item>
   </focus>
 </coverage>
 
 <do_not>
-  <item importance="critical">Не запускать e2e на нестабильном окружении</item>
-  <item importance="high">Не смешивать несколько бизнес-процессов в одном сценарии</item>
-  <item importance="high">Не полагаться на случайные данные</item>
-  <item importance="high">Не оставлять тестовые данные без очистки</item>
+  <item importance="critical">Do not run e2e on an unstable environment</item>
+  <item importance="high">Do not mix multiple business processes in one scenario</item>
+  <item importance="high">Do not rely on random data</item>
+  <item importance="high">Do not leave test data without cleanup</item>
 </do_not>
 
 <example_flows>
-  <flow>Регистрация → подтверждение → оформление заказа → оплата → уведомление</flow>
-  <flow>Создание сущности → проверка в отчете → экспорт данных</flow>
+  <flow>Registration -> confirmation -> checkout -> payment -> notification</flow>
+  <flow>Create entity -> verify in report -> export data</flow>
 </example_flows>
