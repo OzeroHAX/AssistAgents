@@ -1,6 +1,6 @@
 ---
 name: planning-impact-analysis
-description: Change impact analysis: systems, contracts, data, regressions
+description: Identify affected systems, contracts, and data plus regression hotspots; not file-level edit inventory
 ---
 
 <purpose>

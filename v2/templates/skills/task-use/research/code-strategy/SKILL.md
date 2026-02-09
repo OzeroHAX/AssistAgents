@@ -1,6 +1,6 @@
 ---
 name: code-strategy
-description: When and how to use the Code Subagent for codebase research
+description: Use for read-only codebase investigation with file/symbol evidence; not for implementation planning or code edits
 ---
 
 <when_to_use>

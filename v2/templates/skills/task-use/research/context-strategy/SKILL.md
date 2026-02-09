@@ -1,6 +1,6 @@
 ---
 name: context-strategy
-description: When and how to use the Business Logic Subagent for domain research
+description: Use for domain rules and business-flow research with source evidence; not for low-level code tracing
 ---
 
 <when_to_use>

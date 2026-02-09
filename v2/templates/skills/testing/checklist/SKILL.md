@@ -1,6 +1,6 @@
 ---
 name: testing-checklist
-description: Checklists for smoke/sanity/regression testing
+description: Create short smoke/sanity/regression checklists for critical user paths; not full step-by-step test case design
 ---
 
 <input_requirements>

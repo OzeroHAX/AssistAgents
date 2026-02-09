@@ -1,6 +1,6 @@
 ---
 name: project-standart-research
-description: Targeted research to close critical unknowns in the standard flow
+description: Run targeted evidence-based research in standard flow to close critical unknowns before architecture decisions
 ---
 
 <purpose>
@@ -16,7 +16,7 @@ description: Targeted research to close critical unknowns in the standard flow
 <required_preload>
   <item>shared-base-rules</item>
   <item>shared-docs-paths</item>
-  <item>task-use/research/web-strategy</item>
+  <item>web-strategy</item>
   <item>planning-risk-assessment</item>
   <item>planning-impact-analysis</item>
 </required_preload>

@@ -1,6 +1,6 @@
 ---
 name: project-standart-decomposition
-description: Breaking epics into implementation-ready tasks
+description: Break standard-flow epics into implementation-ready tasks with AC, DoD, sequencing, and critical-path visibility
 ---
 
 <purpose>
@@ -16,7 +16,7 @@ description: Breaking epics into implementation-ready tasks
 <required_preload>
   <item>shared-base-rules</item>
   <item>shared-docs-paths</item>
-  <item>task-use/creator/decomposition-strategy</item>
+  <item>decomposition-strategy</item>
   <item>planning-change-inventory</item>
   <item>planning-estimation</item>
   <item>planning-testing-strategy</item>

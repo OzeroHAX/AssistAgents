@@ -1,6 +1,6 @@
 ---
 name: planning-change-inventory
-description: Change inventory: list files/components and what changes in each
+description: Enumerate concrete files/components and intended edits tied to AC; not broad cross-system impact analysis
 ---
 
 <purpose>

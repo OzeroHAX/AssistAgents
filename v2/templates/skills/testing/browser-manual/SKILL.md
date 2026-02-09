@@ -1,6 +1,6 @@
 ---
 name: testing-browser-manual
-description: UI testing via Playwright MCP (snapshot-driven)
+description: Manual browser UI verification via MCP snapshots with reproducible steps and observed behavior; not automation design
 ---
 
 <input_requirements>

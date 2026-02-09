@@ -1,6 +1,6 @@
 ---
 name: project-standart-status
-description: Mandatory tracker of the standard planning phase via status.json
+description: Mandatory standard-flow tracker that updates status.json after each standard stage and before implementation gate
 ---
 
 <purpose>

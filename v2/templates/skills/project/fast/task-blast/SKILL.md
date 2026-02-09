@@ -1,6 +1,6 @@
 ---
 name: project-fast-task-blast
-description: Instant decomposition of proto-spec into implementation-ready project tasks
+description: Decompose fast proto-spec into an ordered MVP task list with AC links, dependencies, and DoD
 ---
 
 <purpose>
@@ -14,7 +14,7 @@ description: Instant decomposition of proto-spec into implementation-ready proje
 </when_to_use>
 
 <required_preload>
-  <item>task-use/creator/decomposition-strategy</item>
+  <item>decomposition-strategy</item>
   <item>planning-change-inventory</item>
   <item>planning-scope-minimization</item>
   <item>planning-estimation</item>

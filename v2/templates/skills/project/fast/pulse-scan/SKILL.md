@@ -1,6 +1,6 @@
 ---
 name: project-fast-pulse-scan
-description: Rapid scan of context, risks, and external constraints before fast project planning
+description: Run a timeboxed research scan after fast-init to confirm critical constraints and escalation triggers
 ---
 
 <purpose>
@@ -14,7 +14,7 @@ description: Rapid scan of context, risks, and external constraints before fast 
 </when_to_use>
 
 <required_preload>
-  <item>task-use/research/web-strategy</item>
+  <item>web-strategy</item>
   <item>planning-risk-assessment</item>
   <item>planning-impact-analysis</item>
 </required_preload>

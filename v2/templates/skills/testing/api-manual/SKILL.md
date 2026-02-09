@@ -1,6 +1,6 @@
 ---
 name: testing-api-manual
-description: Manual API testing via curl in bash
+description: Manually verify API behavior with reproducible requests and response checks; not contract version compatibility governance
 ---
 
 <input_requirements>

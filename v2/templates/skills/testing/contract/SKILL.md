@@ -1,6 +1,6 @@
 ---
 name: testing-contract
-description: API contract testing (OpenAPI/Pact, compatibility)
+description: Verify provider-consumer API contract compatibility and versioning; not ad-hoc endpoint behavior checks
 ---
 
 <input_requirements>

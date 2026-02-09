@@ -1,6 +1,6 @@
 ---
 name: web-strategy
-description: When and how to use the Web Subagent for reliable web research
+description: Use for external web research with primary sources and links; not for local repository analysis
 ---
 
 <when_to_use>

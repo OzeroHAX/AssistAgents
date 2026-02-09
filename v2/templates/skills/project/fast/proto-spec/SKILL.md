@@ -1,6 +1,6 @@
 ---
 name: project-fast-proto-spec
-description: Compact one-iteration project spec (quick PRD + architecture skeleton + verification)
+description: Create a compact fast-flow spec for one iteration (AC, architecture skeleton, and verification gate) before decomposition
 ---
 
 <purpose>

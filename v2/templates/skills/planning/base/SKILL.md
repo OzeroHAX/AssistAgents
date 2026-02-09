@@ -1,6 +1,6 @@
 ---
 name: planning-base
-description: Planning baseline for changes: format, principles, quality
+description: Apply shared planning baseline (format, verifiability, assumptions) before creating any concrete change plan
 ---
 
 <purpose>

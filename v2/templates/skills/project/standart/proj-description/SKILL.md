@@ -1,6 +1,6 @@
 ---
 name: project-standart-prd
-description: Full PRD for the standard flow
+description: Produce full standard-flow PRD with FR/NFR and testable AC after brief/research and before architecture
 ---
 
 <purpose>

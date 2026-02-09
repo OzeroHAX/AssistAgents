@@ -1,6 +1,6 @@
 ---
 name: project-discovery-mode-selector
-description: Determine whether to run project planning in fast or standart mode
+description: Choose fast or standard planning mode based on complexity, risk, and unknowns before any project artifacts
 ---
 
 <purpose>

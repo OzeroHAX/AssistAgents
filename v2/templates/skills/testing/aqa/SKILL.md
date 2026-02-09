@@ -1,6 +1,6 @@
 ---
 name: testing-aqa
-description: Automated QA (playwright/selenium/cypress patterns, page object model)
+description: Design and maintain automated UI/API tests (framework patterns, stability, CI artifacts); not one-off manual checks
 ---
 
 <input_requirements>

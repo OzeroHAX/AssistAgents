@@ -1,6 +1,6 @@
 ---
 name: project-fast-status
-description: Mandatory skill for managing fast-planning progress via status.json
+description: Mandatory fast-flow tracker that updates status.json after each fast stage and before handoff or escalation
 ---
 
 <purpose>

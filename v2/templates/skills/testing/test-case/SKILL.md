@@ -1,6 +1,6 @@
 ---
 name: testing-test-case
-description: How to design test cases for functionality without mandatory documentation
+description: Design detailed reproducible test cases (Given/When/Then, one check per case); not smoke/regression checklists
 ---
 
 <input_requirements>

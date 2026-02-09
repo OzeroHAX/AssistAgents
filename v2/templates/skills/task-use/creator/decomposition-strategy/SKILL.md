@@ -1,6 +1,6 @@
 ---
 name: decomposition-strategy
-description: When and how to use the Decomposition Subagent for task breakdown
+description: Use to draft decomposition for one feature/epic with dependencies and risks; final scope and priorities stay with main agent
 ---
 
 <when_to_use>
