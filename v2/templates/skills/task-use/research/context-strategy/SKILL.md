@@ -1,5 +1,5 @@
 ---
-name: context-strategy
+name: task-use-research-context-strategy
 description: Use for domain rules and business-flow research with source evidence; not for low-level code tracing
 ---
 

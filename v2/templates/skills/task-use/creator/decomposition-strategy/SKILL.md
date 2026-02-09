@@ -1,5 +1,5 @@
 ---
-name: decomposition-strategy
+name: task-use-creator-decomposition-strategy
 description: Use to draft decomposition for one feature/epic with dependencies and risks; final scope and priorities stay with main agent
 ---
 

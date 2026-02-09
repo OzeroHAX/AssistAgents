@@ -1,5 +1,5 @@
 ---
-name: web-strategy
+name: task-use-research-web-strategy
 description: Use for external web research with primary sources and links; not for local repository analysis
 ---
 

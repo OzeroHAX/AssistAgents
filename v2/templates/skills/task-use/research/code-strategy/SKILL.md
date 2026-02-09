@@ -1,5 +1,5 @@
 ---
-name: code-strategy
+name: task-use-research-code-strategy
 description: Use for read-only codebase investigation with file/symbol evidence; not for implementation planning or code edits
 ---
 
