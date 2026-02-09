@@ -16,10 +16,13 @@ npx -g @ozerohax/assistagents@latest
 ```
 
 In the TUI you:
+- choose templates source: `templates` (main) or `v2/templates`
 - choose languages for `skills/coder/*` (currently: TypeScript, Rust, C#)
 - enter the preferred response language (default: English)
 - decide whether to make a zip backup and where to store it
 - enter/update keys (if a key file is empty it asks; if it is filled it asks to keep or overwrite)
+
+Note: language selection applies to the main templates source. For `v2/templates`, skills are installed as a full set.
 
 ### Quickstart
 1) State the goal in one sentence: what to build + constraints + done criteria.

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { getKeyFileRefs } from '../src/paths.js';
-import { buildSkillCopyPlan } from '../src/skill-selection.js';
+import { buildSkillCopyPlan, usesLanguageFilteredSkills } from '../src/skill-selection.js';
 
 test('key file refs use ~ paths', () => {
   const refs = getKeyFileRefs();
@@ -19,4 +19,9 @@ test('skill copy plan includes base + selected languages', () => {
   assert.ok(plan.relDirs.includes('research-strategy'));
   assert.ok(plan.relDirs.includes('coder/typescript'));
   assert.equal(plan.relDirs.includes('coder/rust'), false);
+});
+
+test('template source controls skills mode', () => {
+  assert.equal(usesLanguageFilteredSkills('main'), true);
+  assert.equal(usesLanguageFilteredSkills('v2'), false);
 });

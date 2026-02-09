@@ -1,4 +1,4 @@
-import { checkbox, confirm, input, password } from '@inquirer/prompts';
+import { checkbox, confirm, input, password, select } from '@inquirer/prompts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
@@ -9,14 +9,22 @@ import { renderGlobalConfigJsonc } from './config-template.js';
 import { zipDirectory } from './backup.js';
 import { chmod600IfPossible, copyDir, ensureDir, isNonEmptyDir, pathExists, removeIfExists, writeFileAtomic } from './fs-utils.js';
 import { getInstallPaths, getKeyFileRefs } from './paths.js';
-import { ALL_LANGUAGES, buildSkillCopyPlan, type LanguageKey } from './skill-selection.js';
+import { buildSkillCopyPlan, type LanguageKey, type TemplateSource, usesLanguageFilteredSkills } from './skill-selection.js';
 
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
 
 function getTemplatesRoot(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  // dist/cli.js -> packageRoot/templates
-  return path.resolve(here, '..', 'templates');
+  // dist/cli.js -> packageRoot
+  return path.resolve(here, '..');
+}
+
+function resolveTemplateRoot(templateSource: TemplateSource): string {
+  const packageRoot = getTemplatesRoot();
+  if (templateSource === 'v2') {
+    return path.resolve(packageRoot, 'v2', 'templates');
+  }
+  return path.resolve(packageRoot, 'templates');
 }
 
 async function writeKeyFile(filePath: string, value: string | undefined, dryRun: boolean): Promise<{ action: 'written' | 'created-empty' | 'kept' }>{
@@ -160,6 +168,34 @@ async function promptResponseLanguage(): Promise<string> {
   return responseLanguage.trim();
 }
 
+async function promptTemplateSource(): Promise<TemplateSource> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  return await select<TemplateSource>(
+    {
+      message: 'Which templates source should be installed?',
+      choices: [
+        {
+          name: 'Main templates',
+          value: 'main',
+          description: 'Current default templates set',
+        },
+        {
+          name: 'V2 templates',
+          value: 'v2',
+          description: 'Install from v2/templates',
+        },
+      ],
+      default: 'main',
+    },
+    promptCtx
+  );
+}
+
 async function backupExistingOpencode(paths: { targetRoot: string; backupDir: string }, dryRun: boolean): Promise<string | undefined> {
   const nonEmpty = await isNonEmptyDir(paths.targetRoot);
   if (!nonEmpty) return undefined;
@@ -197,7 +233,8 @@ async function main(): Promise<void> {
     : undefined;
 
   const paths = getInstallPaths(backupDir);
-  const templatesRoot = getTemplatesRoot();
+  const templateSource = await promptTemplateSource();
+  const templatesRoot = resolveTemplateRoot(templateSource);
   const templatesAgents = path.join(templatesRoot, 'agents');
   const templatesSkills = path.join(templatesRoot, 'skills');
 
@@ -211,6 +248,7 @@ async function main(): Promise<void> {
 
   report.push(`Target: ${paths.targetRoot}`);
   report.push('Mode: apply');
+  report.push(`Templates source: ${templateSource} (${templatesRoot})`);
 
   let zipBackupPath: string | undefined;
   if (doBackup) {
@@ -231,16 +269,21 @@ async function main(): Promise<void> {
   const agentReplacements = await replaceResponseLanguagePlaceholders(paths.targetAgents, responseLanguage);
   report.push(`Agents language placeholders: ${agentReplacements} replaced`);
 
-  // Replace skills (selective)
-  const languages = await promptLanguages();
-  const skillPlan = buildSkillCopyPlan(languages);
+  // Replace skills
   await removeIfExists(paths.targetSkills);
-  report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills} (selected: ${languages.join(',')})`);
-  for (const rel of skillPlan.relDirs) {
-    const src = path.join(templatesSkills, rel);
-    const dst = path.join(paths.targetSkills, rel);
-    report.push(`  - copy ${src} -> ${dst}`);
-    if (await pathExists(src)) await copyDir(src, dst);
+  if (usesLanguageFilteredSkills(templateSource)) {
+    const languages = await promptLanguages();
+    const skillPlan = buildSkillCopyPlan(languages);
+    report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills} (selected: ${languages.join(',')})`);
+    for (const rel of skillPlan.relDirs) {
+      const src = path.join(templatesSkills, rel);
+      const dst = path.join(paths.targetSkills, rel);
+      report.push(`  - copy ${src} -> ${dst}`);
+      if (await pathExists(src)) await copyDir(src, dst);
+    }
+  } else {
+    report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills} (all skills from ${templateSource})`);
+    await copyDir(templatesSkills, paths.targetSkills);
   }
 
   // Keys

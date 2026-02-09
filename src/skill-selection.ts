@@ -1,4 +1,5 @@
 export type LanguageKey = 'typescript' | 'rust' | 'csharp';
+export type TemplateSource = 'main' | 'v2';
 
 export const ALL_LANGUAGES: ReadonlyArray<LanguageKey> = ['typescript', 'rust', 'csharp'];
 
@@ -26,4 +27,8 @@ export function buildSkillCopyPlan(languages: ReadonlyArray<LanguageKey>): Skill
   }
 
   return { relDirs };
+}
+
+export function usesLanguageFilteredSkills(templateSource: TemplateSource): boolean {
+  return templateSource === 'main';
 }
