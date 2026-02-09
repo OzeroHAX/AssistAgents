@@ -1,16 +1,16 @@
 ---
 name: project-standart-prd
-description: Полный PRD для standard-потока
+description: Full PRD for the standard flow
 ---
 
 <purpose>
-  <item>Собрать в `prd.md` проверяемые требования и критерии готовности продукта</item>
-  <item>Дать однозначную основу для архитектуры, эпиков и задач</item>
+  <item>Collect verifiable requirements and product readiness criteria in `prd.md`</item>
+  <item>Provide an unambiguous foundation for architecture, epics, and tasks</item>
 </purpose>
 
 <when_to_use>
-  <item importance="critical">После brief (и research, если он нужен), до architecture</item>
-  <item importance="high">Когда требуется формальная фиксация FR/NFR и AC</item>
+  <item importance="critical">After brief (and research if needed), before architecture</item>
+  <item importance="high">When formal documentation of FR/NFR and AC is required</item>
 </when_to_use>
 
 <required_preload>
@@ -23,15 +23,15 @@ description: Полный PRD для standard-потока
 </required_preload>
 
 <document_target>
-  <rule importance="critical">Создать/обновить `prd.md`</rule>
+  <rule importance="critical">Create/update `prd.md`</rule>
 </document_target>
 
 <method>
-  <step>Зафиксировать FR как наблюдаемое поведение системы</step>
-  <step>Добавить релевантные NFR (perf, reliability, security, compliance)</step>
-  <step>Сформировать acceptance criteria в формате Given/When/Then</step>
-  <step>Определить границы релиза и явно зафиксировать исключения</step>
-  <step>Привязать метрики успеха и риски к требованиям</step>
+  <step>Capture FR as observable system behavior</step>
+  <step>Add relevant NFR (perf, reliability, security, compliance)</step>
+  <step>Define acceptance criteria in Given/When/Then format</step>
+  <step>Define release boundaries and explicitly list exclusions</step>
+  <step>Link success metrics and risks to requirements</step>
 </method>
 
 <output_format>
@@ -46,7 +46,7 @@ description: Полный PRD для standard-потока
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">AC проверяемы и не содержат деталей реализации</rule>
-  <rule importance="critical">Требования не противоречат brief и исследованиям</rule>
-  <rule importance="high">Scope ограничен до deliverable-инкремента без scope creep</rule>
+  <rule importance="critical">AC are testable and do not include implementation details</rule>
+  <rule importance="critical">Requirements do not conflict with brief and research</rule>
+  <rule importance="high">Scope is limited to a deliverable increment without scope creep</rule>
 </quality_rules>

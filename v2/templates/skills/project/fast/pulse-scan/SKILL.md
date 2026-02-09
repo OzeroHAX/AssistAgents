@@ -1,16 +1,16 @@
 ---
 name: project-fast-pulse-scan
-description: Экспресс-скан контекста, рисков и внешних ограничений перед быстрым проектным планом
+description: Rapid scan of context, risks, and external constraints before fast project planning
 ---
 
 <purpose>
-  <item>Собрать только критичный контекст для принятия проектных решений в одну итерацию</item>
-  <item>Снизить риск неверного плана из-за скрытых ограничений</item>
+  <item>Collect only critical context for one-iteration project decisions</item>
+  <item>Reduce the risk of an incorrect plan caused by hidden constraints</item>
 </purpose>
 
 <when_to_use>
-  <item importance="critical">Сразу после fast-init и до выбора стека/архитектурных решений</item>
-  <item importance="high">Когда есть интеграции, комплаенс, SLA или зависимость от внешних систем</item>
+  <item importance="critical">Immediately after fast-init and before stack/architecture decisions</item>
+  <item importance="high">When integrations, compliance, SLA, or external-system dependencies exist</item>
 </when_to_use>
 
 <required_preload>
@@ -20,17 +20,17 @@ description: Экспресс-скан контекста, рисков и вн�
 </required_preload>
 
 <inputs>
-  <required>Цель, рамки и ограничения из fast-init</required>
-  <optional>Текущие технические решения и известные боли проекта</optional>
-  <optional>Внешние стандарты/документация/рыночные ограничения</optional>
+  <required>Goal, scope, and constraints from fast-init</required>
+  <optional>Current technical choices and known project pain points</optional>
+  <optional>External standards/documentation/market constraints</optional>
 </inputs>
 
 <method>
-  <step>Сформировать 1-3 проверяемых исследовательских вопроса</step>
-  <step>Провести экспресс-ресерч по первичным источникам, только по критичным темам</step>
-  <step>Выделить top-risks и top-constraints, влияющие на архитектуру и scope</step>
-  <step>Отделить факты от гипотез и отметить confidence по ключевым выводам</step>
-  <step>Зафиксировать условия эскалации из fast в standard</step>
+  <step>Formulate 1-3 verifiable research questions</step>
+  <step>Run rapid research using primary sources, limited to critical topics</step>
+  <step>Identify top risks and top constraints impacting architecture and scope</step>
+  <step>Separate facts from hypotheses and note confidence for key findings</step>
+  <step>Capture escalation triggers from fast to standard</step>
 </method>
 
 <output_format>
@@ -43,12 +43,12 @@ description: Экспресс-скан контекста, рисков и вн�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Каждый ключевой вывод подтвержден минимум одним надежным источником</rule>
-  <rule importance="high">Факты и предположения разделены явно</rule>
-  <rule importance="high">Риски приоритизированы по влиянию на fast-план</rule>
+  <rule importance="critical">Each key finding is backed by at least one reliable source</rule>
+  <rule importance="high">Facts and assumptions are explicitly separated</rule>
+  <rule importance="high">Risks are prioritized by impact on the fast plan</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не делать широкий ресерч без ограниченного вопроса</item>
-  <item importance="high">Не тащить второстепенные риски в fast-план</item>
+  <item importance="critical">Do not run broad research without a narrowly scoped question</item>
+  <item importance="high">Do not pull secondary risks into the fast plan</item>
 </do_not>

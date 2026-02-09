@@ -1,16 +1,16 @@
 ---
 name: project-fast-proto-spec
-description: Компактный проектный spec для одной итерации (быстрый PRD + архитектурный каркас + верификация)
+description: Compact one-iteration project spec (quick PRD + architecture skeleton + verification)
 ---
 
 <purpose>
-  <item>Собрать единый рабочий документ, достаточный для немедленной декомпозиции в задачи</item>
-  <item>Использовать компактный quick-spec подход под fast-поток без потери проверяемости</item>
+  <item>Assemble a single working document sufficient for immediate task decomposition</item>
+  <item>Use a compact quick-spec approach for the fast flow without losing verifiability</item>
 </purpose>
 
 <when_to_use>
-  <item importance="critical">После выбора стека и перед task-blast</item>
-  <item importance="high">Когда нужен быстрый переход от идеи к implementable backlog</item>
+  <item importance="critical">After stack selection and before task-blast</item>
+  <item importance="high">When a fast transition from idea to implementable backlog is needed</item>
 </when_to_use>
 
 <required_preload>
@@ -21,18 +21,18 @@ description: Компактный проектный spec для одной ит
 </required_preload>
 
 <inputs>
-  <required>Цель, scope, риски и выбранный стек</required>
-  <optional>UX/flow ограничения и ключевые use-cases</optional>
-  <optional>Нефункциональные требования (perf/security/reliability)</optional>
+  <required>Goal, scope, risks, and selected stack</required>
+  <optional>UX/flow constraints and key use cases</optional>
+  <optional>Non-functional requirements (perf/security/reliability)</optional>
 </inputs>
 
 <method>
-  <step>Сформулировать функциональные требования и acceptance criteria (Given/When/Then)</step>
-  <step>Зафиксировать NFR-lite только по критичным параметрам</step>
-  <step>Описать архитектурный каркас: компоненты, интеграции, контракты, границы</step>
-  <step>Сделать file-level change map и зависимости</step>
-  <step>Определить минимальную test strategy: quick signal + regression signal</step>
-  <step>Зафиксировать quality gate: PASS/CONCERNS/FAIL для завершения планирования</step>
+  <step>Define functional requirements and acceptance criteria (Given/When/Then)</step>
+  <step>Capture NFR-lite only for critical parameters</step>
+  <step>Describe the architecture skeleton: components, integrations, contracts, boundaries</step>
+  <step>Create a file-level change map and dependencies</step>
+  <step>Define a minimal test strategy: quick signal + regression signal</step>
+  <step>Define a planning completion quality gate: PASS/CONCERNS/FAIL</step>
 </method>
 
 <output_format>
@@ -48,13 +48,13 @@ description: Компактный проектный spec для одной ит
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">AC проверяемы и не содержат технической реализации</rule>
-  <rule importance="critical">Есть явные границы решения и список исключений</rule>
-  <rule importance="high">File-level map достаточен для декомпозиции в задачи без догадок</rule>
-  <rule importance="high">Quality gate содержит причины и next action</rule>
+  <rule importance="critical">AC are testable and do not include technical implementation details</rule>
+  <rule importance="critical">Solution boundaries and exclusions are explicit</rule>
+  <rule importance="high">The file-level map is sufficient for task decomposition without guesswork</rule>
+  <rule importance="high">The quality gate includes reasons and next action</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не превращать proto-spec в длинный multi-iteration PRD</item>
-  <item importance="high">Не включать второстепенные NFR, не влияющие на MVP</item>
+  <item importance="critical">Do not turn proto-spec into a long multi-iteration PRD</item>
+  <item importance="high">Do not include secondary NFR that do not affect MVP</item>
 </do_not>

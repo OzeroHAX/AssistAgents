@@ -1,16 +1,16 @@
 ---
 name: project-standart-personas
-description: Формирование и валидация проектных персон для приоритизации требований
+description: Creating and validating project personas for requirement prioritization
 ---
 
 <purpose>
-  <item>Связать продуктовые решения с реальными пользователями, их болями и мотивацией</item>
-  <item>Снизить риск разработки функций без ценности</item>
+  <item>Link product decisions to real users, their pains, and motivations</item>
+  <item>Reduce the risk of building features with no value</item>
 </purpose>
 
 <when_to_use>
-  <item importance="high">После базового PRD, до финализации use cases и эпиков</item>
-  <item importance="critical">Когда в требованиях есть разница по ролям или сценариям поведения</item>
+  <item importance="high">After the baseline PRD, before finalizing use cases and epics</item>
+  <item importance="critical">When requirements vary by role or behavior scenario</item>
 </when_to_use>
 
 <required_preload>
@@ -21,14 +21,14 @@ description: Формирование и валидация проектных �
 </required_preload>
 
 <document_target>
-  <rule importance="critical">Создать/обновить `personals.md`</rule>
+  <rule importance="critical">Create/update `personals.md`</rule>
 </document_target>
 
 <method>
-  <step>Определить primary и secondary персоны</step>
-  <step>Зафиксировать jobs-to-be-done, боли, триггеры и критерии успеха по каждой персоне</step>
-  <step>Привязать требования PRD к конкретным персонам</step>
-  <step>Отметить конфликты потребностей между персонами и правила приоритизации</step>
+  <step>Define primary and secondary personas</step>
+  <step>Capture jobs-to-be-done, pains, triggers, and success criteria per persona</step>
+  <step>Map PRD requirements to specific personas</step>
+  <step>Mark conflicts between persona needs and prioritization rules</step>
 </method>
 
 <output_format>
@@ -40,7 +40,7 @@ description: Формирование и валидация проектных �
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">У каждой персоны есть измеримая цель и критерий ценности</rule>
-  <rule importance="high">Нет «абстрактных» персон без влияния на решения</rule>
-  <rule importance="high">Есть явная связь с use cases и требованиями PRD</rule>
+  <rule importance="critical">Each persona has a measurable goal and value criterion</rule>
+  <rule importance="high">No abstract personas without impact on decisions</rule>
+  <rule importance="high">There is an explicit link to use cases and PRD requirements</rule>
 </quality_rules>

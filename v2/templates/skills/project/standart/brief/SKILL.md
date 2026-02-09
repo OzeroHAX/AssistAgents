@@ -1,16 +1,16 @@
 ---
 name: project-standart-brief
-description: Формирование стартового brief для standard-планирования
+description: Creating an initial brief for standard planning
 ---
 
 <purpose>
-  <item>Зафиксировать проблему, целевой outcome, границы MVP и критерии успеха</item>
-  <item>Подготовить основу для `prd.md` без скрытых предположений</item>
+  <item>Capture the problem, target outcome, MVP boundaries, and success criteria</item>
+  <item>Prepare a solid foundation for `prd.md` without hidden assumptions</item>
 </purpose>
 
 <when_to_use>
-  <item importance="critical">Сразу после `status:init`, перед детальным PRD</item>
-  <item importance="high">Когда запрос размытый и нужно стабилизировать контекст проекта</item>
+  <item importance="critical">Right after `status:init`, before detailed PRD work</item>
+  <item importance="high">When the request is vague and project context needs stabilization</item>
 </when_to_use>
 
 <required_preload>
@@ -22,14 +22,14 @@ description: Формирование стартового brief для standard
 </required_preload>
 
 <document_target>
-  <rule importance="critical">Создать/обновить `brief.md`</rule>
+  <rule importance="critical">Create/update `brief.md`</rule>
 </document_target>
 
 <method>
-  <step>Сформулировать проблему и бизнес-цель как измеримый outcome</step>
-  <step>Зафиксировать in-scope и out-of-scope на уровне продукта</step>
-  <step>Описать критерии успеха и верхнеуровневые ограничения</step>
-  <step>Отделить факты от предположений и оформить открытые вопросы</step>
+  <step>Formulate the problem and business goal as a measurable outcome</step>
+  <step>Define in-scope and out-of-scope at the product level</step>
+  <step>Describe success criteria and high-level constraints</step>
+  <step>Separate facts from assumptions and capture open questions</step>
 </method>
 
 <output_format>
@@ -42,7 +42,7 @@ description: Формирование стартового brief для standard
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Цель выражена как результат, а не список действий</rule>
-  <rule importance="high">Границы продукта заданы явно и проверяемо</rule>
-  <rule importance="high">Открытые вопросы влияют на следующий шаг (PRD), а не «на потом»</rule>
+  <rule importance="critical">The goal is expressed as an outcome, not a list of actions</rule>
+  <rule importance="high">Product boundaries are explicit and testable</rule>
+  <rule importance="high">Open questions directly influence the next step (PRD), not "later"</rule>
 </quality_rules>

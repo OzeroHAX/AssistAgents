@@ -1,16 +1,16 @@
 ---
 name: project-standart-decomposition
-description: Разложение эпиков в implementation-ready задачи
+description: Breaking epics into implementation-ready tasks
 ---
 
 <purpose>
-  <item>Преобразовать эпики в задачи, готовые к выполнению без дополнительной аналитики</item>
-  <item>Сохранить полную трассировку: задача -> эпик -> PRD/use-case -> архитектурные ограничения</item>
+  <item>Transform epics into tasks that are executable without additional analysis</item>
+  <item>Preserve full traceability: task -> epic -> PRD/use-case -> architectural constraints</item>
 </purpose>
 
 <when_to_use>
-  <item importance="critical">После формирования эпиков, перед стартом реализации</item>
-  <item importance="high">Когда требуется оценка емкости и последовательный delivery-план</item>
+  <item importance="critical">After epic creation, before implementation starts</item>
+  <item importance="high">When capacity estimation and a sequential delivery plan are required</item>
 </when_to_use>
 
 <required_preload>
@@ -23,15 +23,15 @@ description: Разложение эпиков в implementation-ready зада�
 </required_preload>
 
 <document_target>
-  <rule importance="critical">Создать/обновить файлы в `tasks/{task key}-{task number}-{user friendly name}.md`</rule>
+  <rule importance="critical">Create/update files in `tasks/{task key}-{task number}-{user friendly name}.md`</rule>
 </document_target>
 
 <method>
-  <step>Разбить эпик на независимые задачи с четким результатом</step>
-  <step>Определить для каждой задачи AC, DoD, и проверочные сигналы</step>
-  <step>Зафиксировать зависимости, порядок выполнения и критичный путь</step>
-  <step>Добавить обязательные задачи тестирования/наблюдаемости/rollback при необходимости</step>
-  <step>Оценить задачи и обозначить варианты среза scope при timebox-давлении</step>
+  <step>Split each epic into independent tasks with a clear outcome</step>
+  <step>Define AC, DoD, and validation signals for every task</step>
+  <step>Capture dependencies, execution order, and the critical path</step>
+  <step>Add required testing/observability/rollback tasks when needed</step>
+  <step>Estimate tasks and define scope-cut options under timebox pressure</step>
 </method>
 
 <output_format>
@@ -43,7 +43,7 @@ description: Разложение эпиков в implementation-ready зада�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Каждая задача тестируема и имеет критерий завершения</rule>
-  <rule importance="critical">Нет крупных неопределенных задач без AC/DoD</rule>
-  <rule importance="high">Порядок задач учитывает риски и зависимости</rule>
+  <rule importance="critical">Every task is testable and has a completion criterion</rule>
+  <rule importance="critical">No large ambiguous tasks without AC/DoD</rule>
+  <rule importance="high">Task order accounts for risks and dependencies</rule>
 </quality_rules>

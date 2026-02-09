@@ -1,16 +1,16 @@
 ---
 name: project-standart-usecases
-description: Проектирование use cases и пользовательских сценариев с трассировкой к PRD
+description: Designing use cases and user flows with PRD traceability
 ---
 
 <purpose>
-  <item>Описать ключевые пользовательские сценарии в исполнимом и тестируемом виде</item>
-  <item>Подготовить основу для архитектуры и разбиения на эпики/задачи</item>
+  <item>Describe key user scenarios in an executable and testable form</item>
+  <item>Prepare a foundation for architecture and epic/task breakdown</item>
 </purpose>
 
 <when_to_use>
-  <item importance="critical">После фиксации PRD и персон, до epics/tasks</item>
-  <item importance="high">Когда важно согласовать потоки и граничные условия поведения</item>
+  <item importance="critical">After PRD and personas are finalized, before epics/tasks</item>
+  <item importance="high">When flow alignment and behavior edge conditions matter</item>
 </when_to_use>
 
 <required_preload>
@@ -21,14 +21,14 @@ description: Проектирование use cases и пользователь�
 </required_preload>
 
 <document_target>
-  <rule importance="critical">Создать/обновить файлы в `use-cases/{use case key}-{use case number}-{user friendly name}.md`</rule>
+  <rule importance="critical">Create/update files in `use-cases/{use case key}-{use case number}-{user friendly name}.md`</rule>
 </document_target>
 
 <method>
-  <step>Определить primary actor, preconditions, main flow, alternate flow, failure flow</step>
-  <step>Привязать каждый use case к требованиям и AC из PRD</step>
-  <step>Выделить входные/выходные данные и точки интеграции</step>
-  <step>Зафиксировать сигналы проверки для тестирования сценария</step>
+  <step>Define primary actor, preconditions, main flow, alternate flow, and failure flow</step>
+  <step>Map each use case to requirements and AC from PRD</step>
+  <step>Identify input/output data and integration points</step>
+  <step>Capture validation signals for scenario testing</step>
 </method>
 
 <output_format>
@@ -41,7 +41,7 @@ description: Проектирование use cases и пользователь�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">У каждого сценария есть явный expected outcome</rule>
-  <rule importance="high">Сценарии покрывают критичные ошибки и отклонения</rule>
-  <rule importance="high">Есть двусторонняя трассировка: use case -> PRD AC</rule>
+  <rule importance="critical">Every scenario has a clear expected outcome</rule>
+  <rule importance="high">Scenarios cover critical errors and deviations</rule>
+  <rule importance="high">Bi-directional traceability exists: use case -> PRD AC</rule>
 </quality_rules>

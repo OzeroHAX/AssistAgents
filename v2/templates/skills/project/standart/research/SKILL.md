@@ -1,16 +1,16 @@
 ---
 name: project-standart-research
-description: Целевой ресерч для закрытия критичных неизвестных в standard-потоке
+description: Targeted research to close critical unknowns in the standard flow
 ---
 
 <purpose>
-  <item>Подтвердить ключевые гипотезы источниками до фиксации требований и архитектуры</item>
-  <item>Снизить риск ошибок в PRD/architecture из-за непроверенных допущений</item>
+  <item>Validate key hypotheses with sources before locking requirements and architecture</item>
+  <item>Reduce the risk of PRD/architecture errors caused by unverified assumptions</item>
 </purpose>
 
 <when_to_use>
-  <item importance="high">После brief, если есть критичные неизвестные или внешние ограничения</item>
-  <item importance="critical">Перед архитектурными решениями при интеграциях, стандартах или комплаенсе</item>
+  <item importance="high">After brief, if critical unknowns or external constraints exist</item>
+  <item importance="critical">Before architecture decisions in integrations, standards, or compliance contexts</item>
 </when_to_use>
 
 <required_preload>
@@ -22,15 +22,15 @@ description: Целевой ресерч для закрытия критичн�
 </required_preload>
 
 <document_target>
-  <rule importance="critical">Создать файл в `researches/{date time}-{user friendly name}.md`</rule>
+  <rule importance="critical">Create a file in `researches/{date time}-{user friendly name}.md`</rule>
 </document_target>
 
 <method>
-  <step>Сформулировать 1-3 проверяемых исследовательских вопроса</step>
-  <step>Собрать только первичные/надежные источники по вопросам</step>
-  <step>Разделить факты, интерпретации и гипотезы</step>
-  <step>Выделить top-risks и top-constraints, влияющие на PRD и architecture</step>
-  <step>Сформулировать последствия для scope и решений</step>
+  <step>Formulate 1-3 verifiable research questions</step>
+  <step>Collect only primary/reliable sources for those questions</step>
+  <step>Separate facts, interpretations, and hypotheses</step>
+  <step>Identify top risks and top constraints that impact PRD and architecture</step>
+  <step>Define implications for scope and decisions</step>
 </method>
 
 <output_format>
@@ -43,7 +43,7 @@ description: Целевой ресерч для закрытия критичн�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Каждый ключевой вывод имеет ссылку на источник</rule>
-  <rule importance="high">Неподтвержденные тезисы помечены как гипотезы</rule>
-  <rule importance="high">Результат ресерча меняет следующий шаг, а не остается «для справки»</rule>
+  <rule importance="critical">Every key finding includes a source reference</rule>
+  <rule importance="high">Unverified statements are marked as hypotheses</rule>
+  <rule importance="high">Research outcomes change the next step, not remain "for reference"</rule>
 </quality_rules>

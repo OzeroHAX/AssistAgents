@@ -1,39 +1,39 @@
 ---
 name: project-fast-status
-description: Обязательный скилл управления прогрессом fast-планирования через status.json
+description: Mandatory skill for managing fast-planning progress via status.json
 ---
 
 <purpose>
-  <item>Сделать `status.json` единственным источником истины по фазе и этапу fast-планирования</item>
-  <item>Жестко фиксировать прогресс, блокеры, gate-решение и следующий шаг</item>
-  <item>Не допускать перехода к следующему шагу fast-потока без обновления статуса</item>
+  <item>Use `status.json` as the single source of truth for fast-planning phase and stage</item>
+  <item>Strictly track progress, blockers, gate decision, and next action</item>
+  <item>Prevent moving to the next fast-flow step without a status update</item>
 </purpose>
 
 <mandatory_usage>
-  <rule importance="critical">Этот скилл обязателен для fast-планирования</rule>
-  <rule importance="critical">Вызывать в начале fast-потока для инициализации `status.json`</rule>
-  <rule importance="critical">Вызывать после каждого шага: init, pulse-scan, stack-pick, proto-spec, task-blast</rule>
-  <rule importance="critical">Вызывать в конце fast-потока для финального gate-решения</rule>
-  <rule importance="high">Если `status.json` не обновлен, шаг считается незавершенным</rule>
+  <rule importance="critical">This skill is mandatory for fast planning</rule>
+  <rule importance="critical">Run at the start of fast flow to initialize `status.json`</rule>
+  <rule importance="critical">Run after every step: init, pulse-scan, stack-pick, proto-spec, task-blast</rule>
+  <rule importance="critical">Run at the end of fast flow for the final gate decision</rule>
+  <rule importance="high">If `status.json` is not updated, the step is considered incomplete</rule>
 </mandatory_usage>
 
 <when_to_use>
-  <item importance="critical">Старт fast-планирования (создание начального статуса)</item>
-  <item importance="critical">После завершения каждого этапа fast-потока</item>
-  <item importance="critical">Перед передачей в реализацию или эскалацией в standard-поток</item>
+  <item importance="critical">Fast planning start (create initial status)</item>
+  <item importance="critical">After each fast-flow stage is completed</item>
+  <item importance="critical">Before handoff to implementation or escalation to standard flow</item>
 </when_to_use>
 
 <inputs>
-  <required>Текущий шаг fast-потока (init, pulse-scan, stack-pick, proto-spec, task-blast)</required>
-  <required>Фактический результат шага: done/partial/blocked</required>
-  <required>Краткие причины и список блокеров (если есть)</required>
-  <optional>Риски, корректирующие действия, критерии повторной проверки</optional>
+  <required>Current fast-flow step (init, pulse-scan, stack-pick, proto-spec, task-blast)</required>
+  <required>Actual step result: done/partial/blocked</required>
+  <required>Short reasons and blockers list (if any)</required>
+  <optional>Risks, corrective actions, recheck criteria</optional>
 </inputs>
 
 <status_file_contract>
-  <rule importance="critical">Файл: `status.json`</rule>
-  <rule importance="critical">Формат: валидный JSON без комментариев</rule>
-  <rule importance="critical">Обновляется атомарно при каждом запуске этого скилла</rule>
+  <rule importance="critical">File: `status.json`</rule>
+  <rule importance="critical">Format: valid JSON without comments</rule>
+  <rule importance="critical">Updated atomically on every run of this skill</rule>
   <required_fields>
     <field>phase</field>
     <field>stage</field>
@@ -45,8 +45,8 @@ description: Обязательный скилл управления прогр
     <field>updated_at</field>
   </required_fields>
   <conditional_fields>
-    <item>Если gate != PASS: обязательны `corrective_actions` и `recheck_criteria`</item>
-    <item>Если step_status = blocked: обязательны `owner` и `unblock_plan`</item>
+    <item>If gate != PASS: `corrective_actions` and `recheck_criteria` are required</item>
+    <item>If step_status = blocked: `owner` and `unblock_plan` are required</item>
   </conditional_fields>
 </status_file_contract>
 
@@ -75,12 +75,12 @@ description: Обязательный скилл управления прогр
 </allowed_values>
 
 <method>
-  <step>Проверить наличие `status.json`; если файла нет, создать с базовой структурой</step>
-  <step>Зафиксировать текущие `phase` и `stage` по фактическому шагу</step>
-  <step>Обновить `step_status`, `reasons`, `blockers` и `next_action`</step>
-  <step>Если это финал fast-потока, выставить `gate` по результатам всех этапов</step>
-  <step>При `CONCERNS` или `FAIL` добавить `corrective_actions` и `recheck_criteria`</step>
-  <step>Обновить `updated_at` и сохранить валидный JSON</step>
+  <step>Check `status.json`; if missing, create it with a base structure</step>
+  <step>Set current `phase` and `stage` according to the actual step</step>
+  <step>Update `step_status`, `reasons`, `blockers`, and `next_action`</step>
+  <step>If this is fast-flow finalization, set `gate` based on all stage outcomes</step>
+  <step>For `CONCERNS` or `FAIL`, add `corrective_actions` and `recheck_criteria`</step>
+  <step>Update `updated_at` and save valid JSON</step>
 </method>
 
 <output_format>
@@ -97,18 +97,18 @@ description: Обязательный скилл управления прогр
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">`status.json` всегда отражает фактическое состояние на текущий момент</rule>
-  <rule importance="critical">Нельзя переходить к следующему stage без записи результата текущего</rule>
-  <rule importance="high">`next_action` конкретен и исполним одним следующим шагом</rule>
-  <rule importance="high">Причины и блокеры сформулированы проверяемо, без расплывчатых формулировок</rule>
+  <rule importance="critical">`status.json` always reflects the actual current state</rule>
+  <rule importance="critical">Do not move to the next stage without recording the current result</rule>
+  <rule importance="high">`next_action` is specific and executable as one next step</rule>
+  <rule importance="high">Reasons and blockers are verifiable and not vague</rule>
 </quality_rules>
 
 <do_not>
-  <item importance="critical">Не оставлять `status.json` устаревшим после завершения шага</item>
-  <item importance="critical">Не выставлять `PASS` при наличии критичных блокеров</item>
-  <item importance="high">Не писать свободный текст вместо структурированных полей JSON</item>
+  <item importance="critical">Do not leave `status.json` outdated after step completion</item>
+  <item importance="critical">Do not set `PASS` when critical blockers exist</item>
+  <item importance="high">Do not write free text instead of structured JSON fields</item>
 </do_not>
 
 <minimal_json_example>
-  <item>{"phase":"fast-planning","stage":"proto-spec","step_status":"done","gate":"CONCERNS","reasons":["NFR уточнены частично"],"blockers":["Нет подтверждения по интеграции X"],"next_action":"Закрыть интеграционный риск и обновить proto-spec","corrective_actions":["Провести проверку контракта API X"],"recheck_criteria":["Интеграционный риск закрыт","AC не изменились"],"updated_at":"2026-02-09T12:00:00Z"}</item>
+  <item>{"phase":"fast-planning","stage":"proto-spec","step_status":"done","gate":"CONCERNS","reasons":["NFR is only partially refined"],"blockers":["No confirmation for integration X"],"next_action":"Close integration risk and update proto-spec","corrective_actions":["Run API X contract verification"],"recheck_criteria":["Integration risk is closed","AC remain unchanged"],"updated_at":"2026-02-09T12:00:00Z"}</item>
 </minimal_json_example>

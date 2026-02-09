@@ -1,16 +1,16 @@
 ---
 name: project-standart-epic
-description: Декомпозиция PRD и архитектуры в эпики с трассировкой и приоритетами
+description: Decomposing PRD and architecture into traceable prioritized epics
 ---
 
 <purpose>
-  <item>Собрать эпики как управляемые блоки ценности с явной связью к требованиям</item>
-  <item>Подготовить базу для детальной task-decomposition и delivery-планирования</item>
+  <item>Build epics as manageable value blocks with explicit links to requirements</item>
+  <item>Prepare a foundation for detailed task decomposition and delivery planning</item>
 </purpose>
 
 <when_to_use>
-  <item importance="critical">После architecture, перед decomposition в задачи</item>
-  <item importance="high">Когда нужно упорядочить реализацию по ценности, риску и зависимостям</item>
+  <item importance="critical">After architecture, before decomposition into tasks</item>
+  <item importance="high">When implementation must be ordered by value, risk, and dependencies</item>
 </when_to_use>
 
 <required_preload>
@@ -22,14 +22,14 @@ description: Декомпозиция PRD и архитектуры в эпик�
 </required_preload>
 
 <document_target>
-  <rule importance="critical">Создать/обновить файлы в `epics/{epic key}-{epic number}-{user friendly name}.md`</rule>
+  <rule importance="critical">Create/update files in `epics/{epic key}-{epic number}-{user friendly name}.md`</rule>
 </document_target>
 
 <method>
-  <step>Разбить требования на вертикальные эпики с наблюдаемой пользовательской ценностью</step>
-  <step>Привязать каждый эпик к FR/NFR, use cases и архитектурным ограничениям</step>
-  <step>Определить зависимости между эпиками и рекомендованную последовательность</step>
-  <step>Описать acceptance criteria и definition of done для каждого эпика</step>
+  <step>Break requirements into vertical epics with observable user value</step>
+  <step>Map each epic to FR/NFR, use cases, and architectural constraints</step>
+  <step>Identify inter-epic dependencies and recommended sequencing</step>
+  <step>Define acceptance criteria and definition of done for each epic</step>
 </method>
 
 <output_format>
@@ -41,7 +41,7 @@ description: Декомпозиция PRD и архитектуры в эпик�
 </output_format>
 
 <quality_rules>
-  <rule importance="critical">Нет эпиков без привязки к требованиям или архитектурной необходимости</rule>
-  <rule importance="high">Границы эпика достаточно узкие для управляемой поставки</rule>
-  <rule importance="high">Порядок выполнения учитывает критичный путь</rule>
+  <rule importance="critical">No epics without linkage to requirements or architectural necessity</rule>
+  <rule importance="high">Epic boundaries are narrow enough for manageable delivery</rule>
+  <rule importance="high">Execution order accounts for the critical path</rule>
 </quality_rules>
