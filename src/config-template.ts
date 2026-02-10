@@ -4,7 +4,17 @@ export type KeyFiles = {
   tavily: string;
 };
 
-export function renderGlobalConfigJsonc(keyFiles: KeyFiles): string {
+export type ConfigTemplateOptions = {
+  plugins?: string[];
+};
+
+export function renderGlobalConfigJsonc(keyFiles: KeyFiles, options: ConfigTemplateOptions = {}): string {
+  const pluginSection =
+    options.plugins && options.plugins.length > 0
+      ? `,
+  "plugin": ${JSON.stringify(options.plugins)}`
+      : '';
+
   // Keep this close to the repo's existing opencode.jsonc layout.
   return `{
   "$schema": "https://opencode.ai/config.json",
@@ -48,13 +58,14 @@ export function renderGlobalConfigJsonc(keyFiles: KeyFiles): string {
     "context7*": "deny",
     "github-grep*": "deny",
     "pencil*": "deny",
-    "chrome-devtools*": "deny"
+    "chrome-devtools*": "deny",
+    "deepwiki*": "deny"
   },
   "agent": {
     "explore": { "disable": true },
     "build": { "disable": true },
     "plan": { "disable": true }
-  },
+  }${pluginSection},
   "mcp": {
     "tavily-search": {
       "type": "remote",
@@ -88,6 +99,10 @@ export function renderGlobalConfigJsonc(keyFiles: KeyFiles): string {
     "github-grep": {
       "type": "remote",
       "url": "https://mcp.grep.app"
+    },
+    "deepwiki": {
+      "type": "remote",
+      "url": "https://mcp.deepwiki.com/mcp"      
     },
     "chrome-devtools": {
       "type": "local",

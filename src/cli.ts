@@ -237,6 +237,7 @@ async function main(): Promise<void> {
   const templatesRoot = resolveTemplateRoot(templateSource);
   const templatesAgents = path.join(templatesRoot, 'agents');
   const templatesSkills = path.join(templatesRoot, 'skills');
+  const templatesPlugins = path.join(templatesRoot, 'plugins');
 
   if (!(await pathExists(templatesAgents)) || !(await pathExists(templatesSkills))) {
     throw new Error(`templates not found at ${templatesRoot}. Is the package built correctly?`);
@@ -286,6 +287,15 @@ async function main(): Promise<void> {
     await copyDir(templatesSkills, paths.targetSkills);
   }
 
+  // Install plugins from template source (if provided)
+  if (await pathExists(templatesPlugins)) {
+    report.push(`Copy plugins: ${paths.targetPlugins} <= ${templatesPlugins}`);
+    await ensureDir(paths.targetPlugins);
+    await copyDir(templatesPlugins, paths.targetPlugins);
+  } else {
+    report.push(`Plugins: none in ${templatesRoot}`);
+  }
+
   // Keys
   report.push(`Keys dir: ${paths.targetKeys}`);
   await ensureDir(paths.targetKeys);
@@ -326,7 +336,7 @@ async function main(): Promise<void> {
     zaiApi: keyRefs.zaiApi,
     context7: keyRefs.context7,
     tavily: keyRefs.tavily,
-  });
+  }, {});
   report.push(`Write: ${paths.globalConfig}`);
   await writeFileAtomic(paths.globalConfig, configContent);
 

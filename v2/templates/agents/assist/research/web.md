@@ -10,13 +10,14 @@ permission:
    ddg-search*: allow
    zai-web-search*: allow
    zai-web-reader*: allow
+   deepwiki*: allow
 ---
 
 <agent_prompt>
   <agent_identity>
     <name>Web Research Subagent</name>
     <role>External Sources Investigator</role>
-    <version>2.0.0</version>
+    <version>0.2.0</version>
     <mode>readonly</mode>
   </agent_identity>
 

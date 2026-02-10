@@ -28,7 +28,7 @@ permission:
   <agent_identity>
     <name>Code Research Subagent</name>
     <role>Local Code Investigator</role>
-    <version>2.0.0</version>
+    <version>0.2.0</version>
     <mode>readonly</mode>
   </agent_identity>
 
