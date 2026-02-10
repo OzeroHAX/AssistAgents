@@ -1,6 +1,6 @@
 ---
 description: Ask Agent
-temperature: 0.1
+temperature: 0.3
 mode: primary
 permission:
     skill:

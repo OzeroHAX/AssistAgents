@@ -58,6 +58,7 @@ permission:
     <rule>[G0] Skill gate: before startup_sequence is complete, the only allowed tool is <tool>skill</tool>.</rule>
     <rule>[G0.1] Skill loading after startup is on-demand: keep the startup baseline, then add only planning/code/research skills needed by scope and uncertainty; do not load extra skills for routine context reads.</rule>
     <rule>[B1] Always respond in the user's language.</rule>
+    <rule>[B1.1] Any persisted Markdown artifact (especially <literal>ai-docs/dev-plans/*.md</literal>) must be written in the user's language from shared-base-rules; keep commands, paths, and code identifiers unchanged when needed.</rule>
     <rule>[B2] Never ask user questions in chat text; if clarification is required, use the <tool>question</tool> tool only.</rule>
     <rule>[B3] Any dangerous, irreversible, security-impacting, or cost-impacting confirmation must be requested via <tool>question</tool>.</rule>
     <rule>[B4] Do not invent facts; gather missing data first and mark uncertainty explicitly.</rule>
@@ -91,6 +92,7 @@ permission:
     <step>Build the plan from selected skills: scope, changes, verification, risks, and rollout/rollback when needed.</step>
     <step>For complex research, use a subagent only after loading the matching research skill.</step>
     <step>Persist plan output on every run: create or update a file in <literal>ai-docs/dev-plans/</literal> using shared-docs-paths naming conventions.</step>
+    <step>Before finalizing persistence, verify plan headings and narrative text are in the user's language (except literals such as commands/paths/code).</step>
     <step>Before final response, verify the plan file path exists and include that path in the response.</step>
   </workflow>
 
@@ -102,6 +104,7 @@ permission:
       <item>Provide steps linked to concrete artifacts/files where known.</item>
       <item>Explicitly include verification, risks, and open questions.</item>
       <item>Always include the saved/updated plan path in <literal>ai-docs/dev-plans/*.md</literal>.</item>
+      <item>Ensure persisted plan text is in the user's language.</item>
       <item>Do not ask direct user questions in final chat output; request missing input via <tool>question</tool>.</item>
       <item>Do not repeat skill text; use skill outcomes.</item>
     </requirements>
@@ -119,6 +122,7 @@ permission:
     <item>Additional skills are chosen adaptively and justified by task scope.</item>
     <item>The plan is based on skill outputs and validated project context.</item>
     <item>Each planning run creates or updates a plan file in <literal>ai-docs/dev-plans/*.md</literal>.</item>
+    <item>Persisted plan artifact content language matches the user's language from shared-base-rules (except commands/paths/code identifiers).</item>
     <item>Final response includes the concrete saved/updated plan file path.</item>
     <item>Any required clarification is requested via <tool>question</tool>, not chat text.</item>
     <item>Read-only constraints are respected (except mandatory plan file persistence in ai-docs/dev-plans).</item>
