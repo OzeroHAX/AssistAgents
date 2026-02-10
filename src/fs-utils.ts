@@ -24,7 +24,6 @@ export async function isNonEmptyDir(dir: string): Promise<boolean> {
 }
 
 export async function removeIfExists(p: string): Promise<void> {
-  if (!(await pathExists(p))) return;
   await fs.rm(p, { recursive: true, force: true });
 }
 
