@@ -16,13 +16,12 @@ npx -g @ozerohax/assistagents@latest
 ```
 
 In the TUI you:
-- choose templates source: `templates` (main) or `v2/templates`
-- choose languages for `skills/coder/*` (currently: TypeScript, Rust, C#)
 - enter the preferred response language (default: English)
 - decide whether to make a zip backup and where to store it
-- enter/update keys (if a key file is empty it asks; if it is filled it asks to keep or overwrite)
+- choose which MCP integrations to enable
+- enter/update keys only for enabled integrations that require them (if key file is filled it asks to keep or overwrite)
 
-Note: language selection applies to the main templates source. For `v2/templates`, skills are installed as a full set.
+All skills from `templates/skills` are installed as a full set.
 
 ### Quickstart
 1) State the goal in one sentence: what to build + constraints + done criteria.
@@ -66,7 +65,7 @@ Short list of roles the pack ships:
 
 ## Skills (templates/skills)
 
-Skills are playbooks agents load before work. Main groups: `planning/*`, `docs/*`, `research-strategy/*`, `review/*`, `testing/*`, `coder/<language>/*` (selected in the TUI).
+Skills are playbooks agents load before work. Main groups: `planning/*`, `docs/*`, `project/*`, `review/*`, `testing/*`, `task-use/*`, `coder/*`.
 
 Note: if a skill is missing for a technology, the agent should say so and proceed cautiously.
 

@@ -1,4 +1,4 @@
-import { checkbox, confirm, input, password, select } from '@inquirer/prompts';
+import { checkbox, confirm, input, password } from '@inquirer/prompts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
@@ -9,9 +9,27 @@ import { renderGlobalConfigJsonc } from './config-template.js';
 import { zipDirectory } from './backup.js';
 import { chmod600IfPossible, copyDir, ensureDir, isNonEmptyDir, pathExists, removeIfExists, writeFileAtomic } from './fs-utils.js';
 import { getInstallPaths, getKeyFileRefs } from './paths.js';
-import { buildSkillCopyPlan, type LanguageKey, type TemplateSource, usesLanguageFilteredSkills } from './skill-selection.js';
+import {
+  ALL_MCP_IDS,
+  collectRequiredKeys,
+  getDevPermissionPatterns,
+  getDefaultEnabledMcpIds,
+  getMcpDefinitions,
+  getMcpIdsRequiringKey,
+  getPlannerPermissionPatterns,
+  getReviewPermissionPatterns,
+  getTesterPermissionPatterns,
+  getWebResearchPermissionPatterns,
+  type KeyId,
+  type McpId,
+} from './mcp-registry.js';
 
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
+const MCP_WEB_RESEARCH_PERMISSIONS_PLACEHOLDER = '{{mcp_web_research_permissions}}';
+const MCP_TESTER_PERMISSIONS_PLACEHOLDER = '{{mcp_tester_permissions}}';
+const MCP_PLANNER_PERMISSIONS_PLACEHOLDER = '{{mcp_planner_permissions}}';
+const MCP_DEV_PERMISSIONS_PLACEHOLDER = '{{mcp_dev_permissions}}';
+const MCP_REVIEW_PERMISSIONS_PLACEHOLDER = '{{mcp_review_permissions}}';
 
 function getTemplatesRoot(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
@@ -19,15 +37,12 @@ function getTemplatesRoot(): string {
   return path.resolve(here, '..');
 }
 
-function resolveTemplateRoot(templateSource: TemplateSource): string {
+function resolveTemplateRoot(): string {
   const packageRoot = getTemplatesRoot();
-  if (templateSource === 'v2') {
-    return path.resolve(packageRoot, 'v2', 'templates');
-  }
   return path.resolve(packageRoot, 'templates');
 }
 
-async function writeKeyFile(filePath: string, value: string | undefined, dryRun: boolean): Promise<{ action: 'written' | 'created-empty' | 'kept' }>{
+async function writeKeyFile(filePath: string, value: string | undefined, dryRun: boolean): Promise<{ action: 'written' | 'kept' | 'skipped' }>{
   const exists = await pathExists(filePath);
 
   if (value !== undefined) {
@@ -39,12 +54,7 @@ async function writeKeyFile(filePath: string, value: string | undefined, dryRun:
   }
 
   if (exists) return { action: 'kept' };
-
-  if (!dryRun) {
-    await writeFileAtomic(filePath, '');
-    await chmod600IfPossible(filePath);
-  }
-  return { action: 'created-empty' };
+  return { action: 'skipped' };
 }
 
 type PromptContext = { input: Readable; output: Writable } | undefined;
@@ -86,67 +96,99 @@ async function isKeyFileFilled(filePath: string): Promise<boolean> {
   }
 }
 
-async function promptForMissingKeys(opts: {
-  keyFiles: { zaiApi: string; context7: string; tavily: string };
-}): Promise<{ zaiApi?: string; context7?: string; tavily?: string }> {
+async function promptEnabledMcpIds(keyFilledState: Record<KeyId, boolean>): Promise<McpId[]> {
   const promptCtx = tryGetPromptContext();
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
   if (!interactive) {
     throw new Error('No TTY available for interactive mode (run from a terminal).');
   }
 
-  const askOne = async (label: string, filePath: string): Promise<string | undefined> => {
-    const filled = await isKeyFileFilled(filePath);
+  const defaults = new Set(getDefaultEnabledMcpIds(keyFilledState));
+  const selected = await checkbox(
+    {
+      message: 'Choose MCP integrations to enable',
+      instructions: 'Use Space to toggle, Enter to confirm',
+      choices: getMcpDefinitions().map((mcp) => ({
+        name: mcp.requiresKeys.length === 0 ? `${mcp.label} (no key required)` : `${mcp.label} (requires: ${mcp.requiresKeys.join(', ')})`,
+        value: mcp.id,
+        checked: defaults.has(mcp.id),
+      })),
+      required: false,
+    },
+    promptCtx
+  );
+
+  return selected as McpId[];
+}
+
+function keyLabel(keyId: KeyId): string {
+  if (keyId === 'zaiApi') return 'ZAI_API_KEY';
+  if (keyId === 'context7') return 'CONTEXT7_API_KEY';
+  return 'TAVILY_API_KEY';
+}
+
+async function promptForEnabledKeys(opts: {
+  keyFiles: { zaiApi: string; context7: string; tavily: string };
+  keyFilledState: Record<KeyId, boolean>;
+  enabledMcpIds: McpId[];
+}): Promise<{ keyInput: { zaiApi?: string; context7?: string; tavily?: string }; enabledMcpIds: McpId[] }> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  const keyInput: { zaiApi?: string; context7?: string; tavily?: string } = {};
+  const enabled = new Set(opts.enabledMcpIds);
+
+  for (const keyId of collectRequiredKeys(opts.enabledMcpIds)) {
+    const filePath = opts.keyFiles[keyId];
+    const filled = opts.keyFilledState[keyId];
+
     if (filled) {
       const keep = await confirm(
-        { message: `${label}: file already has a value (${filePath}). Keep it?`, default: true },
+        { message: `${keyLabel(keyId)}: file already has a value (${filePath}). Keep it?`, default: true },
         promptCtx
       );
-      if (keep) return undefined;
+
+      if (keep) continue;
+
+      const value = await password(
+        {
+          message: `Enter ${keyLabel(keyId)} (we will store it in ${filePath})`,
+          mask: '*',
+          validate: (v) => (v.trim().length > 0 ? true : 'Value cannot be empty'),
+        },
+        promptCtx
+      );
+      keyInput[keyId] = value;
+      continue;
+    }
+
+    const enterNow = await confirm(
+      { message: `${keyLabel(keyId)} not found. Enter it now?`, default: false },
+      promptCtx
+    );
+
+    if (!enterNow) {
+      for (const mcpId of getMcpIdsRequiringKey(Array.from(enabled), keyId)) {
+        enabled.delete(mcpId);
+      }
+      continue;
     }
 
     const value = await password(
       {
-        message: `Enter ${label} (we will store it in ${filePath})`,
+        message: `Enter ${keyLabel(keyId)} (we will store it in ${filePath})`,
         mask: '*',
         validate: (v) => (v.trim().length > 0 ? true : 'Value cannot be empty'),
       },
       promptCtx
     );
-    return value;
-  };
-
-  const out: { zaiApi?: string; context7?: string; tavily?: string } = {};
-  const zaiApi = await askOne('ZAI_API_KEY', opts.keyFiles.zaiApi);
-  if (zaiApi !== undefined) out.zaiApi = zaiApi;
-  const context7 = await askOne('CONTEXT7_API_KEY', opts.keyFiles.context7);
-  if (context7 !== undefined) out.context7 = context7;
-  const tavily = await askOne('TAVILY_API_KEY', opts.keyFiles.tavily);
-  if (tavily !== undefined) out.tavily = tavily;
-
-  return out;
-}
-
-async function promptLanguages(): Promise<LanguageKey[]> {
-  const promptCtx = tryGetPromptContext();
-  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
-  if (!interactive) {
-    throw new Error('No TTY available for interactive mode (run from a terminal).');
+    keyInput[keyId] = value;
   }
 
-  const selected = await checkbox<LanguageKey>(
-    {
-      message: 'Which languages should be installed?',
-      choices: [
-        { name: 'TypeScript', value: 'typescript', checked: true },
-        { name: 'Rust', value: 'rust', checked: true },
-        { name: 'C#', value: 'csharp', checked: true },
-      ],
-      validate: (values) => (values.length > 0 ? true : 'Select at least one language'),
-    },
-    promptCtx
-  );
-  return selected;
+  return { keyInput, enabledMcpIds: ALL_MCP_IDS.filter((id) => enabled.has(id)) };
 }
 
 async function promptResponseLanguage(): Promise<string> {
@@ -166,34 +208,6 @@ async function promptResponseLanguage(): Promise<string> {
   );
 
   return responseLanguage.trim();
-}
-
-async function promptTemplateSource(): Promise<TemplateSource> {
-  const promptCtx = tryGetPromptContext();
-  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
-  if (!interactive) {
-    throw new Error('No TTY available for interactive mode (run from a terminal).');
-  }
-
-  return await select<TemplateSource>(
-    {
-      message: 'Which templates source should be installed?',
-      choices: [
-        {
-          name: 'Main templates',
-          value: 'main',
-          description: 'Current default templates set',
-        },
-        {
-          name: 'V2 templates',
-          value: 'v2',
-          description: 'Install from v2/templates',
-        },
-      ],
-      default: 'main',
-    },
-    promptCtx
-  );
 }
 
 async function backupExistingOpencode(paths: { targetRoot: string; backupDir: string }, dryRun: boolean): Promise<string | undefined> {
@@ -233,8 +247,7 @@ async function main(): Promise<void> {
     : undefined;
 
   const paths = getInstallPaths(backupDir);
-  const templateSource = await promptTemplateSource();
-  const templatesRoot = resolveTemplateRoot(templateSource);
+  const templatesRoot = resolveTemplateRoot();
   const templatesAgents = path.join(templatesRoot, 'agents');
   const templatesSkills = path.join(templatesRoot, 'skills');
   const templatesPlugins = path.join(templatesRoot, 'plugins');
@@ -249,7 +262,7 @@ async function main(): Promise<void> {
 
   report.push(`Target: ${paths.targetRoot}`);
   report.push('Mode: apply');
-  report.push(`Templates source: ${templateSource} (${templatesRoot})`);
+  report.push(`Templates source: templates (${templatesRoot})`);
 
   let zipBackupPath: string | undefined;
   if (doBackup) {
@@ -267,25 +280,10 @@ async function main(): Promise<void> {
   report.push(`Replace: ${paths.targetAgents} <= ${templatesAgents}`);
   await copyDir(templatesAgents, paths.targetAgents);
 
-  const agentReplacements = await replaceResponseLanguagePlaceholders(paths.targetAgents, responseLanguage);
-  report.push(`Agents language placeholders: ${agentReplacements} replaced`);
-
   // Replace skills
   await removeIfExists(paths.targetSkills);
-  if (usesLanguageFilteredSkills(templateSource)) {
-    const languages = await promptLanguages();
-    const skillPlan = buildSkillCopyPlan(languages);
-    report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills} (selected: ${languages.join(',')})`);
-    for (const rel of skillPlan.relDirs) {
-      const src = path.join(templatesSkills, rel);
-      const dst = path.join(paths.targetSkills, rel);
-      report.push(`  - copy ${src} -> ${dst}`);
-      if (await pathExists(src)) await copyDir(src, dst);
-    }
-  } else {
-    report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills} (all skills from ${templateSource})`);
-    await copyDir(templatesSkills, paths.targetSkills);
-  }
+  report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills}`);
+  await copyDir(templatesSkills, paths.targetSkills);
 
   // Install plugins from template source (if provided)
   if (await pathExists(templatesPlugins)) {
@@ -306,26 +304,55 @@ async function main(): Promise<void> {
     tavily: path.join(paths.targetKeys, 'tavily_search.txt'),
   };
 
-  const keyInput = await promptForMissingKeys({ keyFiles });
+  const keyFilledState: Record<KeyId, boolean> = {
+    zaiApi: await isKeyFileFilled(keyFiles.zaiApi),
+    context7: await isKeyFileFilled(keyFiles.context7),
+    tavily: await isKeyFileFilled(keyFiles.tavily),
+  };
 
-  const keyWrites: Array<{ name: string; filePath: string; action: string; inputProvided: boolean }> = [
+  const selectedMcpIds = await promptEnabledMcpIds(keyFilledState);
+  report.push(`Enabled MCP (selected): ${selectedMcpIds.length > 0 ? selectedMcpIds.join(', ') : 'none'}`);
+
+  const { keyInput, enabledMcpIds } = await promptForEnabledKeys({
+    keyFiles,
+    keyFilledState,
+    enabledMcpIds: selectedMcpIds,
+  });
+  report.push(`Enabled MCP (final): ${enabledMcpIds.length > 0 ? enabledMcpIds.join(', ') : 'none'}`);
+
+  const agentReplacements = await replaceAgentPlaceholders(paths.targetAgents, {
+    [RESPONSE_LANGUAGE_PLACEHOLDER]: responseLanguage,
+    [MCP_WEB_RESEARCH_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getWebResearchPermissionPatterns(enabledMcpIds)),
+    [MCP_TESTER_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getTesterPermissionPatterns(enabledMcpIds)),
+    [MCP_PLANNER_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getPlannerPermissionPatterns(enabledMcpIds)),
+    [MCP_DEV_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getDevPermissionPatterns(enabledMcpIds)),
+    [MCP_REVIEW_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getReviewPermissionPatterns(enabledMcpIds)),
+  });
+  report.push(`Agents placeholders: ${agentReplacements} files updated`);
+
+  const requiredKeys = new Set(collectRequiredKeys(enabledMcpIds));
+
+  const keyWrites: Array<{ name: 'zai_api' | 'context7' | 'tavily_search'; filePath: string; action: string; inputProvided: boolean }> = [
     { name: 'zai_api', filePath: keyFiles.zaiApi, action: '', inputProvided: keyInput.zaiApi !== undefined },
     { name: 'context7', filePath: keyFiles.context7, action: '', inputProvided: keyInput.context7 !== undefined },
     { name: 'tavily_search', filePath: keyFiles.tavily, action: '', inputProvided: keyInput.tavily !== undefined },
   ];
 
-  {
-    const r1 = await writeKeyFile(keyWrites[0]!.filePath, keyInput.zaiApi, false);
-    keyWrites[0]!.action = r1.action;
-    const r2 = await writeKeyFile(keyWrites[1]!.filePath, keyInput.context7, false);
-    keyWrites[1]!.action = r2.action;
-    const r3 = await writeKeyFile(keyWrites[2]!.filePath, keyInput.tavily, false);
-    keyWrites[2]!.action = r3.action;
+  for (const item of keyWrites) {
+    const keyId = keyIdFromWriteName(item.name);
+    if (!requiredKeys.has(keyId) && !item.inputProvided) {
+      item.action = 'skipped';
+      continue;
+    }
+
+    const result = await writeKeyFile(item.filePath, keyInput[keyId], false);
+    item.action = result.action;
   }
 
   for (const k of keyWrites) {
     report.push(`Key file: ${k.filePath} (${k.action}${k.inputProvided ? ', provided' : ''})`);
-    if (!(await isKeyFileFilled(k.filePath))) missingKeys.push(k.filePath);
+    const keyId = keyIdFromWriteName(k.name);
+    if (requiredKeys.has(keyId) && !(await isKeyFileFilled(k.filePath))) missingKeys.push(k.filePath);
   }
 
   // Global config
@@ -336,7 +363,7 @@ async function main(): Promise<void> {
     zaiApi: keyRefs.zaiApi,
     context7: keyRefs.context7,
     tavily: keyRefs.tavily,
-  }, {});
+  }, { enabledMcpIds });
   report.push(`Write: ${paths.globalConfig}`);
   await writeFileAtomic(paths.globalConfig, configContent);
 
@@ -354,23 +381,37 @@ main().catch((error: unknown) => {
   process.exitCode = 1;
 });
 
-async function replaceResponseLanguagePlaceholders(rootDir: string, responseLanguage: string): Promise<number> {
+function keyIdFromWriteName(name: 'zai_api' | 'context7' | 'tavily_search'): KeyId {
+  if (name === 'zai_api') return 'zaiApi';
+  if (name === 'context7') return 'context7';
+  return 'tavily';
+}
+
+function renderPermissionLines(patterns: string[]): string {
+  return patterns.map((pattern) => `${pattern}: allow`).join('\n');
+}
+
+async function replaceAgentPlaceholders(rootDir: string, replacementsByToken: Record<string, string>): Promise<number> {
   let replacements = 0;
 
   const entries = await fs.readdir(rootDir, { withFileTypes: true });
   for (const entry of entries) {
     const entryPath = path.join(rootDir, entry.name);
     if (entry.isDirectory()) {
-      replacements += await replaceResponseLanguagePlaceholders(entryPath, responseLanguage);
+      replacements += await replaceAgentPlaceholders(entryPath, replacementsByToken);
       continue;
     }
 
     if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
 
     const content = await fs.readFile(entryPath, 'utf8');
-    if (!content.includes(RESPONSE_LANGUAGE_PLACEHOLDER)) continue;
+    let updated = content;
+    for (const [token, value] of Object.entries(replacementsByToken)) {
+      if (!updated.includes(token)) continue;
+      const lineScopedTokenRegex = new RegExp(`^(\\s*)${escapeRegex(token)}\\s*$`, 'gm');
+      updated = updated.replace(lineScopedTokenRegex, (_match, indent: string) => indentBlock(value, indent));
+    }
 
-    const updated = content.split(RESPONSE_LANGUAGE_PLACEHOLDER).join(responseLanguage);
     if (updated !== content) {
       await writeFileAtomic(entryPath, updated);
       replacements += 1;
@@ -378,4 +419,16 @@ async function replaceResponseLanguagePlaceholders(rootDir: string, responseLang
   }
 
   return replacements;
+}
+
+function indentBlock(content: string, indent: string): string {
+  if (content.length === 0) return '';
+  return content
+    .split('\n')
+    .map((line) => `${indent}${line}`)
+    .join('\n');
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

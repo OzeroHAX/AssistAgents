@@ -13,8 +13,7 @@
   },
   "files": [
     "dist",
-    "templates",
-    "v2/templates"
+    "templates"
   ],
   "engines": {
     "node": ">=18"
