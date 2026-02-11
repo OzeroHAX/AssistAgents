@@ -1,11 +1,6 @@
 import type { McpId } from './mcp-registry.js';
 import { getAllMcpToolPatterns, renderMcpConfigEntries } from './mcp-registry.js';
-
-export type KeyFiles = {
-  zaiApi: string;
-  context7: string;
-  tavily: string;
-};
+import type { KeyFiles } from './key-registry.js';
 
 export type ConfigTemplateOptions = {
   plugins?: string[];

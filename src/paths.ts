@@ -1,6 +1,9 @@
 import os from 'node:os';
 import path from 'node:path';
 
+import type { KeyFiles } from './key-registry.js';
+import { getKeyFileRefsForBase } from './key-registry.js';
+
 export type InstallPaths = {
   targetRoot: string;
   targetAgents: string;
@@ -34,11 +37,7 @@ export function getInstallPaths(backupDirFlag?: string): InstallPaths {
   };
 }
 
-export function getKeyFileRefs(): { zaiApi: string; context7: string; tavily: string } {
+export function getKeyFileRefs(): KeyFiles {
   // Important: OpenCode supports ~ inside {file:...} references.
-  return {
-    zaiApi: '~/.opencode/keys/zai_api.txt',
-    context7: '~/.opencode/keys/context7.txt',
-    tavily: '~/.opencode/keys/tavily_search.txt',
-  };
+  return getKeyFileRefsForBase('~/.opencode/keys');
 }

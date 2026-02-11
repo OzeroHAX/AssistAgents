@@ -6,30 +6,22 @@ import fsSync from 'node:fs';
 import { Readable, Writable } from 'node:stream';
 
 import { renderGlobalConfigJsonc } from './config-template.js';
+import { AGENT_MCP_CONFIGS } from './agent-config/index.js';
 import { zipDirectory } from './backup.js';
 import { chmod600IfPossible, copyDir, ensureDir, isNonEmptyDir, pathExists, removeIfExists, writeFileAtomic } from './fs-utils.js';
+import { buildKeyFiles, getKeyLabel, type KeyId } from './key-registry.js';
 import { getInstallPaths, getKeyFileRefs } from './paths.js';
 import {
   ALL_MCP_IDS,
   collectRequiredKeys,
-  getDevPermissionPatterns,
   getDefaultEnabledMcpIds,
   getMcpDefinitions,
   getMcpIdsRequiringKey,
-  getPlannerPermissionPatterns,
-  getReviewPermissionPatterns,
-  getTesterPermissionPatterns,
-  getWebResearchPermissionPatterns,
-  type KeyId,
+  getToolPatternsForMcpIds,
   type McpId,
 } from './mcp-registry.js';
 
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
-const MCP_WEB_RESEARCH_PERMISSIONS_PLACEHOLDER = '{{mcp_web_research_permissions}}';
-const MCP_TESTER_PERMISSIONS_PLACEHOLDER = '{{mcp_tester_permissions}}';
-const MCP_PLANNER_PERMISSIONS_PLACEHOLDER = '{{mcp_planner_permissions}}';
-const MCP_DEV_PERMISSIONS_PLACEHOLDER = '{{mcp_dev_permissions}}';
-const MCP_REVIEW_PERMISSIONS_PLACEHOLDER = '{{mcp_review_permissions}}';
 
 function getTemplatesRoot(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
@@ -121,14 +113,8 @@ async function promptEnabledMcpIds(keyFilledState: Record<KeyId, boolean>): Prom
   return selected as McpId[];
 }
 
-function keyLabel(keyId: KeyId): string {
-  if (keyId === 'zaiApi') return 'ZAI_API_KEY';
-  if (keyId === 'context7') return 'CONTEXT7_API_KEY';
-  return 'TAVILY_API_KEY';
-}
-
 async function promptForEnabledKeys(opts: {
-  keyFiles: { zaiApi: string; context7: string; tavily: string };
+  keyFiles: Record<KeyId, string>;
   keyFilledState: Record<KeyId, boolean>;
   enabledMcpIds: McpId[];
 }): Promise<{ keyInput: { zaiApi?: string; context7?: string; tavily?: string }; enabledMcpIds: McpId[] }> {
@@ -147,7 +133,7 @@ async function promptForEnabledKeys(opts: {
 
     if (filled) {
       const keep = await confirm(
-        { message: `${keyLabel(keyId)}: file already has a value (${filePath}). Keep it?`, default: true },
+        { message: `${getKeyLabel(keyId)}: file already has a value (${filePath}). Keep it?`, default: true },
         promptCtx
       );
 
@@ -155,7 +141,7 @@ async function promptForEnabledKeys(opts: {
 
       const value = await password(
         {
-          message: `Enter ${keyLabel(keyId)} (we will store it in ${filePath})`,
+          message: `Enter ${getKeyLabel(keyId)} (we will store it in ${filePath})`,
           mask: '*',
           validate: (v) => (v.trim().length > 0 ? true : 'Value cannot be empty'),
         },
@@ -166,7 +152,7 @@ async function promptForEnabledKeys(opts: {
     }
 
     const enterNow = await confirm(
-      { message: `${keyLabel(keyId)} not found. Enter it now?`, default: false },
+      { message: `${getKeyLabel(keyId)} not found. Enter it now?`, default: false },
       promptCtx
     );
 
@@ -179,7 +165,7 @@ async function promptForEnabledKeys(opts: {
 
     const value = await password(
       {
-        message: `Enter ${keyLabel(keyId)} (we will store it in ${filePath})`,
+        message: `Enter ${getKeyLabel(keyId)} (we will store it in ${filePath})`,
         mask: '*',
         validate: (v) => (v.trim().length > 0 ? true : 'Value cannot be empty'),
       },
@@ -298,11 +284,7 @@ async function main(): Promise<void> {
   report.push(`Keys dir: ${paths.targetKeys}`);
   await ensureDir(paths.targetKeys);
 
-  const keyFiles = {
-    zaiApi: path.join(paths.targetKeys, 'zai_api.txt'),
-    context7: path.join(paths.targetKeys, 'context7.txt'),
-    tavily: path.join(paths.targetKeys, 'tavily_search.txt'),
-  };
+  const keyFiles = buildKeyFiles(paths.targetKeys);
 
   const keyFilledState: Record<KeyId, boolean> = {
     zaiApi: await isKeyFileFilled(keyFiles.zaiApi),
@@ -320,39 +302,40 @@ async function main(): Promise<void> {
   });
   report.push(`Enabled MCP (final): ${enabledMcpIds.length > 0 ? enabledMcpIds.join(', ') : 'none'}`);
 
+  const mcpPermissionReplacements: Record<string, string> = Object.fromEntries(
+    AGENT_MCP_CONFIGS.map((config) => [
+      config.placeholderToken,
+      renderPermissionLines(getToolPatternsForMcpIds(enabledMcpIds, config.allowedMcpIds)),
+    ])
+  );
+
   const agentReplacements = await replaceAgentPlaceholders(paths.targetAgents, {
     [RESPONSE_LANGUAGE_PLACEHOLDER]: responseLanguage,
-    [MCP_WEB_RESEARCH_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getWebResearchPermissionPatterns(enabledMcpIds)),
-    [MCP_TESTER_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getTesterPermissionPatterns(enabledMcpIds)),
-    [MCP_PLANNER_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getPlannerPermissionPatterns(enabledMcpIds)),
-    [MCP_DEV_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getDevPermissionPatterns(enabledMcpIds)),
-    [MCP_REVIEW_PERMISSIONS_PLACEHOLDER]: renderPermissionLines(getReviewPermissionPatterns(enabledMcpIds)),
+    ...mcpPermissionReplacements,
   });
   report.push(`Agents placeholders: ${agentReplacements} files updated`);
 
   const requiredKeys = new Set(collectRequiredKeys(enabledMcpIds));
 
-  const keyWrites: Array<{ name: 'zai_api' | 'context7' | 'tavily_search'; filePath: string; action: string; inputProvided: boolean }> = [
-    { name: 'zai_api', filePath: keyFiles.zaiApi, action: '', inputProvided: keyInput.zaiApi !== undefined },
-    { name: 'context7', filePath: keyFiles.context7, action: '', inputProvided: keyInput.context7 !== undefined },
-    { name: 'tavily_search', filePath: keyFiles.tavily, action: '', inputProvided: keyInput.tavily !== undefined },
+  const keyWrites: Array<{ keyId: KeyId; filePath: string; action: string; inputProvided: boolean }> = [
+    { keyId: 'zaiApi', filePath: keyFiles.zaiApi, action: '', inputProvided: keyInput.zaiApi !== undefined },
+    { keyId: 'context7', filePath: keyFiles.context7, action: '', inputProvided: keyInput.context7 !== undefined },
+    { keyId: 'tavily', filePath: keyFiles.tavily, action: '', inputProvided: keyInput.tavily !== undefined },
   ];
 
   for (const item of keyWrites) {
-    const keyId = keyIdFromWriteName(item.name);
-    if (!requiredKeys.has(keyId) && !item.inputProvided) {
+    if (!requiredKeys.has(item.keyId) && !item.inputProvided) {
       item.action = 'skipped';
       continue;
     }
 
-    const result = await writeKeyFile(item.filePath, keyInput[keyId], false);
+    const result = await writeKeyFile(item.filePath, keyInput[item.keyId], false);
     item.action = result.action;
   }
 
   for (const k of keyWrites) {
     report.push(`Key file: ${k.filePath} (${k.action}${k.inputProvided ? ', provided' : ''})`);
-    const keyId = keyIdFromWriteName(k.name);
-    if (requiredKeys.has(keyId) && !(await isKeyFileFilled(k.filePath))) missingKeys.push(k.filePath);
+    if (requiredKeys.has(k.keyId) && !(await isKeyFileFilled(k.filePath))) missingKeys.push(k.filePath);
   }
 
   // Global config
@@ -380,12 +363,6 @@ main().catch((error: unknown) => {
   process.stderr.write(`assistagents failed: ${message}\n`);
   process.exitCode = 1;
 });
-
-function keyIdFromWriteName(name: 'zai_api' | 'context7' | 'tavily_search'): KeyId {
-  if (name === 'zai_api') return 'zaiApi';
-  if (name === 'context7') return 'context7';
-  return 'tavily';
-}
 
 function renderPermissionLines(patterns: string[]): string {
   return patterns.map((pattern) => `${pattern}: allow`).join('\n');

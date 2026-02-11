@@ -1,23 +1,17 @@
-import type { KeyFiles } from './config-template.js';
+import type { KeyFiles, KeyId } from './key-registry.js';
 
-export type KeyId = 'zaiApi' | 'context7' | 'tavily';
+export const MCP = {
+  TAVILY_SEARCH: 'tavily-search',
+  DDG_SEARCH: 'ddg-search',
+  ZAI_WEB_SEARCH: 'zai-web-search',
+  ZAI_WEB_READER: 'zai-web-reader',
+  CONTEXT7: 'context7',
+  GITHUB_GREP: 'github-grep',
+  DEEPWIKI: 'deepwiki',
+  CHROME_DEVTOOLS: 'chrome-devtools',
+} as const;
 
-export type McpId =
-  | 'tavily-search'
-  | 'ddg-search'
-  | 'zai-web-search'
-  | 'zai-web-reader'
-  | 'context7'
-  | 'github-grep'
-  | 'deepwiki'
-  | 'chrome-devtools';
-
-export type AgentMcpPermissionGroup =
-  | 'webResearch'
-  | 'tester'
-  | 'planner'
-  | 'dev'
-  | 'review';
+export type McpId = (typeof MCP)[keyof typeof MCP];
 
 type McpConfig = {
   type: 'remote' | 'local';
@@ -36,7 +30,7 @@ type McpDefinition = {
 
 const MCP_REGISTRY: readonly McpDefinition[] = [
   {
-    id: 'tavily-search',
+    id: MCP.TAVILY_SEARCH,
     label: 'tavily-search',
     requiresKeys: ['tavily'],
     toolPattern: 'tavily-search*',
@@ -46,7 +40,7 @@ const MCP_REGISTRY: readonly McpDefinition[] = [
     }),
   },
   {
-    id: 'ddg-search',
+    id: MCP.DDG_SEARCH,
     label: 'ddg-search',
     requiresKeys: [],
     toolPattern: 'ddg-search*',
@@ -56,7 +50,7 @@ const MCP_REGISTRY: readonly McpDefinition[] = [
     }),
   },
   {
-    id: 'zai-web-search',
+    id: MCP.ZAI_WEB_SEARCH,
     label: 'zai-web-search',
     requiresKeys: ['zaiApi'],
     toolPattern: 'zai-web-search*',
@@ -69,7 +63,7 @@ const MCP_REGISTRY: readonly McpDefinition[] = [
     }),
   },
   {
-    id: 'zai-web-reader',
+    id: MCP.ZAI_WEB_READER,
     label: 'zai-web-reader',
     requiresKeys: ['zaiApi'],
     toolPattern: 'zai-web-reader*',
@@ -82,7 +76,7 @@ const MCP_REGISTRY: readonly McpDefinition[] = [
     }),
   },
   {
-    id: 'context7',
+    id: MCP.CONTEXT7,
     label: 'context7',
     requiresKeys: ['context7'],
     toolPattern: 'context7*',
@@ -95,7 +89,7 @@ const MCP_REGISTRY: readonly McpDefinition[] = [
     }),
   },
   {
-    id: 'github-grep',
+    id: MCP.GITHUB_GREP,
     label: 'github-grep',
     requiresKeys: [],
     toolPattern: 'github-grep*',
@@ -105,7 +99,7 @@ const MCP_REGISTRY: readonly McpDefinition[] = [
     }),
   },
   {
-    id: 'deepwiki',
+    id: MCP.DEEPWIKI,
     label: 'deepwiki',
     requiresKeys: [],
     toolPattern: 'deepwiki*',
@@ -115,7 +109,7 @@ const MCP_REGISTRY: readonly McpDefinition[] = [
     }),
   },
   {
-    id: 'chrome-devtools',
+    id: MCP.CHROME_DEVTOOLS,
     label: 'chrome-devtools',
     requiresKeys: [],
     toolPattern: 'chrome-devtools*',
@@ -125,14 +119,6 @@ const MCP_REGISTRY: readonly McpDefinition[] = [
     }),
   },
 ];
-
-const PERMISSION_GROUP_MCP_IDS: Record<AgentMcpPermissionGroup, readonly McpId[]> = {
-  webResearch: ['tavily-search', 'ddg-search', 'zai-web-search', 'zai-web-reader', 'context7', 'github-grep', 'deepwiki'],
-  tester: ['context7', 'github-grep', 'chrome-devtools'],
-  planner: ['context7', 'github-grep'],
-  dev: ['context7', 'github-grep'],
-  review: ['context7', 'github-grep'],
-};
 
 export const ALL_MCP_IDS: McpId[] = MCP_REGISTRY.map((mcp) => mcp.id);
 
@@ -191,29 +177,9 @@ export function getDefaultEnabledMcpIds(keyFilledState: Record<KeyId, boolean>):
   return enabled;
 }
 
-function getPermissionPatternsForGroup(enabledMcpIds: readonly McpId[], group: AgentMcpPermissionGroup): string[] {
+export function getToolPatternsForMcpIds(enabledMcpIds: readonly McpId[], allowedMcpIds: readonly McpId[]): string[] {
   const enabled = new Set(enabledMcpIds);
-  const allowedMcpIds = new Set(PERMISSION_GROUP_MCP_IDS[group]);
-  return MCP_REGISTRY.filter((definition) => enabled.has(definition.id) && allowedMcpIds.has(definition.id) && definition.toolPattern)
+  const allowed = new Set(allowedMcpIds);
+  return MCP_REGISTRY.filter((definition) => enabled.has(definition.id) && allowed.has(definition.id) && definition.toolPattern)
     .map((definition) => definition.toolPattern as string);
-}
-
-export function getWebResearchPermissionPatterns(enabledMcpIds: readonly McpId[]): string[] {
-  return getPermissionPatternsForGroup(enabledMcpIds, 'webResearch');
-}
-
-export function getTesterPermissionPatterns(enabledMcpIds: readonly McpId[]): string[] {
-  return getPermissionPatternsForGroup(enabledMcpIds, 'tester');
-}
-
-export function getPlannerPermissionPatterns(enabledMcpIds: readonly McpId[]): string[] {
-  return getPermissionPatternsForGroup(enabledMcpIds, 'planner');
-}
-
-export function getDevPermissionPatterns(enabledMcpIds: readonly McpId[]): string[] {
-  return getPermissionPatternsForGroup(enabledMcpIds, 'dev');
-}
-
-export function getReviewPermissionPatterns(enabledMcpIds: readonly McpId[]): string[] {
-  return getPermissionPatternsForGroup(enabledMcpIds, 'review');
 }
