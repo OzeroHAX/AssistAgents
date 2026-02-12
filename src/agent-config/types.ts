@@ -6,6 +6,7 @@ export const AGENT_IDS = {
   PLANNER: 'planner',
   DEV: 'dev',
   REVIEW: 'review',
+  PROJECT: 'project',
 } as const;
 
 export type AgentId = (typeof AGENT_IDS)[keyof typeof AGENT_IDS];
