@@ -22,6 +22,22 @@ import {
 } from './mcp-registry.js';
 
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
+const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '{{file_tools_dev_permissions}}';
+
+const DEV_CLASSIC_FILE_TOOLS_PERMISSIONS = [
+  'read: allow',
+  'grep: allow',
+  'glob: allow',
+  'list: allow',
+  'edit: allow',
+  'write: allow',
+  'apply_patch: allow',
+].join('\n');
+const DEV_HASH_FILE_TOOLS_PERMISSIONS = [
+  'hashread: allow',
+  'hashgrep: allow',
+  'hashedit: allow',
+].join('\n');
 
 function getTemplatesRoot(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
@@ -237,6 +253,7 @@ async function main(): Promise<void> {
   const templatesAgents = path.join(templatesRoot, 'agents');
   const templatesSkills = path.join(templatesRoot, 'skills');
   const templatesPlugins = path.join(templatesRoot, 'plugins');
+  const templatesTools = path.join(templatesRoot, 'tools');
 
   if (!(await pathExists(templatesAgents)) || !(await pathExists(templatesSkills))) {
     throw new Error(`templates not found at ${templatesRoot}. Is the package built correctly?`);
@@ -261,6 +278,15 @@ async function main(): Promise<void> {
   const responseLanguage = await promptResponseLanguage();
   report.push(`Response language: ${responseLanguage}`);
 
+  const enableHashFileTools = await confirm(
+    {
+      message: 'Enable experimental hash-based file tools? (Improves weak models + speeds up edits)',
+      default: false,
+    },
+    promptCtx
+  );
+  report.push(`Experimental hash file tools: ${enableHashFileTools ? 'enabled' : 'disabled'}`);
+
   // Replace agents
   await removeIfExists(paths.targetAgents);
   report.push(`Replace: ${paths.targetAgents} <= ${templatesAgents}`);
@@ -278,6 +304,16 @@ async function main(): Promise<void> {
     await copyDir(templatesPlugins, paths.targetPlugins);
   } else {
     report.push(`Plugins: none in ${templatesRoot}`);
+  }
+
+  if (enableHashFileTools) {
+    if (await pathExists(templatesTools)) {
+      report.push(`Copy tools: ${paths.targetTools} <= ${templatesTools}`);
+      await removeIfExists(paths.targetTools);
+      await copyDir(templatesTools, paths.targetTools);
+    } else {
+      report.push(`Tools: none in ${templatesRoot}`);
+    }
   }
 
   // Keys
@@ -309,8 +345,13 @@ async function main(): Promise<void> {
     ])
   );
 
+  const fileToolsDevPermissions = enableHashFileTools
+    ? DEV_HASH_FILE_TOOLS_PERMISSIONS
+    : DEV_CLASSIC_FILE_TOOLS_PERMISSIONS;
+
   const agentReplacements = await replaceAgentPlaceholders(paths.targetAgents, {
     [RESPONSE_LANGUAGE_PLACEHOLDER]: responseLanguage,
+    [FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER]: fileToolsDevPermissions,
     ...mcpPermissionReplacements,
   });
   report.push(`Agents placeholders: ${agentReplacements} files updated`);

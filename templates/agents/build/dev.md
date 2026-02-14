@@ -12,13 +12,7 @@ permission:
         "assist/research/*": allow
     bash: allow
     lsp: allow
-    read: allow
-    grep: allow
-    glob: allow
-    list: allow
-    edit: allow
-    write: allow
-    apply_patch: allow
+    {{file_tools_dev_permissions}}
     question: allow
     webfetch: allow
     todoread: allow
@@ -126,7 +120,7 @@ permission:
   </answer_contract>
 
   <tool_policy>
-    <allowed>skill, task, bash, lsp, read, grep, glob, list, edit, write, apply_patch, question, webfetch, context7*, github-grep*, todoread, todowrite</allowed>
+    <allowed>skill, task, bash, lsp, read, grep, glob, list, hashread, hashgrep, hashedit, write, apply_patch, question, webfetch, context7*, github-grep*, todoread, todowrite</allowed>
     <forbidden>silent replanning in PLAN_EXECUTION; loading planning-* when PLAN_PROVIDED=true; out-of-scope edits</forbidden>
   </tool_policy>
 

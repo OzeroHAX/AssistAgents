@@ -53,3 +53,27 @@ test('all configured placeholders have valid allowedMcpIds', () => {
     }
   }
 });
+
+const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '{{file_tools_dev_permissions}}';
+
+test('build/dev file-tools placeholder is wired in cli replacements', () => {
+  const devTemplate = readFileSync('templates/agents/build/dev.md', 'utf-8');
+  assert.match(devTemplate, /\{\{file_tools_dev_permissions\}\}/);
+
+  const cliSource = readFileSync('src/cli.ts', 'utf-8');
+  assert.match(
+    cliSource,
+    /const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '\{\{file_tools_dev_permissions\}\}';/,
+    'src/cli.ts must define file tools placeholder token',
+  );
+  assert.match(
+    cliSource,
+    /\[FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER\]:\s*fileToolsDevPermissions,/,
+    'src/cli.ts must always provide replacement for file tools placeholder',
+  );
+  assert.equal(
+    devTemplate.includes(FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER),
+    true,
+    'build/dev template must include file tools placeholder',
+  );
+});

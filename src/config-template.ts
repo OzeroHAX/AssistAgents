@@ -57,6 +57,10 @@ export function renderGlobalConfigJsonc(keyFiles: KeyFiles, options: ConfigTempl
     "webfetch": "deny",
     "websearch": "deny",
     "skill": "deny",
+    "apply_patch": "deny",
+    "hashread": "deny",
+    "hashgrep": "deny",
+    "hashedit": "deny",
     // MCP
 ${mcpPermissionDenySection}
   },

@@ -9,6 +9,7 @@ export type InstallPaths = {
   targetAgents: string;
   targetSkills: string;
   targetPlugins: string;
+  targetTools: string;
   targetKeys: string;
   globalConfig: string;
   backupDir: string;
@@ -31,6 +32,7 @@ export function getInstallPaths(backupDirFlag?: string): InstallPaths {
     targetAgents: path.join(targetRoot, 'agents'),
     targetSkills: path.join(targetRoot, 'skills'),
     targetPlugins: path.join(targetRoot, 'plugins'),
+    targetTools: path.join(targetRoot, 'tools'),
     targetKeys: path.join(targetRoot, 'keys'),
     globalConfig: path.join(targetRoot, 'opencode.jsonc'),
     backupDir,

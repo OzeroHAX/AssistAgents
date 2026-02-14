@@ -85,7 +85,7 @@ function isMutatingTool(input: unknown): boolean {
   const tool = data.tool;
   if (typeof tool !== 'string') return false;
 
-  if (tool === 'edit' || tool === 'write' || tool === 'apply_patch') return true;
+  if (tool === 'edit' || tool === 'write' || tool === 'apply_patch' || tool === 'hashedit') return true;
 
   if (tool === 'task') {
     const args = (data.args ?? {}) as Record<string, unknown>;
@@ -141,7 +141,7 @@ const PlanPersistGuardPlugin = async () => {
       const data = input as Record<string, unknown>;
       const tool = data.tool;
 
-      if (tool !== 'write' && tool !== 'edit') {
+      if (tool !== 'write' && tool !== 'edit' && tool !== 'hashedit') {
         return;
       }
 
@@ -184,7 +184,7 @@ const PlanPersistGuardPlugin = async () => {
       }
 
       const data = input as Record<string, unknown>;
-      if (data.tool === 'write' || data.tool === 'edit') {
+      if (data.tool === 'write' || data.tool === 'edit' || data.tool === 'hashedit') {
         const filePath = getPathFromArgs(data.args);
         if (isDevPlanPath(filePath)) {
           return;
