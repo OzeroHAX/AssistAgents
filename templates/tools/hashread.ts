@@ -2,7 +2,17 @@ import { tool } from "@opencode-ai/plugin"
 import { promises as fs } from "node:fs"
 
 import textFile from "./text-file"
-const { DEFAULT_MAX_BYTES, detectLineEnding, decodeUtf8OrThrow, ensureInsideWorktree, fileRevCanonical, linesToRecords, splitLinesCanonical, toWorkspacePath } = textFile
+const {
+  DEFAULT_MAX_BYTES,
+  detectLineEnding,
+  decodeUtf8OrThrow,
+  ensureInsideWorktree,
+  fileRevCanonical,
+  formatLineRecords,
+  linesToRecords,
+  splitLinesCanonical,
+  toWorkspacePath,
+} = textFile
 
 const DEFAULT_LIMIT = 200
 const MAX_LIMIT = 400
@@ -16,21 +26,26 @@ function makeError(
   lineEnding: "LF" | "CRLF" | null = null,
   encoding: "utf-8" | null = "utf-8",
 ) {
-  return JSON.stringify({
-    status: "ERROR",
-    path: pathValue,
-    file: {
-      rev,
-      encoding,
-      line_ending: lineEnding,
-      total_lines: totalLines,
-    },
-    error: {
-      code,
-      message,
-      path: pathValue,
-    },
-  })
+  const lines = [
+    `ERROR ${code}`,
+    `PATH ${pathValue || "-"}`,
+    `REV ${rev ?? "-"}`,
+    `MESSAGE ${message}`,
+  ]
+
+  if (encoding) {
+    lines.push(`ENCODING ${encoding}`)
+  }
+
+  if (lineEnding) {
+    lines.push(`LINE_ENDING ${lineEnding}`)
+  }
+
+  if (totalLines !== null) {
+    lines.push(`TOTAL_LINES ${totalLines}`)
+  }
+
+  return lines.join("\n")
 }
 
 export default tool({
@@ -128,24 +143,19 @@ export default tool({
     const returned = selected.length
     const hasMore = offset + returned < totalLines
 
-    return JSON.stringify({
-      status: "OK",
-      path: safePath,
-      preamble: `Read ${returned} of ${totalLines} lines from ${safePath} (offset=${offset}, limit=${limit}).`,
-      file: {
-        rev,
-        encoding: "utf-8",
-        line_ending: lineEnding,
-        total_lines: totalLines,
-      },
-      range: {
-        offset,
-        limit,
-        returned,
-        has_more: hasMore,
-        next_offset: hasMore ? offset + returned : null,
-      },
-      lines: linesToRecords(selected, offset + 1),
-    })
+    const lineRecords = formatLineRecords(linesToRecords(selected, offset + 1))
+    const output = [
+      "OK",
+      `PATH ${safePath}`,
+      `REV ${rev}`,
+      "ENCODING utf-8",
+      `LINE_ENDING ${lineEnding}`,
+      `TOTAL_LINES ${totalLines}`,
+      `RANGE offset=${offset} limit=${limit} returned=${returned} has_more=${hasMore} next_offset=${hasMore ? offset + returned : "-"}`,
+      "---",
+      ...lineRecords,
+    ]
+
+    return output.join("\n")
   },
 })

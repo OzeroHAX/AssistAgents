@@ -9,7 +9,6 @@ type LineEnding = "LF" | "CRLF"
 type LineRecord = {
   n: number
   h: string
-  tag: string
   t: string
 }
 
@@ -86,7 +85,6 @@ function makeLineRecord(n: number, text: string, prefixLen = DEFAULT_LINE_HASH_P
   return {
     n,
     h,
-    tag: `${n}L:${h}`,
     t: text,
   }
 }
@@ -97,6 +95,14 @@ function linesToRecords(lines: string[], startAt = 1, prefixLen = DEFAULT_LINE_H
     records.push(makeLineRecord(startAt + index, lines[index] ?? "", prefixLen))
   }
   return records
+}
+
+function formatLineRecord(record: LineRecord): string {
+  return `${record.n}L:${record.h} ${record.t}`
+}
+
+function formatLineRecords(records: LineRecord[]): string[] {
+  return records.map((record) => formatLineRecord(record))
 }
 
 function joinWithLineEnding(lines: string[], lineEnding: LineEnding): string {
@@ -120,17 +126,17 @@ const textFile = {
   fileRevCanonical,
   makeLineRecord,
   linesToRecords,
+  formatLineRecord,
+  formatLineRecords,
   joinWithLineEnding,
   description: "Internal hash text helpers (not for direct use)",
   args: {},
   async execute() {
-    return JSON.stringify({
-      status: "ERROR",
-      error: {
-        code: "INTERNAL_ONLY",
-        message: "text-file is an internal helper module and is not callable as a tool",
-      },
-    })
+    return [
+      "ERROR INTERNAL_ONLY",
+      "PATH text-file",
+      "HINT text-file is an internal helper module and is not callable as a tool",
+    ].join("\n")
   },
 }
 

@@ -1,8 +1,9 @@
 import { tool } from "@opencode-ai/plugin"
 import { promises as fs } from "node:fs"
+import { inspect } from "node:util"
 
 import textFile from "./text-file"
-const { DEFAULT_MAX_BYTES, detectLineEnding, decodeUtf8OrThrow, ensureInsideWorktree, fileRevCanonical, joinWithLineEnding, lineHashHexPrefix, linesToRecords, splitLinesCanonical, toWorkspacePath } = textFile
+const { DEFAULT_MAX_BYTES, detectLineEnding, decodeUtf8OrThrow, ensureInsideWorktree, fileRevCanonical, formatLineRecords, joinWithLineEnding, lineHashHexPrefix, linesToRecords, splitLinesCanonical, toWorkspacePath } = textFile
 
 type LineTarget = {
   n: number
@@ -304,8 +305,8 @@ function isLineTarget(value: BlockRef): value is LineTarget {
   return "n" in value && "h" in value
 }
 
-function collectCandidatesByHash(lines: string[], expectedHash: string): Array<{ n: number; h: string; tag: string; t: string }> {
-  const candidates: Array<{ n: number; h: string; tag: string; t: string }> = []
+function collectCandidatesByHash(lines: string[], expectedHash: string): Array<{ n: number; h: string; t: string }> {
+  const candidates: Array<{ n: number; h: string; t: string }> = []
 
   for (let index = 0; index < lines.length; index += 1) {
     const actualHash = lineHashHexPrefix(lines[index] ?? "")
@@ -313,7 +314,6 @@ function collectCandidatesByHash(lines: string[], expectedHash: string): Array<{
       candidates.push({
         n: index + 1,
         h: actualHash,
-        tag: `${index + 1}L:${actualHash}`,
         t: lines[index] ?? "",
       })
     }
@@ -328,19 +328,19 @@ function makeError(
   message: string,
   currentRev: string | null = null,
 ) {
-  return JSON.stringify({
-    status: "ERROR",
-    path: pathValue,
-    file: {
-      rev: currentRev,
-      current_rev: currentRev,
-    },
-    error: {
-      code,
-      message,
-      path: pathValue,
-    },
-  })
+  return [
+    `ERROR ${code}`,
+    `PATH ${pathValue || "-"}`,
+    `REV ${currentRev ?? "-"}`,
+    `MESSAGE ${message}`,
+  ].join("\n")
+}
+
+function formatDetail(name: string, value: unknown): string {
+  if (value === undefined) {
+    return ""
+  }
+  return `${name} ${inspect(value, { depth: 4, breakLength: 120 })}`
 }
 
 function makeConflict(
@@ -355,17 +355,26 @@ function makeConflict(
     candidates?: unknown
   },
 ) {
-  return JSON.stringify({
-    status: "CONFLICT",
-    path: pathValue,
-    file: {
-      rev: currentRev,
-      current_rev: currentRev,
-    },
-    current_rev: currentRev,
-    hint: "Run hashread to refresh current {n,h} line tags/hashes, then retry the operation with updated targets.",
-    ...details,
-  })
+  const lines = [
+    "CONFLICT",
+    `PATH ${pathValue}`,
+    `REV ${currentRev}`,
+    `FAILED_OP_INDEX ${details.failed_op_index ?? "-"}`,
+    `REASON ${details.reason}`,
+    "HINT Run hashread to refresh current {n,h} line hashes, then retry with updated targets.",
+  ]
+
+  const expected = formatDetail("EXPECTED", details.expected)
+  const actual = formatDetail("ACTUAL", details.actual)
+  const context = formatDetail("CONTEXT", details.context)
+  const candidates = formatDetail("CANDIDATES", details.candidates)
+
+  if (expected) lines.push(expected)
+  if (actual) lines.push(actual)
+  if (context) lines.push(context)
+  if (candidates) lines.push(candidates)
+
+  return lines.join("\n")
 }
 
 function contextAround(lines: string[], lineNumber: number, contextLines: number) {
@@ -696,51 +705,47 @@ export default tool({
 
     const newRev = fileRevCanonical(nextLines)
 
-    const opResults = plans
-      .sort((left, right) => left.sourceIndex - right.sourceIndex)
-      .map((plan) => {
-        const result: Record<string, unknown> = {
-          index: plan.sourceIndex,
-          op: plan.op.op,
-          status: "OK",
-          line_delta: plan.lineDelta,
-          no_op: !plan.didChange,
-        }
+    const sortedPlans = [...plans].sort((left, right) => left.sourceIndex - right.sourceIndex)
+    const opLines = sortedPlans.map(
+      (plan) => `OP ${plan.sourceIndex} ${plan.op.op} OK line_delta=${plan.lineDelta} no_op=${!plan.didChange}`,
+    )
 
-        if (includeChangedBlock) {
-          const beforeStart = Math.max(0, plan.start - contextLines)
-          const before = nextLines.slice(beforeStart, plan.start)
-          const block = nextLines.slice(plan.start, Math.min(nextLines.length, plan.start + Math.max(plan.replacement.length, 1)))
-          const after = nextLines.slice(plan.start + block.length, plan.start + block.length + contextLines)
-          result.changed = {
-            before: linesToRecords(before, beforeStart + 1),
-            block: linesToRecords(block, plan.start + 1),
-            after: linesToRecords(after, plan.start + block.length + 1),
-          }
-        }
+    const output = [
+      "OK",
+      `PATH ${safePath}`,
+      `REV_BEFORE ${currentRev}`,
+      `REV_AFTER ${newRev}`,
+      `OPS ${opLines.length}`,
+      ...(usedAutoBaseRev ? ["AUTO_BASE_REV true"] : []),
+      ...(created ? ["CREATED true"] : []),
+      ...(currentRev === newRev ? ["NO_OP true"] : []),
+      ...opLines,
+    ]
 
-        return result
-      })
+    if (includeChangedBlock) {
+      for (const plan of sortedPlans) {
+        const beforeStart = Math.max(0, plan.start - contextLines)
+        const before = nextLines.slice(beforeStart, plan.start)
+        const block = nextLines.slice(plan.start, Math.min(nextLines.length, plan.start + Math.max(plan.replacement.length, 1)))
+        const after = nextLines.slice(plan.start + block.length, plan.start + block.length + contextLines)
 
-    return JSON.stringify({
-      status: "OK",
-      path: safePath,
-      file: {
-        rev: currentRev,
-        new_rev: newRev,
-        current_rev: currentRev,
-        encoding: "utf-8",
-        line_ending: lineEnding,
-        total_lines: nextLines.length,
-      },
-      base_rev: effectiveBaseRev,
-      current_rev: currentRev,
-      new_rev: newRev,
-      ...(usedAutoBaseRev ? { auto_base_rev: true } : {}),
-      ...(created ? { created: true } : {}),
-      ...(currentRev === newRev ? { no_op: true } : {}),
-      ops: opResults,
-      ...(includeFileAfter ? { file_after: linesToRecords(nextLines) } : {}),
-    })
+        output.push("---")
+        output.push(`CHANGED_OP ${plan.sourceIndex}`)
+        output.push("CHANGED_BEFORE")
+        output.push(...formatLineRecords(linesToRecords(before, beforeStart + 1)))
+        output.push("CHANGED_BLOCK")
+        output.push(...formatLineRecords(linesToRecords(block, plan.start + 1)))
+        output.push("CHANGED_AFTER")
+        output.push(...formatLineRecords(linesToRecords(after, plan.start + block.length + 1)))
+      }
+    }
+
+    if (includeFileAfter) {
+      output.push("---")
+      output.push("FILE_AFTER")
+      output.push(...formatLineRecords(linesToRecords(nextLines)))
+    }
+
+    return output.join("\n")
   },
 })
