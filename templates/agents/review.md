@@ -2,6 +2,7 @@
 description: Code Review Agent
 temperature: 0.1
 mode: primary
+{{model_review}}
 permission:
      skill:
         "shared-*": allow

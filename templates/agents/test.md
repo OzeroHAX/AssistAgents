@@ -2,6 +2,7 @@
 description: Testing (Read-Only + Reports)
 temperature: 0.1
 mode: primary
+{{model_test}}
 permission:
     skill:
         "shared-*": allow

@@ -2,6 +2,7 @@
 description: Decomposition
 temperature: 0.1
 mode: subagent
+{{model_assist}}
 permission:
    skill:
       "shared-*": allow

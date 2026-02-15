@@ -2,6 +2,7 @@
 description: Web Research
 temperature: 0.1
 mode: subagent
+{{model_assist}}
 permission:
    webfetch: allow
    {{mcp_web_research_permissions}}

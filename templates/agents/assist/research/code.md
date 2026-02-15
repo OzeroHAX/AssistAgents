@@ -2,6 +2,7 @@
 description: Code Research
 temperature: 0.1
 mode: subagent
+{{model_assist}}
 permission:
    bash:
       "*": deny

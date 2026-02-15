@@ -24,6 +24,74 @@ import {
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
 const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '{{file_tools_dev_permissions}}';
 const BASH_READONLY_PERMISSION_PLACEHOLDER = '{{bash_readonly_permissions}}';
+const MODEL_ASSIST_PLACEHOLDER = '{{model_assist}}';
+const MODEL_PROJECT_PLACEHOLDER = '{{model_project}}';
+const MODEL_BUILD_PLANNER_PLACEHOLDER = '{{model_build_planner}}';
+const MODEL_BUILD_DEV_PLACEHOLDER = '{{model_build_dev}}';
+const MODEL_REVIEW_PLACEHOLDER = '{{model_review}}';
+const MODEL_TEST_PLACEHOLDER = '{{model_test}}';
+const MODEL_ASK_PLACEHOLDER = '{{model_ask}}';
+const MODEL_DOC_PLACEHOLDER = '{{model_doc}}';
+
+type AgentModelTarget = {
+  id: 'assist' | 'project' | 'build/planner' | 'build/dev' | 'review' | 'test' | 'ask' | 'doc';
+  label: string;
+  defaultModel: string;
+  placeholderTokens: string[];
+};
+
+const AGENT_MODEL_TARGETS: AgentModelTarget[] = [
+  {
+    id: 'assist',
+    label: 'assist*',
+    defaultModel: 'zai-coding-plan/GLM-5',
+    placeholderTokens: [MODEL_ASSIST_PLACEHOLDER],
+  },
+  {
+    id: 'project',
+    label: 'project',
+    defaultModel: 'openai/gpt-5.2',
+    placeholderTokens: [MODEL_PROJECT_PLACEHOLDER],
+  },
+  {
+    id: 'build/planner',
+    label: 'build/planner',
+    defaultModel: 'openai/gpt-5.2',
+    placeholderTokens: [MODEL_BUILD_PLANNER_PLACEHOLDER],
+  },
+  {
+    id: 'build/dev',
+    label: 'build/dev',
+    defaultModel: 'openai/gpt-5.3-codex',
+    placeholderTokens: [MODEL_BUILD_DEV_PLACEHOLDER],
+  },
+  {
+    id: 'review',
+    label: 'review',
+    defaultModel: 'zai-coding-plan/GLM-5',
+    placeholderTokens: [MODEL_REVIEW_PLACEHOLDER],
+  },
+  {
+    id: 'test',
+    label: 'test',
+    defaultModel: 'zai-coding-plan/GLM-5',
+    placeholderTokens: [MODEL_TEST_PLACEHOLDER],
+  },
+  {
+    id: 'ask',
+    label: 'ask',
+    defaultModel: 'zai-coding-plan/GLM-5',
+    placeholderTokens: [MODEL_ASK_PLACEHOLDER],
+  },
+  {
+    id: 'doc',
+    label: 'doc',
+    defaultModel: 'zai-coding-plan/GLM-5',
+    placeholderTokens: [MODEL_DOC_PLACEHOLDER],
+  },
+];
+
+const ALL_MODEL_PLACEHOLDER_TOKENS = AGENT_MODEL_TARGETS.flatMap((target) => target.placeholderTokens);
 
 const DEV_CLASSIC_FILE_TOOLS_PERMISSIONS = [
   'read: allow',
@@ -231,6 +299,58 @@ async function promptResponseLanguage(): Promise<string> {
   return responseLanguage.trim();
 }
 
+async function promptAgentModels(): Promise<Record<string, string>> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  const selectedTargets = await checkbox(
+    {
+      message: 'Select agents to set explicit models (optional)',
+      instructions: 'Use Space to toggle, Enter to confirm',
+      choices: AGENT_MODEL_TARGETS.map((target) => ({
+        name: target.label,
+        value: target.id,
+        checked: false,
+      })),
+      required: false,
+    },
+    promptCtx
+  );
+
+  if (selectedTargets.length === 0) {
+    return {};
+  }
+
+  const replacementsByToken: Record<string, string> = {};
+  for (const targetId of selectedTargets as AgentModelTarget['id'][]) {
+    const target = AGENT_MODEL_TARGETS.find((item) => item.id === targetId);
+    if (!target) continue;
+
+    const rawModel = await input(
+      {
+        message: `Model for ${target.label}`,
+        default: target.defaultModel,
+        validate: (value) => {
+          if (/[\r\n]/.test(value)) return 'Model must be a single line';
+          if (value.trim().length === 0) return 'Model cannot be empty';
+          return true;
+        },
+      },
+      promptCtx
+    );
+
+    const model = rawModel.trim();
+    for (const placeholderToken of target.placeholderTokens) {
+      replacementsByToken[placeholderToken] = `model: ${model}`;
+    }
+  }
+
+  return replacementsByToken;
+}
+
 async function backupExistingOpencode(paths: { targetRoot: string; backupDir: string }, dryRun: boolean): Promise<string | undefined> {
   const nonEmpty = await isNonEmptyDir(paths.targetRoot);
   if (!nonEmpty) return undefined;
@@ -296,6 +416,12 @@ async function main(): Promise<void> {
   const responseLanguage = await promptResponseLanguage();
   report.push(`Response language: ${responseLanguage}`);
 
+  const selectedModelReplacements = await promptAgentModels();
+  const selectedModelLabels = AGENT_MODEL_TARGETS
+    .filter((target) => target.placeholderTokens.some((token) => token in selectedModelReplacements))
+    .map((target) => target.label);
+  report.push(`Explicit agent models: ${selectedModelLabels.length > 0 ? selectedModelLabels.join(', ') : 'none'}`);
+
   const enableHashFileTools = await confirm(
     {
       message: 'Enable experimental hash-based file tools? (Improves weak models + speeds up edits)',
@@ -358,10 +484,14 @@ async function main(): Promise<void> {
     ? DEV_HASH_FILE_TOOLS_PERMISSIONS
     : DEV_CLASSIC_FILE_TOOLS_PERMISSIONS;
 
+  const modelPlaceholderReplacements: Record<string, string> = Object.fromEntries(
+    ALL_MODEL_PLACEHOLDER_TOKENS.map((token) => [token, selectedModelReplacements[token] ?? ''])
+  );
   const agentReplacements = await replaceAgentPlaceholders(paths.targetAgents, {
     [RESPONSE_LANGUAGE_PLACEHOLDER]: responseLanguage,
     [FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER]: fileToolsDevPermissions,
     [BASH_READONLY_PERMISSION_PLACEHOLDER]: BASH_READONLY_PERMISSIONS,
+    ...modelPlaceholderReplacements,
     ...mcpPermissionReplacements,
   });
   report.push(`Agents placeholders: ${agentReplacements} files updated`);

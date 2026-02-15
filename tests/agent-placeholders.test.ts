@@ -109,3 +109,86 @@ test('readonly bash placeholder is wired in cli and templates', () => {
     );
   }
 });
+
+const MODEL_PLACEHOLDER_EXPECTATIONS: Array<{ token: string; templates: string[]; cliConstantName: string }> = [
+  {
+    token: '{{model_assist}}',
+    cliConstantName: 'MODEL_ASSIST_PLACEHOLDER',
+    templates: [
+      'templates/agents/assist/research/web.md',
+      'templates/agents/assist/research/code.md',
+      'templates/agents/assist/creator/decomposition.md',
+    ],
+  },
+  {
+    token: '{{model_project}}',
+    cliConstantName: 'MODEL_PROJECT_PLACEHOLDER',
+    templates: ['templates/agents/project.md'],
+  },
+  {
+    token: '{{model_build_planner}}',
+    cliConstantName: 'MODEL_BUILD_PLANNER_PLACEHOLDER',
+    templates: ['templates/agents/build/planner.md'],
+  },
+  {
+    token: '{{model_build_dev}}',
+    cliConstantName: 'MODEL_BUILD_DEV_PLACEHOLDER',
+    templates: ['templates/agents/build/dev.md'],
+  },
+  {
+    token: '{{model_review}}',
+    cliConstantName: 'MODEL_REVIEW_PLACEHOLDER',
+    templates: ['templates/agents/review.md'],
+  },
+  {
+    token: '{{model_test}}',
+    cliConstantName: 'MODEL_TEST_PLACEHOLDER',
+    templates: ['templates/agents/test.md'],
+  },
+  {
+    token: '{{model_ask}}',
+    cliConstantName: 'MODEL_ASK_PLACEHOLDER',
+    templates: ['templates/agents/ask.md'],
+  },
+  {
+    token: '{{model_doc}}',
+    cliConstantName: 'MODEL_DOC_PLACEHOLDER',
+    templates: ['templates/agents/doc.md'],
+  },
+];
+
+function escapeForRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+test('model placeholders are wired in templates and cli replacements', () => {
+  const cliSource = readFileSync('src/cli.ts', 'utf-8');
+
+  for (const expectation of MODEL_PLACEHOLDER_EXPECTATIONS) {
+    assert.match(
+      cliSource,
+      new RegExp(`const ${expectation.cliConstantName} = '${escapeForRegex(expectation.token)}';`),
+      `src/cli.ts must define ${expectation.cliConstantName}`
+    );
+
+    for (const filePath of expectation.templates) {
+      const content = readFileSync(filePath, 'utf-8');
+      assert.equal(
+        content.includes(expectation.token),
+        true,
+        `${filePath} must include ${expectation.token}`
+      );
+    }
+  }
+
+  assert.match(
+    cliSource,
+    /ALL_MODEL_PLACEHOLDER_TOKENS\.map\(\(token\) => \[token, selectedModelReplacements\[token\] \?\? ''\]\)/,
+    'src/cli.ts must always provide replacements for all model placeholders'
+  );
+  assert.match(
+    cliSource,
+    /\.\.\.modelPlaceholderReplacements,/,
+    'src/cli.ts must pass model replacements into replaceAgentPlaceholders(...)'
+  );
+});

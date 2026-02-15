@@ -2,6 +2,7 @@
 description: Ask Agent
 temperature: 0.3
 mode: primary
+{{model_ask}}
 permission:
     skill:
         "shared-*": allow

@@ -2,12 +2,14 @@
 description: Planning (Read-Only)
 temperature: 0.1
 mode: primary
+{{model_build_planner}}
 permission:
     skill:
         "shared-*": allow
         "task-use-research-*": allow
         "planning-*": allow
         "code-*": allow
+        "docs-dev-plan": allow
     task:
         "assist/research/*": allow
     bash:
@@ -21,6 +23,7 @@ permission:
     edit: 
         "*": deny
         "ai-docs/dev-plans/**.md": allow
+    apply_patch: allow
     question: allow
     webfetch: allow
     todoread: allow

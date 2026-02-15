@@ -2,6 +2,7 @@
 description: Documentation (Docs-Only)
 temperature: 0.1
 mode: primary
+{{model_doc}}
 permission:
     skill:
         "shared-*": allow

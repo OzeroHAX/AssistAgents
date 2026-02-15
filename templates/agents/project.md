@@ -2,6 +2,7 @@
 description: Project Agent (Planning + Project Docs)
 temperature: 0.1
 mode: primary
+{{model_project}}
 permission:
     skill:
         "shared-*": allow

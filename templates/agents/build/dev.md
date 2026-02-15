@@ -2,6 +2,7 @@
 description: Build Dev Agent
 temperature: 0.1
 mode: primary
+{{model_build_dev}}
 permission:
     skill:
         "shared-*": allow
