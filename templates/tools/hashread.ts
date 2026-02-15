@@ -3,19 +3,20 @@ import { promises as fs } from "node:fs"
 
 import textFile from "./text-file"
 const {
-  DEFAULT_MAX_BYTES,
   detectLineEnding,
   decodeUtf8OrThrow,
   ensureInsideWorktree,
   fileRevCanonical,
   formatLineRecords,
   linesToRecords,
+  makeFileTooLargeError,
+  resolveEffectiveByteLimit,
   splitLinesCanonical,
   toWorkspacePath,
 } = textFile
 
 const DEFAULT_LIMIT = 200
-const MAX_LIMIT = 400
+const MAX_LIMIT = 200
 
 function makeError(
   pathValue: string,
@@ -49,15 +50,14 @@ function makeError(
 }
 
 export default tool({
-  description: "Read text file with canonical line tags and file revision",
+  description: "Read text file with canonical line tags and file revision (up to 200 lines per call)",
   args: {
     path: tool.schema.string().optional().describe("Absolute or relative path to file inside worktree"),
     filePath: tool.schema.string().optional().describe("Backward-compatible alias for path"),
     offset: tool.schema.number().int().min(0).optional().describe("Zero-based line offset"),
-    limit: tool.schema.number().int().positive().optional().describe("Max number of lines to return"),
-    startLine: tool.schema.number().int().positive().optional().describe("Backward-compatible start line (1-based)"),
-    endLine: tool.schema.number().int().positive().optional().describe("Backward-compatible end line (1-based, inclusive)"),
-    maxBytes: tool.schema.number().int().positive().optional().describe("Maximum readable file size in bytes"),
+    limit: tool.schema.number().int().positive().optional().describe("Max number of lines to return (hard-capped at 200)"),
+    startLine: tool.schema.number().int().positive().optional().describe("Backward-compatible start line (1-based); response remains capped at 200 lines"),
+    endLine: tool.schema.number().int().positive().optional().describe("Backward-compatible end line (1-based, inclusive); response remains capped at 200 lines"),
     want: tool.schema
       .object({
         line_tags: tool.schema.boolean().optional(),
@@ -96,9 +96,9 @@ export default tool({
       return makeError(safePath, maybeError.code ?? "READ_FAILED", maybeError.message)
     }
 
-    const maxBytes = args.maxBytes ?? DEFAULT_MAX_BYTES
-    if (fileBytes.length > maxBytes) {
-      return makeError(safePath, "FILE_TOO_LARGE", `File is larger than maxBytes (${maxBytes})`)
+    const byteLimit = resolveEffectiveByteLimit(fileBytes.length)
+    if (fileBytes.length > byteLimit.hardCapBytes) {
+      return makeFileTooLargeError(safePath, fileBytes.length, byteLimit.hardCapBytes)
     }
 
     const lineEnding = detectLineEnding(fileBytes)

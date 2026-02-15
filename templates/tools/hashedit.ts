@@ -3,7 +3,7 @@ import { promises as fs } from "node:fs"
 import { inspect } from "node:util"
 
 import textFile from "./text-file"
-const { DEFAULT_MAX_BYTES, detectLineEnding, decodeUtf8OrThrow, ensureInsideWorktree, fileRevCanonical, formatLineRecords, joinWithLineEnding, lineHashHexPrefix, linesToRecords, splitLinesCanonical, toWorkspacePath } = textFile
+const { detectLineEnding, decodeUtf8OrThrow, ensureInsideWorktree, fileRevCanonical, formatLineRecords, joinWithLineEnding, lineHashHexPrefix, linesToRecords, makeFileTooLargeError, resolveEffectiveByteLimit, splitLinesCanonical, toWorkspacePath } = textFile
 
 type LineTarget = {
   n: number
@@ -49,6 +49,7 @@ type ApplyPlan = {
   replacement: string[]
   lineDelta: number
   didChange: boolean
+  safeReapplied: boolean
 }
 type BaseRevResolution = {
   effectiveBaseRev: string | undefined
@@ -57,13 +58,14 @@ type BaseRevResolution = {
 
 const LINE_HASH_REGEX = /^[a-fA-F0-9]{10,16}$/
 const SUPPORTED_OPS = ["replace_line", "replace_block", "append_to_file", "set_file"] as const
+const MAX_FILE_AFTER_LINES = 200
 const OPS_CONTRACT_DESCRIPTION = [
   "Operation list (array or JSON-encoded array string).",
   `Supported ops: ${SUPPORTED_OPS.join(" | ")}.`,
-  'replace_line: { op, target:{ n, h }, newText|string alias(text|content|line) }',
-  'replace_block: { op, start, end, lines:string[] }',
-  'append_to_file: { op, lines:string[] }',
-  'set_file: { op, lines:string[] }',
+  'replace_line: { op:"replace_line", target:{ n, h }, newText:string (aliases: text|content|line; provide one) }',
+  'replace_block: { op:"replace_block", start:{n,h}|{kind:"SOF|EOF|start|end"}, end:{...}, lines?: string[] }',
+  'append_to_file: { op:"append_to_file", lines?: string[] }',
+  'set_file: { op:"set_file", lines?: string[] | newText:string (aliases: text|content|line; replaces entire file) }',
   'Unsupported op names: insert, append.',
   "Important: return is top-level args.return and must not be inside ops[i].",
 ].join(" ")
@@ -119,6 +121,10 @@ const rawSetFileSchema = tool.schema
   .object({
     op: tool.schema.literal("set_file"),
     lines: tool.schema.array(tool.schema.string()).optional(),
+    newText: tool.schema.string().optional(),
+    text: tool.schema.string().optional(),
+    content: tool.schema.string().optional(),
+    line: tool.schema.string().optional().describe("Legacy alias for newText"),
   })
   .strict()
 
@@ -244,7 +250,7 @@ function parseOps(value: unknown): ApplyOp[] {
       const target = parseLineTarget(op.target, index, "target")
       const textCandidate = op.newText ?? op.text ?? op.content ?? op.line
       if (typeof textCandidate !== "string") {
-        throwInvalidOpSchema(index, 'replace_line requires string field "newText" (aliases: text|content|line)')
+        throwInvalidOpSchema(index, 'replace_line requires a string field: newText|text|content|line')
       }
 
       normalized.push({
@@ -274,6 +280,19 @@ function parseOps(value: unknown): ApplyOp[] {
     }
 
     if (op.op === "set_file") {
+      const textCandidate = op.newText ?? op.text ?? op.content ?? op.line
+      if (textCandidate !== undefined && op.lines !== undefined) {
+        throwInvalidOpSchema(index, 'set_file must specify either "lines" or a text field: newText|text|content|line (not both)')
+      }
+
+      if (typeof textCandidate === "string") {
+        normalized.push({
+          op: "set_file",
+          lines: splitLinesCanonical(textCandidate),
+        })
+        continue
+      }
+
       normalized.push({
         op: "set_file",
         lines: parseLinesArray(op.lines, index, "lines"),
@@ -347,21 +366,24 @@ function makeConflict(
   pathValue: string,
   currentRev: string,
   details: {
+    conflict_kind: string
     failed_op_index: number | null
     reason: string
     expected?: unknown
     actual?: unknown
     context?: unknown
     candidates?: unknown
+    hint?: string
   },
 ) {
   const lines = [
     "CONFLICT",
     `PATH ${pathValue}`,
     `REV ${currentRev}`,
+    `CONFLICT_KIND ${details.conflict_kind}`,
     `FAILED_OP_INDEX ${details.failed_op_index ?? "-"}`,
-    `REASON ${details.reason}`,
-    "HINT Run hashread to refresh current {n,h} line hashes, then retry with updated targets.",
+    `MESSAGE ${details.reason}`,
+    `HINT ${details.hint ?? "Run hashread to refresh current {n,h} line hashes, then retry with updated targets."}`,
   ]
 
   const expected = formatDetail("EXPECTED", details.expected)
@@ -392,43 +414,87 @@ function resolveLineTarget(
   opIndex: number,
   contextLines: number,
   label: string,
-): { ok: true; index: number } | { ok: false; payload: string } {
+  safeReapply: boolean,
+): { ok: true; index: number; safeReapplied: boolean } | { ok: false; payload: string } {
+  const candidates = collectCandidatesByHash(lines, target.h)
+
   if (target.n < 1 || target.n > lines.length) {
+    if (safeReapply && candidates.length === 1) {
+      return { ok: true, index: candidates[0].n - 1, safeReapplied: true }
+    }
+
+    if (safeReapply && candidates.length > 1) {
+      return {
+        ok: false,
+        payload: makeConflict(pathValue, currentRev, {
+          conflict_kind: "AMBIGUOUS_REAPPLY",
+          failed_op_index: opIndex,
+          reason: `${label} matched multiple candidate lines during safe reapply`,
+          expected: { [label]: target },
+          actual: { candidate_count: candidates.length },
+          candidates,
+          hint: "Disable safe_reapply or provide a more specific target hash.",
+        }),
+      }
+    }
+
     return {
       ok: false,
       payload: makeConflict(pathValue, currentRev, {
+        conflict_kind: "TARGET_OUT_OF_RANGE",
         failed_op_index: opIndex,
         reason: `${label} line is out of range`,
         expected: { [label]: target },
         actual: { total_lines: lines.length },
+        candidates: safeReapply ? candidates : undefined,
       }),
     }
   }
 
   const actualText = lines[target.n - 1] ?? ""
   const actualHash = lineHashHexPrefix(actualText)
-  if (!actualHash.startsWith(target.h.toLowerCase())) {
+  if (actualHash.startsWith(target.h.toLowerCase())) {
+    return { ok: true, index: target.n - 1, safeReapplied: false }
+  }
+
+  if (safeReapply && candidates.length === 1) {
+    return { ok: true, index: candidates[0].n - 1, safeReapplied: true }
+  }
+
+  if (safeReapply && candidates.length > 1) {
     return {
       ok: false,
       payload: makeConflict(pathValue, currentRev, {
+        conflict_kind: "AMBIGUOUS_REAPPLY",
         failed_op_index: opIndex,
-        reason: `${label} hash mismatch`,
+        reason: `${label} matched multiple candidate lines during safe reapply`,
         expected: { [label]: target },
-        actual: {
-          actual_at_line: {
-            n: target.n,
-            h: actualHash,
-            tag: `${target.n}L:${actualHash}`,
-            t: actualText,
-          },
-        },
-        context: { around_line: contextAround(lines, target.n, contextLines) },
-        candidates: collectCandidatesByHash(lines, target.h),
+        actual: { candidate_count: candidates.length },
+        candidates,
+        hint: "Disable safe_reapply or provide a more specific target hash.",
       }),
     }
   }
 
-  return { ok: true, index: target.n - 1 }
+  return {
+    ok: false,
+    payload: makeConflict(pathValue, currentRev, {
+      conflict_kind: "HASH_MISMATCH",
+      failed_op_index: opIndex,
+      reason: `${label} hash mismatch`,
+      expected: { [label]: target },
+      actual: {
+        actual_at_line: {
+          n: target.n,
+          h: actualHash,
+          tag: `${target.n}L:${actualHash}`,
+          t: actualText,
+        },
+      },
+      context: { around_line: contextAround(lines, target.n, contextLines) },
+      candidates,
+    }),
+  }
 }
 
 function resolveBlockRef(ref: BlockRef, lines: string[], isStart: boolean): number {
@@ -444,7 +510,7 @@ function resolveBlockRef(ref: BlockRef, lines: string[], isStart: boolean): numb
 }
 
 export default tool({
-  description: "Apply hash-anchored edits (replace_line | replace_block | append_to_file | set_file) with base_rev and conflict reporting",
+  description: "Apply hash-anchored edits (replace_line | replace_block | append_to_file | set_file) with base_rev, conflict diagnostics, and optional safe reapply",
   args: {
     path: tool.schema.string().optional().describe("Absolute or relative path to file inside worktree"),
     filePath: tool.schema.string().optional().describe("Backward-compatible alias for path"),
@@ -453,12 +519,15 @@ export default tool({
     use_current_rev: tool.schema.boolean().optional().describe("Alias for auto_base_rev"),
     create_if_missing: tool.schema.boolean().optional().describe("Create empty file when missing (requires base_rev unset, empty, or NEW)"),
     ops: opsInputSchema,
-    maxBytes: tool.schema.number().int().positive().optional().describe("Server-side read guard in bytes before decode"),
+    safe_reapply: tool.schema.boolean().optional().describe("Opt-in safe reapply by hash anchors; ambiguous matches fail closed with CONFLICT"),
     return: tool.schema
       .object({
         context_lines: tool.schema.number().int().min(0).max(20).optional(),
         include_changed_block: tool.schema.boolean().optional(),
-        include_file_after: tool.schema.boolean().optional(),
+        include_file_after: tool.schema
+          .boolean()
+          .optional()
+          .describe("Include FILE_AFTER preview (first 200 lines max; emits TRUNCATED true when clipped)"),
       })
       .describe("Top-level response options. Do not place this field inside ops items")
       .optional(),
@@ -473,6 +542,7 @@ export default tool({
     const baseRev = args.base_rev
     const autoBaseRev = args.auto_base_rev ?? args.use_current_rev ?? false
     const createIfMissing = args.create_if_missing ?? false
+    const safeReapply = args.safe_reapply ?? false
 
     let absolutePath: string
     try {
@@ -503,9 +573,9 @@ export default tool({
       }
     }
 
-    const maxBytes = args.maxBytes ?? DEFAULT_MAX_BYTES
-    if (fileBytes.length > maxBytes) {
-      return makeError(safePath, "FILE_TOO_LARGE", `File is larger than maxBytes (${maxBytes})`)
+    const byteLimit = resolveEffectiveByteLimit(fileBytes.length)
+    if (fileBytes.length > byteLimit.hardCapBytes) {
+      return makeFileTooLargeError(safePath, fileBytes.length, byteLimit.hardCapBytes, null, "Split the file or apply edits in smaller chunks, then retry")
     }
 
     const lineEnding = detectLineEnding(fileBytes)
@@ -550,6 +620,7 @@ export default tool({
 
     if (created && effectiveBaseRev && effectiveBaseRev !== "NEW") {
       return makeConflict(safePath, currentRev, {
+        conflict_kind: "CREATE_BASE_REV_MISMATCH",
         failed_op_index: null,
         reason: "base_rev mismatch for create_if_missing",
         expected: { base_rev: "NEW" },
@@ -559,6 +630,7 @@ export default tool({
 
     if (!created && effectiveBaseRev && currentRev !== effectiveBaseRev) {
       return makeConflict(safePath, currentRev, {
+        conflict_kind: "BASE_REV_MISMATCH",
         failed_op_index: null,
         reason: "base_rev mismatch",
         expected: { base_rev: effectiveBaseRev },
@@ -589,6 +661,7 @@ export default tool({
           index,
           contextLines,
           "target",
+          safeReapply,
         )
         if (!resolved.ok) {
           return resolved.payload
@@ -602,6 +675,7 @@ export default tool({
           replacement: [operation.text],
           lineDelta: 0,
           didChange: (baseLines[resolved.index] ?? "") !== operation.text,
+          safeReapplied: resolved.safeReapplied,
         })
         continue
       }
@@ -615,6 +689,7 @@ export default tool({
           replacement: operation.lines,
           lineDelta: operation.lines.length,
           didChange: operation.lines.length > 0,
+          safeReapplied: false,
         })
         continue
       }
@@ -628,29 +703,31 @@ export default tool({
           replacement: operation.lines,
           lineDelta: operation.lines.length - baseLines.length,
           didChange: !arraysEqual(baseLines, operation.lines),
+          safeReapplied: false,
         })
         continue
       }
 
       const startLineCheck = isLineTarget(operation.start)
-        ? resolveLineTarget(operation.start, baseLines, safePath, currentRev, index, contextLines, "start")
+        ? resolveLineTarget(operation.start, baseLines, safePath, currentRev, index, contextLines, "start", safeReapply)
         : null
       if (startLineCheck && !startLineCheck.ok) {
         return startLineCheck.payload
       }
 
       const endLineCheck = isLineTarget(operation.end)
-        ? resolveLineTarget(operation.end, baseLines, safePath, currentRev, index, contextLines, "end")
+        ? resolveLineTarget(operation.end, baseLines, safePath, currentRev, index, contextLines, "end", safeReapply)
         : null
       if (endLineCheck && !endLineCheck.ok) {
         return endLineCheck.payload
       }
 
-      const startIndex = resolveBlockRef(operation.start, baseLines, true)
-      const endIndex = resolveBlockRef(operation.end, baseLines, false)
+      const startIndex = startLineCheck && startLineCheck.ok ? startLineCheck.index : resolveBlockRef(operation.start, baseLines, true)
+      const endIndex = endLineCheck && endLineCheck.ok ? endLineCheck.index : resolveBlockRef(operation.end, baseLines, false)
 
       if (endIndex < startIndex - 1) {
         return makeConflict(safePath, currentRev, {
+          conflict_kind: "INVALID_BLOCK_RANGE",
           failed_op_index: index,
           reason: "invalid replace_block range",
           expected: { start: operation.start, end: operation.end },
@@ -667,6 +744,7 @@ export default tool({
         replacement: operation.lines,
         lineDelta: operation.lines.length - deleteCount,
         didChange: !arraysEqual(baseLines.slice(startIndex, startIndex + deleteCount), operation.lines),
+        safeReapplied: Boolean((startLineCheck && startLineCheck.ok && startLineCheck.safeReapplied) || (endLineCheck && endLineCheck.ok && endLineCheck.safeReapplied)),
       })
     }
 
@@ -707,7 +785,7 @@ export default tool({
 
     const sortedPlans = [...plans].sort((left, right) => left.sourceIndex - right.sourceIndex)
     const opLines = sortedPlans.map(
-      (plan) => `OP ${plan.sourceIndex} ${plan.op.op} OK line_delta=${plan.lineDelta} no_op=${!plan.didChange}`,
+      (plan) => `OP ${plan.sourceIndex} ${plan.op.op} OK line_delta=${plan.lineDelta} no_op=${!plan.didChange} safe_reapplied=${plan.safeReapplied}`,
     )
 
     const output = [
@@ -743,7 +821,12 @@ export default tool({
     if (includeFileAfter) {
       output.push("---")
       output.push("FILE_AFTER")
-      output.push(...formatLineRecords(linesToRecords(nextLines)))
+      const fileAfterLines = nextLines.slice(0, MAX_FILE_AFTER_LINES)
+      output.push(...formatLineRecords(linesToRecords(fileAfterLines)))
+      if (nextLines.length > MAX_FILE_AFTER_LINES) {
+        output.push("TRUNCATED true")
+        output.push(`HINT FILE_AFTER was truncated to first ${MAX_FILE_AFTER_LINES} lines out of ${nextLines.length}`)
+      }
     }
 
     return output.join("\n")

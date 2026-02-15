@@ -2,9 +2,23 @@ import { createHash } from "node:crypto"
 import path from "node:path"
 
 const DEFAULT_MAX_BYTES = 2 * 1024 * 1024
+const AUTO_BOOST_MAX_BYTES = 8 * 1024 * 1024
+const HARD_CAP_BYTES = 16 * 1024 * 1024
 const DEFAULT_LINE_HASH_PREFIX = 12
 
 type LineEnding = "LF" | "CRLF"
+
+type ByteLimitPolicy = {
+  defaultBytes?: number
+  autoBoostBytes?: number
+  hardCapBytes?: number
+}
+
+type ByteLimitResolution = {
+  effectiveLimitBytes: number
+  hardCapBytes: number
+  autoBoosted: boolean
+}
 
 type LineRecord = {
   n: number
@@ -110,12 +124,52 @@ function joinWithLineEnding(lines: string[], lineEnding: LineEnding): string {
   return lines.join(separator)
 }
 
+function resolveEffectiveByteLimit(actualBytes: number, policy: ByteLimitPolicy = {}): ByteLimitResolution {
+  const defaultBytes = Math.max(1, Math.trunc(policy.defaultBytes ?? DEFAULT_MAX_BYTES))
+  const autoBoostBytes = Math.max(defaultBytes, Math.trunc(policy.autoBoostBytes ?? AUTO_BOOST_MAX_BYTES))
+  const hardCapBytes = Math.max(autoBoostBytes, Math.trunc(policy.hardCapBytes ?? HARD_CAP_BYTES))
+
+  if (actualBytes <= defaultBytes) {
+    return {
+      effectiveLimitBytes: defaultBytes,
+      hardCapBytes,
+      autoBoosted: false,
+    }
+  }
+
+  return {
+    effectiveLimitBytes: Math.min(hardCapBytes, Math.max(autoBoostBytes, actualBytes)),
+    hardCapBytes,
+    autoBoosted: true,
+  }
+}
+
+function makeFileTooLargeError(
+  pathValue: string,
+  actualBytes: number,
+  hardCapBytes: number,
+  rev: string | null = null,
+  recommendedAction = "Split the file or narrow the requested range, then retry",
+): string {
+  return [
+    "ERROR FILE_TOO_LARGE",
+    `PATH ${pathValue || "-"}`,
+    `REV ${rev ?? "-"}`,
+    "MESSAGE File is larger than the hard cap",
+    `ACTUAL_BYTES ${actualBytes}`,
+    `HARD_CAP_BYTES ${hardCapBytes}`,
+    `RECOMMENDED_ACTION ${recommendedAction}`,
+  ].join("\n")
+}
+
 function sha256Hex(buffer: Uint8Array): string {
   return createHash("sha256").update(buffer).digest("hex")
 }
 
 const textFile = {
   DEFAULT_MAX_BYTES,
+  AUTO_BOOST_MAX_BYTES,
+  HARD_CAP_BYTES,
   DEFAULT_LINE_HASH_PREFIX,
   ensureInsideWorktree,
   toWorkspacePath,
@@ -129,6 +183,8 @@ const textFile = {
   formatLineRecord,
   formatLineRecords,
   joinWithLineEnding,
+  resolveEffectiveByteLimit,
+  makeFileTooLargeError,
   description: "Internal hash text helpers (not for direct use)",
   args: {},
   async execute() {

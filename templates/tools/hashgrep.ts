@@ -3,25 +3,59 @@ import { promises as fs } from "node:fs"
 
 import textFile from "./text-file"
 const {
-  DEFAULT_MAX_BYTES,
   decodeUtf8OrThrow,
   ensureInsideWorktree,
   fileRevCanonical,
   formatLineRecords,
   linesToRecords,
+  makeFileTooLargeError,
+  resolveEffectiveByteLimit,
   splitLinesCanonical,
   toWorkspacePath,
 } = textFile
 
 const DEFAULT_MAX_MATCHES = 10
 const DEFAULT_CONTEXT_LINES = 0
+const MAX_RETURNED_CODE_LINES = 200
+
+type MatchRecord = {
+  n: number
+  h: string
+  t: string
+  before?: Array<{ n: number; h: string; t: string }>
+  after?: Array<{ n: number; h: string; t: string }>
+}
+
+function parseSlashRegex(query: string): { pattern: string; flags: string } | null {
+  if (!query.startsWith("/") || query.length < 2) {
+    return null
+  }
+
+  for (let index = query.length - 1; index > 0; index -= 1) {
+    if (query[index] !== "/") {
+      continue
+    }
+
+    let slashEscapes = 0
+    for (let cursor = index - 1; cursor >= 0 && query[cursor] === "\\"; cursor -= 1) {
+      slashEscapes += 1
+    }
+
+    if (slashEscapes % 2 === 0) {
+      return {
+        pattern: query.slice(1, index),
+        flags: query.slice(index + 1),
+      }
+    }
+  }
+
+  return null
+}
 
 function parseRegex(query: string): { pattern: string; flags: string } {
-  if (query.startsWith("/") && query.lastIndexOf("/") > 0) {
-    const lastSlash = query.lastIndexOf("/")
-    const pattern = query.slice(1, lastSlash)
-    const flags = query.slice(lastSlash + 1)
-    return { pattern, flags }
+  const slashParsed = parseSlashRegex(query)
+  if (slashParsed) {
+    return slashParsed
   }
 
   return { pattern: query, flags: "u" }
@@ -42,12 +76,59 @@ function makeError(pathValue: string, code: string, message: string, rev: string
   return output.join("\n")
 }
 
-type MatchRecord = {
-  n: number
-  h: string
-  t: string
-  before?: Array<{ n: number; h: string; t: string }>
-  after?: Array<{ n: number; h: string; t: string }>
+function countCodeLines(match: MatchRecord): number {
+  return 1 + (match.before?.length ?? 0) + (match.after?.length ?? 0)
+}
+
+function trimMatchToBudget(
+  match: MatchRecord,
+  remainingBudget: number,
+): { match: MatchRecord; truncated: boolean } | null {
+  if (remainingBudget <= 0) {
+    return null
+  }
+
+  const limited: MatchRecord = { n: match.n, h: match.h, t: match.t }
+  let budget = remainingBudget - 1
+
+  const before = match.before ?? []
+  const after = match.after ?? []
+  const limitedBefore: Array<{ n: number; h: string; t: string }> = []
+  const limitedAfter: Array<{ n: number; h: string; t: string }> = []
+
+  let beforeIndex = before.length - 1
+  let afterIndex = 0
+
+  while (budget > 0 && (beforeIndex >= 0 || afterIndex < after.length)) {
+    if (beforeIndex >= 0) {
+      limitedBefore.unshift(before[beforeIndex])
+      beforeIndex -= 1
+      budget -= 1
+    }
+
+    if (budget <= 0) {
+      break
+    }
+
+    if (afterIndex < after.length) {
+      limitedAfter.push(after[afterIndex])
+      afterIndex += 1
+      budget -= 1
+    }
+  }
+
+  if (limitedBefore.length > 0) {
+    limited.before = limitedBefore
+  }
+
+  if (limitedAfter.length > 0) {
+    limited.after = limitedAfter
+  }
+
+  return {
+    match: limited,
+    truncated: beforeIndex >= 0 || afterIndex < after.length,
+  }
 }
 
 function formatContextBlocks(matches: MatchRecord[]): string[] {
@@ -122,18 +203,17 @@ function formatSuccess(
 }
 
 export default tool({
-  description: "Search file content and return matches with line tags",
+  description: "Search file content and return matches with line tags (ECMAScript regex; max 200 code lines per response)",
   args: {
     filePath: tool.schema.string().describe("Absolute or relative path to file inside worktree"),
-    query: tool.schema.string().describe("Search query"),
-    mode: tool.schema.enum(["literal", "regex"]).optional().describe("Search mode"),
-    contextLines: tool.schema.number().int().min(0).max(20).optional().describe("Context lines around each match"),
+    query: tool.schema.string().describe("Search query (literal text, raw regex, or /pattern/flags when mode=regex)"),
+    mode: tool.schema.enum(["literal", "regex"]).optional().describe("Search mode (regex uses ECMAScript RegExp semantics)"),
+    contextLines: tool.schema.number().int().min(0).max(20).optional().describe("Context lines around each match; total returned code lines are capped at 200 with deterministic truncation"),
     startLine: tool.schema.number().int().positive().optional().describe("Start searching from this 1-based line"),
     endLine: tool.schema.number().int().positive().optional().describe("End searching at this 1-based line"),
-    maxMatches: tool.schema.number().int().positive().optional().describe("Maximum number of matching lines"),
-    maxBytes: tool.schema.number().int().positive().optional().describe("Server-side read guard in bytes before decode"),
+    maxMatches: tool.schema.number().int().positive().optional().describe("Maximum number of matching lines; effective output is still capped to 200 code lines"),
     maxResultBytes: tool.schema.number().int().positive().optional().describe("Maximum response size in bytes before truncation"),
-    wantTargets: tool.schema.boolean().optional().describe("Return simplified targets for quick apply operations"),
+    wantTargets: tool.schema.boolean().optional().describe("Return simplified targets for quick apply operations (after line-cap truncation)"),
   },
   async execute(args, context) {
     let absolutePath: string
@@ -157,9 +237,9 @@ export default tool({
       return makeError(safePath, maybeError.code ?? "READ_FAILED", maybeError.message)
     }
 
-    const maxBytes = args.maxBytes ?? DEFAULT_MAX_BYTES
-    if (fileBytes.length > maxBytes) {
-      return makeError(safePath, "FILE_TOO_LARGE", `File is larger than maxBytes (${maxBytes})`)
+    const byteLimit = resolveEffectiveByteLimit(fileBytes.length)
+    if (fileBytes.length > byteLimit.hardCapBytes) {
+      return makeFileTooLargeError(safePath, fileBytes.length, byteLimit.hardCapBytes)
     }
 
     let text: string
@@ -175,7 +255,8 @@ export default tool({
     const records = linesToRecords(lines)
 
     const mode = args.mode ?? "literal"
-    const maxMatches = args.maxMatches ?? DEFAULT_MAX_MATCHES
+    const requestedMaxMatches = args.maxMatches ?? DEFAULT_MAX_MATCHES
+    const maxMatches = Math.max(1, requestedMaxMatches)
     const contextLines = args.contextLines ?? DEFAULT_CONTEXT_LINES
     const wantTargets = args.wantTargets ?? false
     const maxResultBytes = args.maxResultBytes
@@ -202,14 +283,21 @@ export default tool({
           "INVALID_REGEX",
           `Invalid regex: ${args.query}${detail}. Tip: escape special chars or use mode=\"literal\".`,
           rev,
-          "Use raw pattern (\"foo.*bar\") or literal form (\"/foo.*bar/gi\").",
+          "Use raw pattern (\"foo.*bar\") or slash form (\"/foo.*bar/gi\").",
         )
       }
     }
 
     const matches: MatchRecord[] = []
+    let remainingCodeLineBudget = MAX_RETURNED_CODE_LINES
+    let truncatedByCodeCap = false
 
     for (let index = searchStartIndex; index <= searchEndIndex; index += 1) {
+      if (remainingCodeLineBudget <= 0) {
+        truncatedByCodeCap = true
+        break
+      }
+
       const record = records[index]
 
       if (regex) {
@@ -226,21 +314,33 @@ export default tool({
       const before = records.slice(beforeStart, index).map((line) => ({ n: line.n, h: line.h, t: line.t }))
       const after = records.slice(index + 1, afterEnd + 1).map((line) => ({ n: line.n, h: line.h, t: line.t }))
 
-      const match: MatchRecord = {
+      const fullMatch: MatchRecord = {
         n: record.n,
         h: record.h,
         t: record.t,
       }
 
       if (before.length > 0) {
-        match.before = before
+        fullMatch.before = before
       }
 
       if (after.length > 0) {
-        match.after = after
+        fullMatch.after = after
       }
 
-      matches.push(match)
+      const limited = trimMatchToBudget(fullMatch, remainingCodeLineBudget)
+      if (!limited) {
+        truncatedByCodeCap = true
+        break
+      }
+
+      matches.push(limited.match)
+      remainingCodeLineBudget -= countCodeLines(limited.match)
+
+      if (limited.truncated) {
+        truncatedByCodeCap = true
+      }
+
       if (matches.length >= maxMatches) {
         break
       }
@@ -255,7 +355,7 @@ export default tool({
         matches,
         wantTargets,
         contextLines > 0,
-        false,
+        truncatedByCodeCap,
         lines.length,
         contextLines,
         maxMatches,
@@ -263,7 +363,7 @@ export default tool({
       )
     }
 
-    let truncated = false
+    let truncatedByResultBytes = false
     while (matches.length > 0) {
       const output = formatSuccess(
         safePath,
@@ -273,7 +373,7 @@ export default tool({
         matches,
         wantTargets,
         contextLines > 0,
-        truncated,
+        truncatedByCodeCap || truncatedByResultBytes,
         lines.length,
         contextLines,
         maxMatches,
@@ -285,7 +385,7 @@ export default tool({
       }
 
       matches.pop()
-      truncated = true
+      truncatedByResultBytes = true
     }
 
     return formatSuccess(

@@ -2,9 +2,9 @@ import { afterEach, beforeAll, expect, mock, test } from "bun:test"
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import path from "node:path"
 
-let hashedit: { execute: (args: any, context: any) => Promise<string> }
-let hashgrep: { execute: (args: any, context: any) => Promise<string> }
-let hashread: { execute: (args: any, context: any) => Promise<string> }
+let hashedit: { execute: (args: any, context: any) => Promise<string>; args: Record<string, unknown> }
+let hashgrep: { execute: (args: any, context: any) => Promise<string>; args: Record<string, unknown> }
+let hashread: { execute: (args: any, context: any) => Promise<string>; args: Record<string, unknown> }
 
 const worktree = process.cwd()
 const context = { worktree } as const
@@ -20,6 +20,10 @@ async function createTempFile(content: string): Promise<string> {
   const filePath = path.join(tempDir, "sample.txt")
   await writeFile(filePath, content, "utf8")
   return filePath
+}
+
+function makeNumberedLines(count: number, prefix = "line"): string {
+  return Array.from({ length: count }, (_, index) => `${prefix}-${index + 1}`).join("\n") + "\n"
 }
 
 async function runRead(args: Record<string, unknown>) {
@@ -135,6 +139,12 @@ afterEach(async () => {
   }
 })
 
+test("tool contracts do not expose maxBytes argument", () => {
+  expect(Object.keys(hashread.args)).not.toContain("maxBytes")
+  expect(Object.keys(hashgrep.args)).not.toContain("maxBytes")
+  expect(Object.keys(hashedit.args)).not.toContain("maxBytes")
+})
+
 test("read returns canonical metadata for empty file", async () => {
   const filePath = await createTempFile("")
   const result = await runRead({ path: toRelative(filePath) })
@@ -161,6 +171,16 @@ test("read handles UTF-8 and keeps line hashes stable", async () => {
   expect(firstLines[1]?.h).toMatch(/^[a-f0-9]{10,16}$/)
   expect(firstLines[0]?.h).toBe(secondLines[0]?.h)
   expect(firstLines[1]?.h).toBe(secondLines[1]?.h)
+})
+
+test("read is capped to 200 returned lines", async () => {
+  const filePath = await createTempFile(makeNumberedLines(350, "row"))
+  const byLimit = await runRead({ path: toRelative(filePath), limit: 500 })
+  const byRange = await runRead({ path: toRelative(filePath), startLine: 1, endLine: 350 })
+
+  expect(extractLineRecords(byLimit)).toHaveLength(200)
+  expect(extractLineRecords(byRange)).toHaveLength(200)
+  expect(headerValue(byLimit, "RANGE")).toContain("limit=200")
 })
 
 test("apply replace_line updates one line and returns new rev", async () => {
@@ -223,6 +243,7 @@ test("apply returns CONFLICT when file changes after read", async () => {
 
   expect(conflict.startsWith("CONFLICT\n")).toBe(true)
   expect(headerValue(conflict, "REV")).toMatch(/^[a-f0-9]{64}$/)
+  expect(conflict).toContain("CONFLICT_KIND BASE_REV_MISMATCH")
   expect(conflict).toContain("HINT Run hashread")
 })
 
@@ -266,6 +287,63 @@ test("grep can return apply-ready targets", async () => {
   expect(targets[1]?.n).toBe(3)
 })
 
+test("grep enforces 200 code-line cap and marks TRUNCATED", async () => {
+  const filePath = await createTempFile(makeNumberedLines(260, "foo"))
+
+  const noContext = await runGrep({
+    filePath: toRelative(filePath),
+    query: "foo-",
+    mode: "literal",
+    maxMatches: 260,
+  })
+
+  const withContext = await runGrep({
+    filePath: toRelative(filePath),
+    query: "foo-",
+    mode: "literal",
+    maxMatches: 260,
+    contextLines: 2,
+  })
+
+  expect(extractLineRecords(noContext)).toHaveLength(200)
+  expect(headerValue(noContext, "TRUNCATED")).toBe("true")
+  expect(extractLineRecords(withContext).length).toBeLessThanOrEqual(200)
+  expect(headerValue(withContext, "TRUNCATED")).toBe("true")
+})
+
+test("grep regex supports quantifiers in raw and slash forms", async () => {
+  const filePath = await createTempFile("a\naa\naaa\naaaa\nb\n")
+  const raw = await runGrep({
+    filePath: toRelative(filePath),
+    mode: "regex",
+    query: "a{2,4}",
+    maxMatches: 10,
+  })
+  const slash = await runGrep({
+    filePath: toRelative(filePath),
+    mode: "regex",
+    query: "/^a{3}$/",
+    maxMatches: 10,
+  })
+
+  expect(raw.startsWith("OK\n")).toBe(true)
+  expect(headerValue(raw, "MATCH_COUNT")).toBe("3")
+  expect(slash.startsWith("OK\n")).toBe(true)
+  expect(headerValue(slash, "MATCH_COUNT")).toBe("1")
+})
+
+test("grep returns INVALID_REGEX with details", async () => {
+  const filePath = await createTempFile("abc\n")
+  const invalid = await runGrep({
+    filePath: toRelative(filePath),
+    mode: "regex",
+    query: "/a/z",
+  })
+
+  expect(invalid.startsWith("ERROR INVALID_REGEX\n")).toBe(true)
+  expect(invalid).toContain("MESSAGE Invalid regex")
+})
+
 test("apply can create missing file with create_if_missing", async () => {
   const tempDir = await mkdtemp(path.join(worktree, ".tmp-hash-tools-test-"))
   tempDirs.push(tempDir)
@@ -283,4 +361,84 @@ test("apply can create missing file with create_if_missing", async () => {
 
   const content = await readFile(filePath, "utf8")
   expect(content).toBe("hello")
+})
+
+test("large file above 2MB works without extra params", async () => {
+  const row = `row-${"x".repeat(700)}`
+  const content = Array.from({ length: 4200 }, () => row).join("\n") + "\n"
+  const filePath = await createTempFile(content)
+
+  const readResult = await runRead({ path: toRelative(filePath), limit: 1 })
+  expect(readResult.startsWith("OK\n")).toBe(true)
+
+  const grepResult = await runGrep({
+    filePath: toRelative(filePath),
+    query: "row-",
+    mode: "literal",
+    maxMatches: 1,
+  })
+  expect(grepResult.startsWith("OK\n")).toBe(true)
+
+  const firstLine = extractLineRecords(readResult)[0]
+  const applyResult = await runApply({
+    path: toRelative(filePath),
+    auto_base_rev: true,
+    ops: [{ op: "replace_line", target: { n: 1, h: firstLine?.h }, text: firstLine?.t ?? row }],
+  })
+  expect(applyResult.startsWith("OK\n")).toBe(true)
+})
+
+test("apply safe_reapply can recover when unique hash target moved", async () => {
+  const filePath = await createTempFile("one\ntwo\nthree\n")
+  const before = await runRead({ path: toRelative(filePath) })
+  const oldLineTwo = extractLineRecords(before).find((line) => line.n === 2)
+  await writeFile(filePath, "zero\none\ntwo\nthree\n", "utf8")
+
+  const applied = await runApply({
+    path: toRelative(filePath),
+    auto_base_rev: true,
+    safe_reapply: true,
+    ops: [{ op: "replace_line", target: { n: 2, h: oldLineTwo?.h }, text: "TWO" }],
+  })
+
+  expect(applied.startsWith("OK\n")).toBe(true)
+  expect(applied).toContain("safe_reapplied=true")
+  const content = await readFile(filePath, "utf8")
+  expect(content).toContain("zero\none\nTWO\nthree")
+})
+
+test("apply safe_reapply fails closed on ambiguous hash matches", async () => {
+  const filePath = await createTempFile("dup\nmid\ndup\n")
+  const before = await runRead({ path: toRelative(filePath) })
+  const firstDup = extractLineRecords(before).find((line) => line.n === 1)
+  await writeFile(filePath, "zzz\ndup\nmid\ndup\n", "utf8")
+
+  const conflict = await runApply({
+    path: toRelative(filePath),
+    auto_base_rev: true,
+    safe_reapply: true,
+    ops: [{ op: "replace_line", target: { n: 1, h: firstDup?.h }, text: "DUP" }],
+  })
+
+  expect(conflict.startsWith("CONFLICT\n")).toBe(true)
+  expect(conflict).toContain("CONFLICT_KIND AMBIGUOUS_REAPPLY")
+  expect(conflict).toContain("FAILED_OP_INDEX 0")
+})
+
+test("apply include_file_after is capped to 200 lines", async () => {
+  const filePath = await createTempFile(makeNumberedLines(260, "line"))
+  const before = await runRead({ path: toRelative(filePath) })
+  const firstLine = extractLineRecords(before).find((line) => line.n === 1)
+
+  const applied = await runApply({
+    path: toRelative(filePath),
+    base_rev: headerValue(before, "REV"),
+    ops: [{ op: "replace_line", target: { n: 1, h: firstLine?.h }, text: "line-1" }],
+    return: { include_changed_block: false, include_file_after: true },
+  })
+
+  expect(applied.startsWith("OK\n")).toBe(true)
+  expect(applied).toContain("FILE_AFTER")
+  expect(extractLineRecords(applied)).toHaveLength(200)
+  expect(headerValue(applied, "TRUNCATED")).toBe("true")
 })
