@@ -23,6 +23,7 @@ import {
 
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
 const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '{{file_tools_dev_permissions}}';
+const BASH_READONLY_PERMISSION_PLACEHOLDER = '{{bash_readonly_permissions}}';
 
 const DEV_CLASSIC_FILE_TOOLS_PERMISSIONS = [
   'read: allow',
@@ -37,6 +38,24 @@ const DEV_HASH_FILE_TOOLS_PERMISSIONS = [
   'hashread: allow',
   'hashgrep: allow',
   'hashedit: allow',
+].join('\n');
+const BASH_READONLY_PERMISSIONS = [
+  '"git status *": allow',
+  '"git diff --stat *": allow',
+  '"git diff *": allow',
+  '"git log --oneline -n *": allow',
+  '"git log *": allow',
+  '"git show --stat *": allow',
+  '"git ls-files *": allow',
+  '"git rev-parse --show-toplevel": allow',
+  '"ls *": allow',
+  '"find *": allow',
+  '"grep *": allow',
+  '"head *": allow',
+  '"tree *": allow',
+  '"true": allow',
+  '"pwd": allow',
+  '"date": allow',
 ].join('\n');
 
 function getTemplatesRoot(): string {
@@ -342,6 +361,7 @@ async function main(): Promise<void> {
   const agentReplacements = await replaceAgentPlaceholders(paths.targetAgents, {
     [RESPONSE_LANGUAGE_PLACEHOLDER]: responseLanguage,
     [FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER]: fileToolsDevPermissions,
+    [BASH_READONLY_PERMISSION_PLACEHOLDER]: BASH_READONLY_PERMISSIONS,
     ...mcpPermissionReplacements,
   });
   report.push(`Agents placeholders: ${agentReplacements} files updated`);

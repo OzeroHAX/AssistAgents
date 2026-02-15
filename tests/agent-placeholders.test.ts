@@ -55,6 +55,7 @@ test('all configured placeholders have valid allowedMcpIds', () => {
 });
 
 const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '{{file_tools_dev_permissions}}';
+const BASH_READONLY_PERMISSION_PLACEHOLDER = '{{bash_readonly_permissions}}';
 
 test('build/dev file-tools placeholder is wired in cli replacements', () => {
   const devTemplate = readFileSync('templates/agents/build/dev.md', 'utf-8');
@@ -76,4 +77,35 @@ test('build/dev file-tools placeholder is wired in cli replacements', () => {
     true,
     'build/dev template must include file tools placeholder',
   );
+});
+
+test('readonly bash placeholder is wired in cli and templates', () => {
+  const cliSource = readFileSync('src/cli.ts', 'utf-8');
+  assert.match(
+    cliSource,
+    /const BASH_READONLY_PERMISSION_PLACEHOLDER = '\{\{bash_readonly_permissions\}\}';/,
+    'src/cli.ts must define readonly bash placeholder token',
+  );
+  assert.match(
+    cliSource,
+    /\[BASH_READONLY_PERMISSION_PLACEHOLDER\]:\s*BASH_READONLY_PERMISSIONS,/,
+    'src/cli.ts must provide replacement for readonly bash placeholder',
+  );
+
+  const templates = [
+    'templates/agents/doc.md',
+    'templates/agents/build/planner.md',
+    'templates/agents/project.md',
+    'templates/agents/test.md',
+    'templates/agents/assist/creator/decomposition.md',
+    'templates/agents/assist/research/code.md',
+  ];
+  for (const filePath of templates) {
+    const content = readFileSync(filePath, 'utf-8');
+    assert.equal(
+      content.includes(BASH_READONLY_PERMISSION_PLACEHOLDER),
+      true,
+      `${filePath} must include ${BASH_READONLY_PERMISSION_PLACEHOLDER}`,
+    );
+  }
 });

@@ -9,18 +9,7 @@ permission:
       "task-use-creator-*": allow
    bash:
       "*": deny
-      "git status *": allow
-      "git diff --stat *": allow
-      "git diff *": allow
-      "git log --oneline -n *": allow
-      "git show --stat *": allow
-      "git ls-files *": allow
-      "git rev-parse --show-toplevel": allow
-      "ls *": allow
-      "find *": allow
-      "head *": allow
-      "tree *": allow
-      "pwd": allow
+      {{bash_readonly_permissions}}
    lsp: allow
    read: allow
    grep: allow

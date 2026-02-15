@@ -37,7 +37,7 @@ All skills from `templates/skills` are installed as a full set.
 - `build/dev` — change code
 - `planning/plan` — reduce risk before edits
 - `planning/project` — project planning (read-only)
-- `docs/doc` — generate project docs (guides/specs/change-notes)
+- `doc` — generate guides/change-notes (excluding `ai-docs/project/**`)
 - `review/reviewer` — safety check
 - `test/tester` — manual/API/browser verification
 - `ask/ask` — quick answers or research
@@ -57,7 +57,7 @@ Short list of roles the pack ships:
 
 - `build/dev` — implementation/refactor/fixes, strict skills/Context7/LSP
 - `planning/plan` and `planning/project` — read-only planning
-- `docs/doc` — generate guides/specs/change-notes (no PRD/ADR)
+- `doc` — generate guides/change-notes (no `ai-docs/project/**` docs)
 - `review/reviewer` — correctness/security/tests review
 - `test/tester` — manual/API/browser verification
 - `ask/ask` + `assist/research/*` — Q&A and delegated research
