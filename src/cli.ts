@@ -252,7 +252,6 @@ async function main(): Promise<void> {
   const templatesRoot = resolveTemplateRoot();
   const templatesAgents = path.join(templatesRoot, 'agents');
   const templatesSkills = path.join(templatesRoot, 'skills');
-  const templatesPlugins = path.join(templatesRoot, 'plugins');
   const templatesTools = path.join(templatesRoot, 'tools');
 
   if (!(await pathExists(templatesAgents)) || !(await pathExists(templatesSkills))) {
@@ -296,15 +295,6 @@ async function main(): Promise<void> {
   await removeIfExists(paths.targetSkills);
   report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills}`);
   await copyDir(templatesSkills, paths.targetSkills);
-
-  // Install plugins from template source (if provided)
-  if (await pathExists(templatesPlugins)) {
-    report.push(`Copy plugins: ${paths.targetPlugins} <= ${templatesPlugins}`);
-    await ensureDir(paths.targetPlugins);
-    await copyDir(templatesPlugins, paths.targetPlugins);
-  } else {
-    report.push(`Plugins: none in ${templatesRoot}`);
-  }
 
   if (enableHashFileTools) {
     if (await pathExists(templatesTools)) {
