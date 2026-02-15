@@ -1,82 +1,88 @@
 ![Banner](banner.jpeg)
 
-Ready-made agents and skills for OpenCode, built for developers who want control. You define the goal and constraints, the agent follows rules (skills/Context7/LSP), and you run the loop: generate → run → fix → verify.
-Installs into `~/.opencode/`:
-- `agents/` — roles
-- `skills/` — playbooks
-- `keys/` and `opencode.jsonc` — keys + global config
+OpenCode AssistAgents is a ready-to-use agent pack for OpenCode users, built by a developer for developers who want tighter control over what agents do.
+It installs practical agents, skills, and optional integrations so you can run a clear delivery loop: plan -> implement -> test -> review.
 
 > [!WARNING]
-> IMPORTANT: this is an early test version; if something is off, feel free to open an issue/PR.
+> Early version: expect occasional rough edges. If you hit one, please open an issue/PR.
 
 ## Install / update
+
+Requirements: Node.js >= 18.
 
 ```bash
 npx -g @ozerohax/assistagents@latest
 ```
 
-In the TUI you:
-- enter the preferred response language (default: English)
-- decide whether to make a zip backup and where to store it
-- choose which MCP integrations to enable
-- enter/update keys only for enabled integrations that require them (if key file is filled it asks to keep or overwrite)
+Run the same command again any time to update to the latest version.
 
-All skills from `templates/skills` are installed as a full set.
+## What the installer does
 
-### Quickstart
-1) State the goal in one sentence: what to build + constraints + done criteria.
-2) Run `planning/plan`: ask for a short plan, file list, risks, and what to test.
-3) Run `build/dev`: implement the plan with minimal changes, no "fix everything nearby".
-4) Run the project/build locally and capture the error/log.
-5) Paste the error into `build/dev` (verbatim) and ask for a minimal fix + root cause.
-6) Run `test/tester`: ask to cover done criteria with tests/manual checks.
-7) Run `review/reviewer`: review correctness/security/tests and risk points.
-8) Repeat `build/dev → test → review` in short loops until it is boring.
+The installer is interactive and asks you to:
 
-### Choosing an agent
-- `build/dev` — change code
-- `planning/plan` — reduce risk before edits
-- `planning/project` — project planning (read-only)
-- `doc` — generate guides/change-notes (excluding `ai-docs/project/**`)
-- `review/reviewer` — safety check
-- `test/tester` — manual/API/browser verification
-- `ask/ask` — quick answers or research
+1. Choose backup behavior (create zip backup or skip).
+2. Choose your preferred response language for agents.
+3. Optionally enable experimental hash-based file tools.
+4. Select MCP integrations to enable.
+5. Enter keys only for integrations that need them.
 
-## What gets installed
+Then it installs/replaces:
 
-Target structure:
+- `~/.opencode/agents/`
+- `~/.opencode/skills/`
+- `~/.opencode/tools/` (only if hash tools are enabled)
+- `~/.opencode/keys/`
+- `~/.opencode/opencode.jsonc`
 
-- `~/.opencode/agents/` — agent definitions (YAML frontmatter + instructions)
-- `~/.opencode/skills/` — skills (structured instructions/playbooks)
-- `~/.opencode/keys/` — provider keys (files)
-- `~/.opencode/opencode.jsonc` — OpenCode global config that references key files
+## Daily workflow (recommended)
 
-## Agents (templates/agents)
+Use short loops instead of one giant prompt:
 
-Short list of roles the pack ships:
+1. Run `build/planner` to get a minimal, verifiable plan.
+2. Run `build/dev` to implement one step at a time.
+3. Run `test` to verify behavior and capture evidence.
+4. Run `review` for quality and risk checks.
+5. Repeat until done criteria are clearly met.
 
-- `build/dev` — implementation/refactor/fixes, strict skills/Context7/LSP
-- `planning/plan` and `planning/project` — read-only planning
-- `doc` — generate guides/change-notes (no `ai-docs/project/**` docs)
-- `review/reviewer` — correctness/security/tests review
-- `test/tester` — manual/API/browser verification
-- `ask/ask` + `assist/research/*` — Q&A and delegated research
-- `assist/docs/architecture-docs` — architecture.md generator/updater (subagent)
+## Which agent to use
 
-## Skills (templates/skills)
+Main agent IDs (path-based, under `~/.opencode/agents`):
 
-Skills are playbooks agents load before work. Main groups: `planning/*`, `docs/*`, `project/*`, `review/*`, `testing/*`, `task-use/*`, `coder/*`.
+- `build/dev` - code changes, fixes, and implementation.
+- `build/planner` - read-only implementation planning.
+- `test` - test orchestration and test/bug report artifacts.
+- `review` - read-only code review and risk assessment.
+- `doc` - guides/changelogs in allowed docs scope.
+- `project` - project artifacts under `ai-docs/project/**`.
+- `ask` - quick Q&A and read-only research.
 
-Note: if a skill is missing for a technology, the agent should say so and proceed cautiously.
+The system also includes specialized subagents for focused code/web research and decomposition that primary agents can delegate to.
 
-## Local development
+## Integrations and keys
 
-Requirements: Node.js >= 18.
+Supported MCP integrations include:
 
-```bash
-npm install
-npm run dev
-```
+- Search/research tools (`tavily-search`, `ddg-search`, `zai-web-search`, `zai-web-reader`, `github-grep`, `deepwiki`)
+- Library docs lookup (`context7`)
+- Browser verification (`chrome-devtools`)
+
+Keys are stored as files in `~/.opencode/keys/` and referenced from `~/.opencode/opencode.jsonc`.
+If a key-dependent integration is enabled but no key is provided, it is automatically disabled.
+
+## Important behavior to know
+
+- Re-running installer **replaces** `agents/` and `skills/` with the packaged versions.
+- If you made manual edits in those directories, use backup mode before updating.
+- The installer requires an interactive TTY terminal.
+
+## Quick troubleshooting
+
+- `assistagents failed: This installer only works in interactive TUI mode (TTY not found).`
+  - Run from a normal terminal (not a non-interactive CI shell).
+- A key-based integration is missing at runtime.
+  - Re-run installer and provide/update the matching key file.
+- You enabled hash tools but they are not available.
+  - Re-run installer and confirm `Enable experimental hash-based file tools` is enabled.
 
 ---
 

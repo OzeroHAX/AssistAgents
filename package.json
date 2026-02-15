@@ -2,7 +2,7 @@
   "name": "@ozerohax/assistagents",
   "version": "0.1.3",
   "description": "npx installer for OpenCode agents/skills and key files",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
   "bin": {
     "assistagents": "dist/cli.js",
