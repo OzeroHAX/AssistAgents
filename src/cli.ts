@@ -44,7 +44,7 @@ const AGENT_MODEL_TARGETS: AgentModelTarget[] = [
   {
     id: 'assist',
     label: 'assist*',
-    defaultModel: 'zai-coding-plan/GLM-5',
+    defaultModel: 'zai-coding-plan/glm-5',
     placeholderTokens: [MODEL_ASSIST_PLACEHOLDER],
   },
   {
@@ -68,25 +68,25 @@ const AGENT_MODEL_TARGETS: AgentModelTarget[] = [
   {
     id: 'review',
     label: 'review',
-    defaultModel: 'zai-coding-plan/GLM-5',
+    defaultModel: 'zai-coding-plan/glm-5',
     placeholderTokens: [MODEL_REVIEW_PLACEHOLDER],
   },
   {
     id: 'test',
     label: 'test',
-    defaultModel: 'zai-coding-plan/GLM-5',
+    defaultModel: 'zai-coding-plan/glm-5',
     placeholderTokens: [MODEL_TEST_PLACEHOLDER],
   },
   {
     id: 'ask',
     label: 'ask',
-    defaultModel: 'zai-coding-plan/GLM-5',
+    defaultModel: 'zai-coding-plan/glm-5',
     placeholderTokens: [MODEL_ASK_PLACEHOLDER],
   },
   {
     id: 'doc',
     label: 'doc',
-    defaultModel: 'zai-coding-plan/GLM-5',
+    defaultModel: 'zai-coding-plan/glm-5',
     placeholderTokens: [MODEL_DOC_PLACEHOLDER],
   },
 ];
