@@ -27,6 +27,10 @@ permission:
         "*": deny
         "ai-docs/project/**.md": allow
         "ai-docs/project/status.json": allow
+    apply_patch: 
+        "*": deny
+        "ai-docs/project/**.md": allow
+        "ai-docs/project/status.json": allow
     question: allow
     webfetch: allow
     todoread: allow

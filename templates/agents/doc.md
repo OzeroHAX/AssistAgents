@@ -24,6 +24,11 @@ permission:
         "ai-docs/guides/**.md": allow
         "ai-docs/changelogs/**.md": allow
         "ai-docs/project/**": deny
+    apply_patch: 
+        "*": deny
+        "ai-docs/guides/**.md": allow
+        "ai-docs/changelogs/**.md": allow
+        "ai-docs/project/**": deny
     question: allow
     webfetch: allow
     todoread: allow

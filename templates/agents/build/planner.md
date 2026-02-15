@@ -23,7 +23,9 @@ permission:
     edit: 
         "*": deny
         "ai-docs/dev-plans/**.md": allow
-    apply_patch: allow
+    apply_patch: 
+        "*": deny
+        "ai-docs/dev-plans/**.md": allow
     question: allow
     webfetch: allow
     todoread: allow

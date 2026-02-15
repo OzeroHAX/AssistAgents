@@ -22,6 +22,10 @@ permission:
         "*": deny
         "ai-docs/reports/test-reports/**.md": allow
         "ai-docs/reports/bug-reports/**.md": allow
+    apply_patch: 
+        "*": deny
+        "ai-docs/reports/test-reports/**.md": allow
+        "ai-docs/reports/bug-reports/**.md": allow
     question: allow
     webfetch: allow
     {{mcp_tester_permissions}}
