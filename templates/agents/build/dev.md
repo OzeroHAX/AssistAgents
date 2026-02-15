@@ -8,10 +8,12 @@ permission:
         "shared-*": allow
         "code-*": allow
         "task-use-research-*": allow
-        "planning-*": ask
+        "planning-*": allow
     task:
         "assist/research/*": allow
-    bash: allow
+    bash:
+        "*": ask
+        {{bash_readonly_permissions}}
     lsp: allow
     {{file_tools_dev_permissions}}
     question: allow
