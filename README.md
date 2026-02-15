@@ -20,6 +20,7 @@ Full documentation:
 
 - [English](./doc/en/README.md)
 - [Russian](./doc/ru/README.md)
+- [Chinese](./doc/zh/README.md) - automatic translation, not verified
 
 Main agent IDs:
 
