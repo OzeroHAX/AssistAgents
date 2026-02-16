@@ -21,6 +21,8 @@ npx -g @ozerohax/assistagents@latest
 
 如果您希望基于仓库生成本地编码规则，请使用以下斜杠命令：
 
+请通过 `build/dev` 智能体运行该命令。
+
 ```text
 /init-agent-assist-code
 ```

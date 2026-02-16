@@ -21,6 +21,8 @@ Expected entries in `~/.opencode`:
 
 If you want repository-specific coding rules, use this slash command:
 
+Run it via the `build/dev` agent.
+
 ```text
 /init-agent-assist-code
 ```

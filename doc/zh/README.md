@@ -31,6 +31,8 @@
 
 若要为当前项目生成编码规则，请使用斜杠命令 `/init-agent-assist-code`。
 
+请通过 `build/dev` 智能体运行此命令。
+
 - 不带参数运行：根据仓库代码和配置自动识别语言。
 - 带参数运行：传入逗号分隔的语言列表，例如 `typescript,csharp`。
 - 输出位置：在当前仓库的 `.opencode/skills/coder/` 中创建或更新项目本地 skills。

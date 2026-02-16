@@ -21,6 +21,8 @@ npx -g @ozerohax/assistagents@latest
 
 Если в проекте нужны локальные правила кодинга под ваш стек, используйте слеш-команду:
 
+Запускайте ее через агента `build/dev`.
+
 ```text
 /init-agent-assist-code
 ```
