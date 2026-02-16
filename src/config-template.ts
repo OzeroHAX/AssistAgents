@@ -1,11 +1,28 @@
-export type KeyFiles = {
-  zaiApi: string;
-  context7: string;
-  tavily: string;
+import type { McpId } from './mcp-registry.js';
+import { getAllMcpToolPatterns, renderMcpConfigEntries } from './mcp-registry.js';
+import type { KeyFiles } from './key-registry.js';
+
+export type ConfigTemplateOptions = {
+  plugins?: string[];
+  enabledMcpIds?: McpId[];
 };
 
-export function renderGlobalConfigJsonc(keyFiles: KeyFiles): string {
-  // Keep this close to the repo's existing opencode.jsonc layout.
+export function renderGlobalConfigJsonc(keyFiles: KeyFiles, options: ConfigTemplateOptions = {}): string {
+  const pluginSection =
+    options.plugins && options.plugins.length > 0
+      ? `,
+  "plugin": ${JSON.stringify(options.plugins)}`
+      : '';
+
+  const mcp = renderMcpConfigEntries(keyFiles, options.enabledMcpIds);
+  const mcpSection = JSON.stringify(mcp, null, 2)
+    .split('\n')
+    .map((line) => `  ${line}`)
+    .join('\n');
+  const mcpPermissionDenySection = getAllMcpToolPatterns()
+    .map((pattern) => `    "${pattern}": "deny"`)
+    .join(',\n');
+
   return `{
   "$schema": "https://opencode.ai/config.json",
   "keybinds": {
@@ -40,55 +57,19 @@ export function renderGlobalConfigJsonc(keyFiles: KeyFiles): string {
     "webfetch": "deny",
     "websearch": "deny",
     "skill": "deny",
+    "apply_patch": "deny",
+    "hashread": "deny",
+    "hashgrep": "deny",
+    "hashedit": "deny",
     // MCP
-    "tavily-search*": "deny",
-    "ddg-search*": "deny",
-    "zai-web-search*": "deny",
-    "zai-web-reader*": "deny",
-    "context7*": "deny",
-    "github-grep*": "deny",
-    "pencil": "deny"
+${mcpPermissionDenySection}
   },
   "agent": {
     "explore": { "disable": true },
     "build": { "disable": true },
     "plan": { "disable": true }
-  },
-  "mcp": {
-    "tavily-search": {
-      "type": "remote",
-      "url": "https://mcp.tavily.com/mcp/?tavilyApiKey={file:${keyFiles.tavily}}"
-    },
-    "ddg-search": {
-      "type": "local",
-      "command": ["uvx", "duckduckgo-mcp-server"]
-    },
-    "zai-web-search": {
-      "type": "remote",
-      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
-      "headers": {
-        "Authorization": "Bearer {file:${keyFiles.zaiApi}}"
-      }
-    },
-    "zai-web-reader": {
-      "type": "remote",
-      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
-      "headers": {
-        "Authorization": "Bearer {file:${keyFiles.zaiApi}}"
-      }
-    },
-    "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "{file:${keyFiles.context7}}"
-      }
-    },
-    "github-grep": {
-      "type": "remote",
-      "url": "https://mcp.grep.app"
-    }
-  }
+  }${pluginSection},
+  "mcp": ${mcpSection}
 }
 `;
 }

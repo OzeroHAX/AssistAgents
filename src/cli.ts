@@ -6,20 +6,138 @@ import fsSync from 'node:fs';
 import { Readable, Writable } from 'node:stream';
 
 import { renderGlobalConfigJsonc } from './config-template.js';
+import { AGENT_MCP_CONFIGS } from './agent-config/index.js';
 import { zipDirectory } from './backup.js';
 import { chmod600IfPossible, copyDir, ensureDir, isNonEmptyDir, pathExists, removeIfExists, writeFileAtomic } from './fs-utils.js';
+import { buildKeyFiles, getKeyLabel, type KeyId } from './key-registry.js';
 import { getInstallPaths, getKeyFileRefs } from './paths.js';
-import { ALL_LANGUAGES, buildSkillCopyPlan, type LanguageKey } from './skill-selection.js';
+import {
+  ALL_MCP_IDS,
+  collectRequiredKeys,
+  getDefaultEnabledMcpIds,
+  getMcpDefinitions,
+  getMcpIdsRequiringKey,
+  getToolPatternsForMcpIds,
+  type McpId,
+} from './mcp-registry.js';
 
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
+const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '{{file_tools_dev_permissions}}';
+const BASH_READONLY_PERMISSION_PLACEHOLDER = '{{bash_readonly_permissions}}';
+const MODEL_ASSIST_PLACEHOLDER = '{{model_assist}}';
+const MODEL_PROJECT_PLACEHOLDER = '{{model_project}}';
+const MODEL_BUILD_PLANNER_PLACEHOLDER = '{{model_build_planner}}';
+const MODEL_BUILD_DEV_PLACEHOLDER = '{{model_build_dev}}';
+const MODEL_REVIEW_PLACEHOLDER = '{{model_review}}';
+const MODEL_TEST_PLACEHOLDER = '{{model_test}}';
+const MODEL_ASK_PLACEHOLDER = '{{model_ask}}';
+const MODEL_DOC_PLACEHOLDER = '{{model_doc}}';
+
+type AgentModelTarget = {
+  id: 'assist' | 'project' | 'build/planner' | 'build/dev' | 'review' | 'test' | 'ask' | 'doc';
+  label: string;
+  defaultModel: string;
+  placeholderTokens: string[];
+};
+
+const AGENT_MODEL_TARGETS: AgentModelTarget[] = [
+  {
+    id: 'assist',
+    label: 'assist*',
+    defaultModel: 'zai-coding-plan/glm-5',
+    placeholderTokens: [MODEL_ASSIST_PLACEHOLDER],
+  },
+  {
+    id: 'project',
+    label: 'project',
+    defaultModel: 'openai/gpt-5.2',
+    placeholderTokens: [MODEL_PROJECT_PLACEHOLDER],
+  },
+  {
+    id: 'build/planner',
+    label: 'build/planner',
+    defaultModel: 'openai/gpt-5.2',
+    placeholderTokens: [MODEL_BUILD_PLANNER_PLACEHOLDER],
+  },
+  {
+    id: 'build/dev',
+    label: 'build/dev',
+    defaultModel: 'openai/gpt-5.3-codex',
+    placeholderTokens: [MODEL_BUILD_DEV_PLACEHOLDER],
+  },
+  {
+    id: 'review',
+    label: 'review',
+    defaultModel: 'zai-coding-plan/glm-5',
+    placeholderTokens: [MODEL_REVIEW_PLACEHOLDER],
+  },
+  {
+    id: 'test',
+    label: 'test',
+    defaultModel: 'zai-coding-plan/glm-5',
+    placeholderTokens: [MODEL_TEST_PLACEHOLDER],
+  },
+  {
+    id: 'ask',
+    label: 'ask',
+    defaultModel: 'zai-coding-plan/glm-5',
+    placeholderTokens: [MODEL_ASK_PLACEHOLDER],
+  },
+  {
+    id: 'doc',
+    label: 'doc',
+    defaultModel: 'zai-coding-plan/glm-5',
+    placeholderTokens: [MODEL_DOC_PLACEHOLDER],
+  },
+];
+
+const ALL_MODEL_PLACEHOLDER_TOKENS = AGENT_MODEL_TARGETS.flatMap((target) => target.placeholderTokens);
+
+const DEV_CLASSIC_FILE_TOOLS_PERMISSIONS = [
+  'read: allow',
+  'grep: allow',
+  'glob: allow',
+  'list: allow',
+  'edit: allow',
+  'write: allow',
+  'apply_patch: allow',
+].join('\n');
+const DEV_HASH_FILE_TOOLS_PERMISSIONS = [
+  'hashread: allow',
+  'hashgrep: allow',
+  'hashedit: allow',
+].join('\n');
+const BASH_READONLY_PERMISSIONS = [
+  '"git status *": allow',
+  '"git diff --stat *": allow',
+  '"git diff *": allow',
+  '"git log --oneline -n *": allow',
+  '"git log *": allow',
+  '"git show --stat *": allow',
+  '"git ls-files *": allow',
+  '"git rev-parse --show-toplevel": allow',
+  '"ls *": allow',
+  '"find *": allow',
+  '"grep *": allow',
+  '"head *": allow',
+  '"tree *": allow',
+  '"true": allow',
+  '"pwd": allow',
+  '"date": allow',
+].join('\n');
 
 function getTemplatesRoot(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  // dist/cli.js -> packageRoot/templates
-  return path.resolve(here, '..', 'templates');
+  // dist/cli.js -> packageRoot
+  return path.resolve(here, '..');
 }
 
-async function writeKeyFile(filePath: string, value: string | undefined, dryRun: boolean): Promise<{ action: 'written' | 'created-empty' | 'kept' }>{
+function resolveTemplateRoot(): string {
+  const packageRoot = getTemplatesRoot();
+  return path.resolve(packageRoot, 'templates');
+}
+
+async function writeKeyFile(filePath: string, value: string | undefined, dryRun: boolean): Promise<{ action: 'written' | 'kept' | 'skipped' }>{
   const exists = await pathExists(filePath);
 
   if (value !== undefined) {
@@ -31,12 +149,7 @@ async function writeKeyFile(filePath: string, value: string | undefined, dryRun:
   }
 
   if (exists) return { action: 'kept' };
-
-  if (!dryRun) {
-    await writeFileAtomic(filePath, '');
-    await chmod600IfPossible(filePath);
-  }
-  return { action: 'created-empty' };
+  return { action: 'skipped' };
 }
 
 type PromptContext = { input: Readable; output: Writable } | undefined;
@@ -78,67 +191,93 @@ async function isKeyFileFilled(filePath: string): Promise<boolean> {
   }
 }
 
-async function promptForMissingKeys(opts: {
-  keyFiles: { zaiApi: string; context7: string; tavily: string };
-}): Promise<{ zaiApi?: string; context7?: string; tavily?: string }> {
+async function promptEnabledMcpIds(keyFilledState: Record<KeyId, boolean>): Promise<McpId[]> {
   const promptCtx = tryGetPromptContext();
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
   if (!interactive) {
     throw new Error('No TTY available for interactive mode (run from a terminal).');
   }
 
-  const askOne = async (label: string, filePath: string): Promise<string | undefined> => {
-    const filled = await isKeyFileFilled(filePath);
+  const defaults = new Set(getDefaultEnabledMcpIds(keyFilledState));
+  const selected = await checkbox(
+    {
+      message: 'Choose MCP integrations to enable',
+      instructions: 'Use Space to toggle, Enter to confirm',
+      choices: getMcpDefinitions().map((mcp) => ({
+        name: mcp.requiresKeys.length === 0 ? `${mcp.label} (no key required)` : `${mcp.label} (requires: ${mcp.requiresKeys.join(', ')})`,
+        value: mcp.id,
+        checked: defaults.has(mcp.id),
+      })),
+      required: false,
+    },
+    promptCtx
+  );
+
+  return selected as McpId[];
+}
+
+async function promptForEnabledKeys(opts: {
+  keyFiles: Record<KeyId, string>;
+  keyFilledState: Record<KeyId, boolean>;
+  enabledMcpIds: McpId[];
+}): Promise<{ keyInput: { zaiApi?: string; context7?: string; tavily?: string }; enabledMcpIds: McpId[] }> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  const keyInput: { zaiApi?: string; context7?: string; tavily?: string } = {};
+  const enabled = new Set(opts.enabledMcpIds);
+
+  for (const keyId of collectRequiredKeys(opts.enabledMcpIds)) {
+    const filePath = opts.keyFiles[keyId];
+    const filled = opts.keyFilledState[keyId];
+
     if (filled) {
       const keep = await confirm(
-        { message: `${label}: file already has a value (${filePath}). Keep it?`, default: true },
+        { message: `${getKeyLabel(keyId)}: file already has a value (${filePath}). Keep it?`, default: true },
         promptCtx
       );
-      if (keep) return undefined;
+
+      if (keep) continue;
+
+      const value = await password(
+        {
+          message: `Enter ${getKeyLabel(keyId)} (we will store it in ${filePath})`,
+          mask: '*',
+          validate: (v) => (v.trim().length > 0 ? true : 'Value cannot be empty'),
+        },
+        promptCtx
+      );
+      keyInput[keyId] = value;
+      continue;
+    }
+
+    const enterNow = await confirm(
+      { message: `${getKeyLabel(keyId)} not found. Enter it now?`, default: false },
+      promptCtx
+    );
+
+    if (!enterNow) {
+      for (const mcpId of getMcpIdsRequiringKey(Array.from(enabled), keyId)) {
+        enabled.delete(mcpId);
+      }
+      continue;
     }
 
     const value = await password(
       {
-        message: `Enter ${label} (we will store it in ${filePath})`,
+        message: `Enter ${getKeyLabel(keyId)} (we will store it in ${filePath})`,
         mask: '*',
         validate: (v) => (v.trim().length > 0 ? true : 'Value cannot be empty'),
       },
       promptCtx
     );
-    return value;
-  };
-
-  const out: { zaiApi?: string; context7?: string; tavily?: string } = {};
-  const zaiApi = await askOne('ZAI_API_KEY', opts.keyFiles.zaiApi);
-  if (zaiApi !== undefined) out.zaiApi = zaiApi;
-  const context7 = await askOne('CONTEXT7_API_KEY', opts.keyFiles.context7);
-  if (context7 !== undefined) out.context7 = context7;
-  const tavily = await askOne('TAVILY_API_KEY', opts.keyFiles.tavily);
-  if (tavily !== undefined) out.tavily = tavily;
-
-  return out;
-}
-
-async function promptLanguages(): Promise<LanguageKey[]> {
-  const promptCtx = tryGetPromptContext();
-  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
-  if (!interactive) {
-    throw new Error('No TTY available for interactive mode (run from a terminal).');
+    keyInput[keyId] = value;
   }
 
-  const selected = await checkbox<LanguageKey>(
-    {
-      message: 'Which languages should be installed?',
-      choices: [
-        { name: 'TypeScript', value: 'typescript', checked: true },
-        { name: 'Rust', value: 'rust', checked: true },
-        { name: 'C#', value: 'csharp', checked: true },
-      ],
-      validate: (values) => (values.length > 0 ? true : 'Select at least one language'),
-    },
-    promptCtx
-  );
-  return selected;
+  return { keyInput, enabledMcpIds: ALL_MCP_IDS.filter((id) => enabled.has(id)) };
 }
 
 async function promptResponseLanguage(): Promise<string> {
@@ -158,6 +297,58 @@ async function promptResponseLanguage(): Promise<string> {
   );
 
   return responseLanguage.trim();
+}
+
+async function promptAgentModels(): Promise<Record<string, string>> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  const selectedTargets = await checkbox(
+    {
+      message: 'Select agents to set explicit models (optional)',
+      instructions: 'Use Space to toggle, Enter to confirm',
+      choices: AGENT_MODEL_TARGETS.map((target) => ({
+        name: target.label,
+        value: target.id,
+        checked: false,
+      })),
+      required: false,
+    },
+    promptCtx
+  );
+
+  if (selectedTargets.length === 0) {
+    return {};
+  }
+
+  const replacementsByToken: Record<string, string> = {};
+  for (const targetId of selectedTargets as AgentModelTarget['id'][]) {
+    const target = AGENT_MODEL_TARGETS.find((item) => item.id === targetId);
+    if (!target) continue;
+
+    const rawModel = await input(
+      {
+        message: `Model for ${target.label}`,
+        default: target.defaultModel,
+        validate: (value) => {
+          if (/[\r\n]/.test(value)) return 'Model must be a single line';
+          if (value.trim().length === 0) return 'Model cannot be empty';
+          return true;
+        },
+      },
+      promptCtx
+    );
+
+    const model = rawModel.trim();
+    for (const placeholderToken of target.placeholderTokens) {
+      replacementsByToken[placeholderToken] = `model: ${model}`;
+    }
+  }
+
+  return replacementsByToken;
 }
 
 async function backupExistingOpencode(paths: { targetRoot: string; backupDir: string }, dryRun: boolean): Promise<string | undefined> {
@@ -197,11 +388,13 @@ async function main(): Promise<void> {
     : undefined;
 
   const paths = getInstallPaths(backupDir);
-  const templatesRoot = getTemplatesRoot();
+  const templatesRoot = resolveTemplateRoot();
   const templatesAgents = path.join(templatesRoot, 'agents');
   const templatesSkills = path.join(templatesRoot, 'skills');
+  const templatesCommands = path.join(templatesRoot, 'commands');
+  const templatesTools = path.join(templatesRoot, 'tools');
 
-  if (!(await pathExists(templatesAgents)) || !(await pathExists(templatesSkills))) {
+  if (!(await pathExists(templatesAgents)) || !(await pathExists(templatesSkills)) || !(await pathExists(templatesCommands))) {
     throw new Error(`templates not found at ${templatesRoot}. Is the package built correctly?`);
   }
 
@@ -211,6 +404,7 @@ async function main(): Promise<void> {
 
   report.push(`Target: ${paths.targetRoot}`);
   report.push('Mode: apply');
+  report.push(`Templates source: templates (${templatesRoot})`);
 
   let zipBackupPath: string | undefined;
   if (doBackup) {
@@ -223,56 +417,112 @@ async function main(): Promise<void> {
   const responseLanguage = await promptResponseLanguage();
   report.push(`Response language: ${responseLanguage}`);
 
+  const selectedModelReplacements = await promptAgentModels();
+  const selectedModelLabels = AGENT_MODEL_TARGETS
+    .filter((target) => target.placeholderTokens.some((token) => token in selectedModelReplacements))
+    .map((target) => target.label);
+  report.push(`Explicit agent models: ${selectedModelLabels.length > 0 ? selectedModelLabels.join(', ') : 'none'}`);
+
+  const enableHashFileTools = await confirm(
+    {
+      message: 'Enable experimental hash-based file tools? (Improves weak models + speeds up edits)',
+      default: false,
+    },
+    promptCtx
+  );
+  report.push(`Experimental hash file tools: ${enableHashFileTools ? 'enabled' : 'disabled'}`);
+
   // Replace agents
   await removeIfExists(paths.targetAgents);
   report.push(`Replace: ${paths.targetAgents} <= ${templatesAgents}`);
   await copyDir(templatesAgents, paths.targetAgents);
 
-  const agentReplacements = await replaceResponseLanguagePlaceholders(paths.targetAgents, responseLanguage);
-  report.push(`Agents language placeholders: ${agentReplacements} replaced`);
-
-  // Replace skills (selective)
-  const languages = await promptLanguages();
-  const skillPlan = buildSkillCopyPlan(languages);
+  // Replace skills
   await removeIfExists(paths.targetSkills);
-  report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills} (selected: ${languages.join(',')})`);
-  for (const rel of skillPlan.relDirs) {
-    const src = path.join(templatesSkills, rel);
-    const dst = path.join(paths.targetSkills, rel);
-    report.push(`  - copy ${src} -> ${dst}`);
-    if (await pathExists(src)) await copyDir(src, dst);
+  report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills}`);
+  await copyDir(templatesSkills, paths.targetSkills);
+
+  // Replace commands
+  await removeIfExists(paths.targetCommands);
+  report.push(`Replace: ${paths.targetCommands} <= ${templatesCommands}`);
+  await copyDir(templatesCommands, paths.targetCommands);
+
+  if (enableHashFileTools) {
+    if (await pathExists(templatesTools)) {
+      report.push(`Copy tools: ${paths.targetTools} <= ${templatesTools}`);
+      await removeIfExists(paths.targetTools);
+      await copyDir(templatesTools, paths.targetTools);
+    } else {
+      report.push(`Tools: none in ${templatesRoot}`);
+    }
   }
 
   // Keys
   report.push(`Keys dir: ${paths.targetKeys}`);
   await ensureDir(paths.targetKeys);
 
-  const keyFiles = {
-    zaiApi: path.join(paths.targetKeys, 'zai_api.txt'),
-    context7: path.join(paths.targetKeys, 'context7.txt'),
-    tavily: path.join(paths.targetKeys, 'tavily_search.txt'),
+  const keyFiles = buildKeyFiles(paths.targetKeys);
+
+  const keyFilledState: Record<KeyId, boolean> = {
+    zaiApi: await isKeyFileFilled(keyFiles.zaiApi),
+    context7: await isKeyFileFilled(keyFiles.context7),
+    tavily: await isKeyFileFilled(keyFiles.tavily),
   };
 
-  const keyInput = await promptForMissingKeys({ keyFiles });
+  const selectedMcpIds = await promptEnabledMcpIds(keyFilledState);
+  report.push(`Enabled MCP (selected): ${selectedMcpIds.length > 0 ? selectedMcpIds.join(', ') : 'none'}`);
 
-  const keyWrites: Array<{ name: string; filePath: string; action: string; inputProvided: boolean }> = [
-    { name: 'zai_api', filePath: keyFiles.zaiApi, action: '', inputProvided: keyInput.zaiApi !== undefined },
-    { name: 'context7', filePath: keyFiles.context7, action: '', inputProvided: keyInput.context7 !== undefined },
-    { name: 'tavily_search', filePath: keyFiles.tavily, action: '', inputProvided: keyInput.tavily !== undefined },
+  const { keyInput, enabledMcpIds } = await promptForEnabledKeys({
+    keyFiles,
+    keyFilledState,
+    enabledMcpIds: selectedMcpIds,
+  });
+  report.push(`Enabled MCP (final): ${enabledMcpIds.length > 0 ? enabledMcpIds.join(', ') : 'none'}`);
+
+  const mcpPermissionReplacements: Record<string, string> = Object.fromEntries(
+    AGENT_MCP_CONFIGS.map((config) => [
+      config.placeholderToken,
+      renderPermissionLines(getToolPatternsForMcpIds(enabledMcpIds, config.allowedMcpIds)),
+    ])
+  );
+
+  const fileToolsDevPermissions = enableHashFileTools
+    ? DEV_HASH_FILE_TOOLS_PERMISSIONS
+    : DEV_CLASSIC_FILE_TOOLS_PERMISSIONS;
+
+  const modelPlaceholderReplacements: Record<string, string> = Object.fromEntries(
+    ALL_MODEL_PLACEHOLDER_TOKENS.map((token) => [token, selectedModelReplacements[token] ?? ''])
+  );
+  const agentReplacements = await replaceAgentPlaceholders(paths.targetAgents, {
+    [RESPONSE_LANGUAGE_PLACEHOLDER]: responseLanguage,
+    [FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER]: fileToolsDevPermissions,
+    [BASH_READONLY_PERMISSION_PLACEHOLDER]: BASH_READONLY_PERMISSIONS,
+    ...modelPlaceholderReplacements,
+    ...mcpPermissionReplacements,
+  });
+  report.push(`Agents placeholders: ${agentReplacements} files updated`);
+
+  const requiredKeys = new Set(collectRequiredKeys(enabledMcpIds));
+
+  const keyWrites: Array<{ keyId: KeyId; filePath: string; action: string; inputProvided: boolean }> = [
+    { keyId: 'zaiApi', filePath: keyFiles.zaiApi, action: '', inputProvided: keyInput.zaiApi !== undefined },
+    { keyId: 'context7', filePath: keyFiles.context7, action: '', inputProvided: keyInput.context7 !== undefined },
+    { keyId: 'tavily', filePath: keyFiles.tavily, action: '', inputProvided: keyInput.tavily !== undefined },
   ];
 
-  {
-    const r1 = await writeKeyFile(keyWrites[0]!.filePath, keyInput.zaiApi, false);
-    keyWrites[0]!.action = r1.action;
-    const r2 = await writeKeyFile(keyWrites[1]!.filePath, keyInput.context7, false);
-    keyWrites[1]!.action = r2.action;
-    const r3 = await writeKeyFile(keyWrites[2]!.filePath, keyInput.tavily, false);
-    keyWrites[2]!.action = r3.action;
+  for (const item of keyWrites) {
+    if (!requiredKeys.has(item.keyId) && !item.inputProvided) {
+      item.action = 'skipped';
+      continue;
+    }
+
+    const result = await writeKeyFile(item.filePath, keyInput[item.keyId], false);
+    item.action = result.action;
   }
 
   for (const k of keyWrites) {
     report.push(`Key file: ${k.filePath} (${k.action}${k.inputProvided ? ', provided' : ''})`);
-    if (!(await isKeyFileFilled(k.filePath))) missingKeys.push(k.filePath);
+    if (requiredKeys.has(k.keyId) && !(await isKeyFileFilled(k.filePath))) missingKeys.push(k.filePath);
   }
 
   // Global config
@@ -283,7 +533,7 @@ async function main(): Promise<void> {
     zaiApi: keyRefs.zaiApi,
     context7: keyRefs.context7,
     tavily: keyRefs.tavily,
-  });
+  }, { enabledMcpIds });
   report.push(`Write: ${paths.globalConfig}`);
   await writeFileAtomic(paths.globalConfig, configContent);
 
@@ -301,23 +551,31 @@ main().catch((error: unknown) => {
   process.exitCode = 1;
 });
 
-async function replaceResponseLanguagePlaceholders(rootDir: string, responseLanguage: string): Promise<number> {
+function renderPermissionLines(patterns: string[]): string {
+  return patterns.map((pattern) => `${pattern}: allow`).join('\n');
+}
+
+async function replaceAgentPlaceholders(rootDir: string, replacementsByToken: Record<string, string>): Promise<number> {
   let replacements = 0;
 
   const entries = await fs.readdir(rootDir, { withFileTypes: true });
   for (const entry of entries) {
     const entryPath = path.join(rootDir, entry.name);
     if (entry.isDirectory()) {
-      replacements += await replaceResponseLanguagePlaceholders(entryPath, responseLanguage);
+      replacements += await replaceAgentPlaceholders(entryPath, replacementsByToken);
       continue;
     }
 
     if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
 
     const content = await fs.readFile(entryPath, 'utf8');
-    if (!content.includes(RESPONSE_LANGUAGE_PLACEHOLDER)) continue;
+    let updated = content;
+    for (const [token, value] of Object.entries(replacementsByToken)) {
+      if (!updated.includes(token)) continue;
+      const lineScopedTokenRegex = new RegExp(`^(\\s*)${escapeRegex(token)}\\s*$`, 'gm');
+      updated = updated.replace(lineScopedTokenRegex, (_match, indent: string) => indentBlock(value, indent));
+    }
 
-    const updated = content.split(RESPONSE_LANGUAGE_PLACEHOLDER).join(responseLanguage);
     if (updated !== content) {
       await writeFileAtomic(entryPath, updated);
       replacements += 1;
@@ -325,4 +583,16 @@ async function replaceResponseLanguagePlaceholders(rootDir: string, responseLang
   }
 
   return replacements;
+}
+
+function indentBlock(content: string, indent: string): string {
+  if (content.length === 0) return '';
+  return content
+    .split('\n')
+    .map((line) => `${indent}${line}`)
+    .join('\n');
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
