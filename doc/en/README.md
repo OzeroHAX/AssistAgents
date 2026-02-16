@@ -21,7 +21,7 @@ This section contains complete user documentation for installing, launching, and
 
 `assistagents` is an interactive installer that prepares the `~/.opencode` directory:
 
-- installs/updates `agents` and `skills` from package templates;
+- installs/updates `agents`, `skills`, and `commands` from package templates;
 - optionally installs experimental hash-based tools into `tools`;
 - helps enable MCP integrations;
 - stores keys in `~/.opencode/keys`;
@@ -30,5 +30,5 @@ This section contains complete user documentation for installing, launching, and
 ## Important Constraints
 
 - The installer only works in an interactive TTY terminal.
-- Re-running it replaces `~/.opencode/agents` and `~/.opencode/skills`.
+- Re-running it replaces `~/.opencode/agents`, `~/.opencode/skills`, and `~/.opencode/commands`.
 - If you have manual edits in these directories, enable backup before updating.

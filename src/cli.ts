@@ -391,9 +391,10 @@ async function main(): Promise<void> {
   const templatesRoot = resolveTemplateRoot();
   const templatesAgents = path.join(templatesRoot, 'agents');
   const templatesSkills = path.join(templatesRoot, 'skills');
+  const templatesCommands = path.join(templatesRoot, 'commands');
   const templatesTools = path.join(templatesRoot, 'tools');
 
-  if (!(await pathExists(templatesAgents)) || !(await pathExists(templatesSkills))) {
+  if (!(await pathExists(templatesAgents)) || !(await pathExists(templatesSkills)) || !(await pathExists(templatesCommands))) {
     throw new Error(`templates not found at ${templatesRoot}. Is the package built correctly?`);
   }
 
@@ -440,6 +441,11 @@ async function main(): Promise<void> {
   await removeIfExists(paths.targetSkills);
   report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills}`);
   await copyDir(templatesSkills, paths.targetSkills);
+
+  // Replace commands
+  await removeIfExists(paths.targetCommands);
+  report.push(`Replace: ${paths.targetCommands} <= ${templatesCommands}`);
+  await copyDir(templatesCommands, paths.targetCommands);
 
   if (enableHashFileTools) {
     if (await pathExists(templatesTools)) {

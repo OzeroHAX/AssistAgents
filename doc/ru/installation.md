@@ -36,11 +36,12 @@ npx -g @ozerohax/assistagents@latest
 
 - `~/.opencode/agents/`
 - `~/.opencode/skills/`
+- `~/.opencode/commands/`
 - `~/.opencode/tools/` (если включены hash-инструменты)
 - `~/.opencode/keys/`
 - `~/.opencode/opencode.jsonc`
 
 ## Что важно перед запуском
 
-- Если в `~/.opencode/agents` и `~/.opencode/skills` есть ваши правки, включите backup.
+- Если в `~/.opencode/agents`, `~/.opencode/skills` и `~/.opencode/commands` есть ваши правки, включите backup.
 - Если запускаете в CI или в неинтерактивной оболочке, установка завершится ошибкой из-за отсутствия TTY.

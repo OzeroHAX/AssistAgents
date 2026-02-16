@@ -8,6 +8,7 @@ export type InstallPaths = {
   targetRoot: string;
   targetAgents: string;
   targetSkills: string;
+  targetCommands: string;
   targetPlugins: string;
   targetTools: string;
   targetKeys: string;
@@ -31,6 +32,7 @@ export function getInstallPaths(backupDirFlag?: string): InstallPaths {
     targetRoot,
     targetAgents: path.join(targetRoot, 'agents'),
     targetSkills: path.join(targetRoot, 'skills'),
+    targetCommands: path.join(targetRoot, 'commands'),
     targetPlugins: path.join(targetRoot, 'plugins'),
     targetTools: path.join(targetRoot, 'tools'),
     targetKeys: path.join(targetRoot, 'keys'),

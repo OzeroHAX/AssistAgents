@@ -33,9 +33,9 @@ What to do:
 - re-run the installer;
 - enable the hash tools option.
 
-## Custom Edits in Agents/Skills Are Gone
+## Custom Edits in Agents/Skills/Commands Are Gone
 
-Cause: re-running installer replaces `~/.opencode/agents` and `~/.opencode/skills` with templates.
+Cause: re-running installer replaces `~/.opencode/agents`, `~/.opencode/skills`, and `~/.opencode/commands` with templates.
 
 What to do:
 
@@ -44,6 +44,6 @@ What to do:
 
 ## Basic Diagnostics
 
-- Check that these exist: `~/.opencode/opencode.jsonc`, `~/.opencode/agents`, `~/.opencode/skills`.
+- Check that these exist: `~/.opencode/opencode.jsonc`, `~/.opencode/agents`, `~/.opencode/skills`, `~/.opencode/commands`.
 - Ensure `~/.opencode/keys` contains key files for active integrations.
 - If issue remains, repeat installation in a clean interactive terminal session.

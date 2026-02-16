@@ -9,6 +9,7 @@ permission:
         "task-use-research-*": allow
         "planning-*": allow
         "code-*": allow
+        "coder-*": allow
         "docs-dev-plan": allow
     task:
         "assist/research/*": allow

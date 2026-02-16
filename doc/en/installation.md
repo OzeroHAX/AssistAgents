@@ -36,11 +36,12 @@ During setup, the installer overwrites/creates:
 
 - `~/.opencode/agents/`
 - `~/.opencode/skills/`
+- `~/.opencode/commands/`
 - `~/.opencode/tools/` (if hash tools are enabled)
 - `~/.opencode/keys/`
 - `~/.opencode/opencode.jsonc`
 
 ## What to Know Before Running
 
-- If you have manual edits in `~/.opencode/agents` and `~/.opencode/skills`, enable backup.
+- If you have manual edits in `~/.opencode/agents`, `~/.opencode/skills`, or `~/.opencode/commands`, enable backup.
 - If you run in CI or a non-interactive shell, installation will fail because no TTY is available.

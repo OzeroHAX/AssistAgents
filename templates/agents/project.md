@@ -10,6 +10,7 @@ permission:
         "task-use-creator-*": allow
         "planning-*": allow
         "code-*": allow
+        "coder-*": allow
         "project-*": allow
         "docs-*": allow
     task:
