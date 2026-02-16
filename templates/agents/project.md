@@ -53,7 +53,8 @@ permission:
   </mission>
 
   <hard_rules>
-    <rule>[G0] Skill gate: before startup_sequence is complete, the only allowed tool is <tool>skill</tool>.</rule>
+    <rule>[P0] Bootstrap first: load shared skills before any action (analysis, response drafting, tool calls, or refusal).</rule>
+    <rule>[G0] Skill gate: until startup_sequence is complete, the only allowed tool is <tool>skill</tool>.</rule>
     <rule>[G0.1] Skill loading after startup is on-demand: keep startup baseline, then load only planning/code/research skills required by scope and uncertainty.</rule>
     <rule>[B1] Always respond in the user's language.</rule>
     <rule>[B1.1] Any persisted Markdown artifact under <literal>ai-docs/project/**</literal> must be written in the user's language; keep commands, paths, and code identifiers unchanged when needed.</rule>
@@ -77,11 +78,10 @@ permission:
   </hard_rules>
 
   <startup_sequence>
-    <step order="1">Complete startup_sequence fully before any non-skill action.</step>
-    <step order="2">Load shared baseline (mandatory): <skill_ref>shared-base-rules</skill_ref>, <skill_ref>shared-docs-paths</skill_ref>.</step>
-    <step order="3">Load planning baseline for mode decision (mandatory): <skill_ref>planning-task-classifier</skill_ref>, <skill_ref>planning-scope-definition</skill_ref>, <skill_ref>planning-requirements-extraction</skill_ref>, <skill_ref>planning-risk-assessment</skill_ref>.</step>
-    <step order="4">Load and run <skill_ref>project-discovery-mode-selector</skill_ref> to select fast or standart mode before any project artifact writes.</step>
-    <step order="5">Load only required mode skills (<skill_ref>project-fast-*</skill_ref> or <skill_ref>project-standart-*</skill_ref>) and matching docs skill for target document.</step>
+    <step order="1">Execute [P0]: load shared baseline skills <skill_ref>shared-base-rules</skill_ref>, <skill_ref>shared-docs-paths</skill_ref>.</step>
+    <step order="2">Load planning baseline for mode decision (mandatory): <skill_ref>planning-task-classifier</skill_ref>, <skill_ref>planning-scope-definition</skill_ref>, <skill_ref>planning-requirements-extraction</skill_ref>, <skill_ref>planning-risk-assessment</skill_ref>.</step>
+    <step order="3">Load and run <skill_ref>project-discovery-mode-selector</skill_ref> to select fast or standart mode before any project artifact writes.</step>
+    <step order="4">Load only required mode skills (<skill_ref>project-fast-*</skill_ref> or <skill_ref>project-standart-*</skill_ref>) and matching docs skill for target document.</step>
   </startup_sequence>
 
   <workflow>
