@@ -21,14 +21,24 @@
 
 `assistagents` 是一个交互式安装程序，用于准备 `~/.opencode` 目录：
 
-- 从包模板安装/更新 `agents` 和 `skills`；
+- 从包模板安装/更新 `agents`、`skills` 和 `commands`；
 - 可选将实验性的基于哈希的工具安装到 `tools`；
 - 帮助启用 MCP 集成；
 - 将密钥存储在 `~/.opencode/keys`；
 - 生成 `~/.opencode/opencode.jsonc`，包含所需的 MCP 配置和权限限制。
 
+## 项目本地 Coder Skills
+
+若要为当前项目生成编码规则，请使用斜杠命令 `/init-agent-assist-code`。
+
+- 不带参数运行：根据仓库代码和配置自动识别语言。
+- 带参数运行：传入逗号分隔的语言列表，例如 `typescript,csharp`。
+- 输出位置：在当前仓库的 `.opencode/skills/coder/` 中创建或更新项目本地 skills。
+
+详细步骤与示例请查看[快速开始](./quick-start.md)。
+
 ## 重要限制
 
 - 安装程序仅在交互式 TTY 终端中运行。
-- 重新运行安装程序会替换 `~/.opencode/agents` 和 `~/.opencode/skills`。
+- 重新运行安装程序会替换 `~/.opencode/agents`、`~/.opencode/skills` 和 `~/.opencode/commands`。
 - 如果这些目录中有手动编辑的内容，请在更新前启用备份。

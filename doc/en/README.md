@@ -27,6 +27,16 @@ This section contains complete user documentation for installing, launching, and
 - stores keys in `~/.opencode/keys`;
 - generates `~/.opencode/opencode.jsonc` with the required MCP config and permission restrictions.
 
+## Project-Local Coder Skills
+
+For project-specific coding rules, use the `/init-agent-assist-code` slash command.
+
+- Run without arguments to auto-detect languages from repository code and configs.
+- Run with arguments to pass a comma-separated language list, for example `typescript,csharp`.
+- Output: creates or updates project-local skills in `.opencode/skills/coder/` inside the current repository.
+
+For step-by-step usage and examples, see [Quick Start](./quick-start.md).
+
 ## Important Constraints
 
 - The installer only works in an interactive TTY terminal.

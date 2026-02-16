@@ -17,7 +17,31 @@ Expected entries in `~/.opencode`:
 - `keys`
 - `opencode.jsonc`
 
-## 3) Use the Recommended Delivery Loop
+## 3) Generate Project-Local Coder Skills (Optional)
+
+If you want repository-specific coding rules, use this slash command:
+
+```text
+/init-agent-assist-code
+```
+
+What this command does:
+
+- creates or updates skills only under `.opencode/skills/coder/` in the current repository;
+- auto-detects languages from code and configs when no arguments are provided;
+- supports an explicit comma-separated language list via `$ARGUMENTS`, for example:
+
+```text
+/init-agent-assist-code typescript,csharp
+```
+
+When to run it:
+
+- right after installing/updating AssistAgents in a new project;
+- after significant stack changes (new language, framework, test runner, linter);
+- when you want to re-sync local coder skills with current repository state.
+
+## 4) Use the Recommended Delivery Loop
 
 Short iterations are more reliable than one huge prompt:
 
@@ -27,18 +51,18 @@ Short iterations are more reliable than one huge prompt:
 4. `review` - run quality/risk checks.
 5. Repeat until done criteria are met.
 
-## 4) Minimal First Iteration Example
+## 5) Minimal First Iteration Example
 
 1. Give `build/planner` one specific change to plan.
 2. Pass that plan to `build/dev` and ask it to execute with verification.
 3. Run `test` to confirm the result.
 4. Run `review` to validate quality and risks.
 
-## 5) When to Use `ask`
+## 6) When to Use `ask`
 
 `ask` is useful for quick questions and read-only context research without making changes.
 
-## 6) When to Use `project`
+## 7) When to Use `project`
 
 Use `project` when you need project-level work, not a single code change:
 
