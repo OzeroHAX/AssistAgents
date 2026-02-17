@@ -21,7 +21,7 @@ Expected entries in `~/.opencode`:
 
 If you want repository-specific coding rules, use this slash command:
 
-Run it via the `build/dev` agent.
+Run it via the `build-dev` agent.
 
 ```text
 /init-agent-assist-code
@@ -47,16 +47,16 @@ When to run it:
 
 Short iterations are more reliable than one huge prompt:
 
-1. `build/planner` - create a minimal, verifiable plan.
-2. `build/dev` - implement step by step.
+1. `build-planner` - create a minimal, verifiable plan.
+2. `build-dev` - implement step by step.
 3. `test` - verify behavior and capture outcomes.
 4. `review` - run quality/risk checks.
 5. Repeat until done criteria are met.
 
 ## 5) Minimal First Iteration Example
 
-1. Give `build/planner` one specific change to plan.
-2. Pass that plan to `build/dev` and ask it to execute with verification.
+1. Give `build-planner` one specific change to plan.
+2. Pass that plan to `build-dev` and ask it to execute with verification.
 3. Run `test` to confirm the result.
 4. Run `review` to validate quality and risks.
 

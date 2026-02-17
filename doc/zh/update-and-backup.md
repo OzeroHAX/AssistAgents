@@ -32,4 +32,4 @@ npx -g @ozerohax/assistagents@latest
 1. 关闭依赖当前智能体的活动会话。
 2. 在启用备份的情况下运行安装程序。
 3. 验证所需的 MCP 集成保持启用状态。
-4. 运行简短的冒烟检查：`build/planner` -> `build/dev` -> `test`。
+4. 运行简短的冒烟检查：`build-planner` -> `build-dev` -> `test`。

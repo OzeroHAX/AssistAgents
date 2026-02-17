@@ -57,8 +57,8 @@ test('all configured placeholders have valid allowedMcpIds', () => {
 const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '{{file_tools_dev_permissions}}';
 const BASH_READONLY_PERMISSION_PLACEHOLDER = '{{bash_readonly_permissions}}';
 
-test('build/dev file-tools placeholder is wired in cli replacements', () => {
-  const devTemplate = readFileSync('templates/agents/build/dev.md', 'utf-8');
+test('build-dev file-tools placeholder is wired in cli replacements', () => {
+  const devTemplate = readFileSync('templates/agents/build-dev.md', 'utf-8');
   assert.match(devTemplate, /\{\{file_tools_dev_permissions\}\}/);
 
   const cliSource = readFileSync('src/cli.ts', 'utf-8');
@@ -75,7 +75,7 @@ test('build/dev file-tools placeholder is wired in cli replacements', () => {
   assert.equal(
     devTemplate.includes(FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER),
     true,
-    'build/dev template must include file tools placeholder',
+    'build-dev template must include file tools placeholder',
   );
 });
 
@@ -94,11 +94,11 @@ test('readonly bash placeholder is wired in cli and templates', () => {
 
   const templates = [
     'templates/agents/doc.md',
-    'templates/agents/build/planner.md',
+    'templates/agents/build-planner.md',
     'templates/agents/project.md',
     'templates/agents/test.md',
-    'templates/agents/assist/creator/decomposition.md',
-    'templates/agents/assist/research/code.md',
+    'templates/agents/assist-creator-decomposition.md',
+    'templates/agents/assist-research-code.md',
   ];
   for (const filePath of templates) {
     const content = readFileSync(filePath, 'utf-8');
@@ -115,9 +115,9 @@ const MODEL_PLACEHOLDER_EXPECTATIONS: Array<{ token: string; templates: string[]
     token: '{{model_assist}}',
     cliConstantName: 'MODEL_ASSIST_PLACEHOLDER',
     templates: [
-      'templates/agents/assist/research/web.md',
-      'templates/agents/assist/research/code.md',
-      'templates/agents/assist/creator/decomposition.md',
+      'templates/agents/assist-research-web.md',
+      'templates/agents/assist-research-code.md',
+      'templates/agents/assist-creator-decomposition.md',
     ],
   },
   {
@@ -128,12 +128,12 @@ const MODEL_PLACEHOLDER_EXPECTATIONS: Array<{ token: string; templates: string[]
   {
     token: '{{model_build_planner}}',
     cliConstantName: 'MODEL_BUILD_PLANNER_PLACEHOLDER',
-    templates: ['templates/agents/build/planner.md'],
+    templates: ['templates/agents/build-planner.md'],
   },
   {
     token: '{{model_build_dev}}',
     cliConstantName: 'MODEL_BUILD_DEV_PLACEHOLDER',
-    templates: ['templates/agents/build/dev.md'],
+    templates: ['templates/agents/build-dev.md'],
   },
   {
     token: '{{model_review}}',

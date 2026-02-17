@@ -11,7 +11,7 @@ permission:
         "task-use-research-*": allow
         "review-*": allow
      task:
-        "assist/research/*": allow
+        "assist-research-*": allow
      bash: ask
      lsp: allow
      read: allow

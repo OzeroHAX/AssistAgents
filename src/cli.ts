@@ -39,7 +39,7 @@ const MODEL_ASK_PLACEHOLDER = '{{model_ask}}';
 const MODEL_DOC_PLACEHOLDER = '{{model_doc}}';
 
 type AgentModelTarget = {
-  id: 'assist' | 'project' | 'build/planner' | 'build/dev' | 'review' | 'test' | 'ask' | 'doc';
+  id: 'assist' | 'project' | 'build-planner' | 'build-dev' | 'review' | 'test' | 'ask' | 'doc';
   label: string;
   defaultModel: string;
   placeholderTokens: string[];
@@ -59,14 +59,14 @@ const AGENT_MODEL_TARGETS: AgentModelTarget[] = [
     placeholderTokens: [MODEL_PROJECT_PLACEHOLDER],
   },
   {
-    id: 'build/planner',
-    label: 'build/planner',
+    id: 'build-planner',
+    label: 'build-planner',
     defaultModel: 'openai/gpt-5.2',
     placeholderTokens: [MODEL_BUILD_PLANNER_PLACEHOLDER],
   },
   {
-    id: 'build/dev',
-    label: 'build/dev',
+    id: 'build-dev',
+    label: 'build-dev',
     defaultModel: 'openai/gpt-5.3-codex',
     placeholderTokens: [MODEL_BUILD_DEV_PLACEHOLDER],
   },

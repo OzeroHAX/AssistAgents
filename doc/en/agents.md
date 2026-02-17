@@ -2,8 +2,8 @@
 
 ## Main Agents
 
-- `build/dev` - code implementation, fixes, and step-by-step verification.
-- `build/planner` - read-only implementation planning.
+- `build-dev` - code implementation, fixes, and step-by-step verification.
+- `build-planner` - read-only implementation planning.
 - `test` - testing plus test-report and bug-report artifacts.
 - `review` - read-only code review and risk assessment.
 - `doc` - user/operational documentation in the allowed docs scope.
@@ -22,8 +22,8 @@ Main agents typically call them when focused analysis is needed.
 
 ## Agent Selection Guide
 
-- Need a plan before edits -> `build/planner`.
-- Need code changes -> `build/dev`.
+- Need a plan before edits -> `build-planner`.
+- Need code changes -> `build-dev`.
 - Need verification and reports -> `test`.
 - Need independent quality/risk review -> `review`.
 - Need user-facing docs -> `doc`.

@@ -14,8 +14,8 @@ permission:
         "project-*": allow
         "docs-*": allow
     task:
-        "assist/research/*": allow
-        "assist/creator/*": allow
+        "assist-research-*": allow
+        "assist-creator-*": allow
     bash:
         "*": ask
         {{bash_readonly_permissions}}
@@ -72,7 +72,7 @@ permission:
     <rule>[D1] Before creating or updating a concrete project document, load matching <skill_ref>docs-project-*</skill_ref> skill (for example <skill_ref>docs-project-brief</skill_ref> for <literal>brief.md</literal>).</rule>
     <rule>[R1] Strictly avoid modifying source code, configs, dependencies, migrations, git state, or environment.</rule>
     <rule>[R2] Do not suggest write workarounds via shell/scripts.</rule>
-    <rule>[S1] Context-first delegation: gather code facts via <literal>assist/research/code</literal>, external constraints via <literal>assist/research/web</literal>, and decomposition drafts via <literal>assist/creator/decomposition</literal> before synthesis when task scope is not trivial.</rule>
+    <rule>[S1] Context-first delegation: gather code facts via <literal>assist-research-code</literal>, external constraints via <literal>assist-research-web</literal>, and decomposition drafts via <literal>assist-creator-decomposition</literal> before synthesis when task scope is not trivial.</rule>
     <rule>[S1.1] Main agent keeps only high-level synthesis: avoid reading large files unless required for a final decision or document consistency check.</rule>
     <rule>[C1] If decisions depend on external libraries/frameworks, validate via Context7 before finalizing conclusions.</rule>
   </hard_rules>
@@ -86,7 +86,7 @@ permission:
 
   <workflow>
     <step>Classify request complexity/risk and choose mode through <skill_ref>project-discovery-mode-selector</skill_ref>.</step>
-    <step>Delegate evidence collection: repository facts to <literal>assist/research/code</literal>, external constraints to <literal>assist/research/web</literal>, and top-level decomposition draft to <literal>assist/creator/decomposition</literal> when useful.</step>
+    <step>Delegate evidence collection: repository facts to <literal>assist-research-code</literal>, external constraints to <literal>assist-research-web</literal>, and top-level decomposition draft to <literal>assist-creator-decomposition</literal> when useful.</step>
     <step>Synthesize only high-level conclusions from delegated evidence and minimal local reads.</step>
     <step>Load required <skill_ref>project-*</skill_ref> and matching <skill_ref>docs-project-*</skill_ref> skill for each target artifact type.</step>
     <step>Write scoped artifacts under <literal>ai-docs/project/**</literal> within per-run limits and same-stage constraint.</step>

@@ -31,7 +31,7 @@ This section contains complete user documentation for installing, launching, and
 
 For project-specific coding rules, use the `/init-agent-assist-code` slash command.
 
-Run this command via the `build/dev` agent.
+Run this command via the `build-dev` agent.
 
 - Run without arguments to auto-detect languages from repository code and configs.
 - Run with arguments to pass a comma-separated language list, for example `typescript,csharp`.

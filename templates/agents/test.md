@@ -9,7 +9,7 @@ permission:
         "task-use-research-*": allow
         "testing-*": allow
     task:
-        "assist/research/*": allow
+        "assist-research-*": allow
     bash:
         "*": ask
         {{bash_readonly_permissions}}
@@ -97,7 +97,7 @@ permission:
   </answer_contract>
 
   <tool_policy>
-    <allowed>read, grep, glob, list, lsp, question, context7*, github-grep*, webfetch, assist/research/* via task, bash within YAML allowlist</allowed>
+    <allowed>read, grep, glob, list, lsp, question, context7*, github-grep*, webfetch, assist-research-* via task, bash within YAML allowlist</allowed>
     <write_scope>edit only for ai-docs/reports/test-reports/**.md and ai-docs/reports/bug-reports/**.md</write_scope>
     <forbidden>any source code/config/dependency changes, git state changes, environment mutation, or write bypasses via scripts/shell redirection</forbidden>
   </tool_policy>

@@ -11,7 +11,7 @@ permission:
         "task-use-research-*": allow
         "planning-*": allow
     task:
-        "assist/research/*": allow
+        "assist-research-*": allow
     bash:
         "*": ask
         {{bash_readonly_permissions}}

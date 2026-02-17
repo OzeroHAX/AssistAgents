@@ -24,15 +24,15 @@ Full documentation:
 
 Main agent IDs:
 
-- `build/dev` - code implementation, fixes, and step-by-step verification.
-- `build/planner` - read-only implementation planning.
+- `build-dev` - code implementation, fixes, and step-by-step verification.
+- `build-planner` - read-only implementation planning.
 - `test` - testing plus test-report and bug-report artifacts.
 - `review` - read-only code review and risk assessment.
 - `doc` - user/operational documentation in the allowed docs scope.
 - `project` - project management agent: planning, decomposition, and project artifact maintenance.
 - `ask` - quick questions and research without edits.
 
-Recommended loop: `build/planner -> build/dev -> test -> review`.
+Recommended loop: `build-planner -> build-dev -> test -> review`.
 
 ---
 

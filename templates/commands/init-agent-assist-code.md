@@ -1,6 +1,6 @@
 ---
 description: Initialize project-local coder skills per language
-agent: build/dev
+agent: build-dev
 ---
 You are implementing a project bootstrap command: /init-agent-assist-code.
 

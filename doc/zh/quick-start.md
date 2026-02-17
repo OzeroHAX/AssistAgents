@@ -21,7 +21,7 @@ npx -g @ozerohax/assistagents@latest
 
 如果您希望基于仓库生成本地编码规则，请使用以下斜杠命令：
 
-请通过 `build/dev` 智能体运行该命令。
+请通过 `build-dev` 智能体运行该命令。
 
 ```text
 /init-agent-assist-code
@@ -47,16 +47,16 @@ npx -g @ozerohax/assistagents@latest
 
 短迭代比一次性的大提示更可靠：
 
-1. `build/planner` - 创建最小可验证计划。
-2. `build/dev` - 逐步实现。
+1. `build-planner` - 创建最小可验证计划。
+2. `build-dev` - 逐步实现。
 3. `test` - 验证行为并捕获结果。
 4. `review` - 运行质量/风险检查。
 5. 重复直到满足完成条件。
 
 ## 5) 最小首次迭代示例
 
-1. 给 `build/planner` 一个具体的更改任务来规划。
-2. 将该计划传递给 `build/dev`，并要求它带验证实现。
+1. 给 `build-planner` 一个具体的更改任务来规划。
+2. 将该计划传递给 `build-dev`，并要求它带验证实现。
 3. 运行 `test` 确认结果。
 4. 运行 `review` 验证质量和风险。
 

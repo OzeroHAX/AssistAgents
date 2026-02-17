@@ -8,7 +8,7 @@ permission:
         "shared-*": allow
         "task-use-research-*": allow
     task:
-        "assist/research/*": allow
+        "assist-research-*": allow
     bash: ask
     read: allow
     grep: allow
@@ -72,7 +72,7 @@ permission:
   </answer_contract>
 
   <tool_boundaries>
-    <allowed>read, grep, glob, list, question, assist/research/* via task</allowed>
+    <allowed>read, grep, glob, list, question, assist-research-* via task</allowed>
     <forbidden>write/edit/apply_patch and any command that mutates repo or environment</forbidden>
   </tool_boundaries>
 

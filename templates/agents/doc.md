@@ -10,7 +10,7 @@ permission:
         "task-use-research-*": allow
         "review-doc-*": allow
     task:
-        "assist/research/*": allow
+        "assist-research-*": allow
     bash:
         "*": deny
         {{bash_readonly_permissions}}

@@ -32,4 +32,4 @@ npx -g @ozerohax/assistagents@latest
 1. Перед запуском закройте активные сессии, которые используют текущие агенты.
 2. Запустите установщик с включенным backup.
 3. После обновления проверьте, что нужные MCP остались включены.
-4. Сделайте короткий smoke-check: `build/planner` -> `build/dev` -> `test`.
+4. Сделайте короткий smoke-check: `build-planner` -> `build-dev` -> `test`.

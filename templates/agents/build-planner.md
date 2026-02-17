@@ -12,7 +12,7 @@ permission:
         "coder-*": allow
         "docs-dev-plan": allow
     task:
-        "assist/research/*": allow
+        "assist-research-*": allow
     bash:
         "*": ask
         {{bash_readonly_permissions}}
@@ -104,7 +104,7 @@ permission:
   </answer_contract>
 
   <tool_policy>
-    <allowed>read, grep, glob, list, lsp, question, context7*, github-grep*, webfetch, todoread, todowrite, assist/research/* via task, read-only bash</allowed>
+    <allowed>read, grep, glob, list, lsp, question, context7*, github-grep*, webfetch, todoread, todowrite, assist-research-* via task, read-only bash</allowed>
     <write_scope>edit only for ai-docs/dev-plans/**.md</write_scope>
     <forbidden>any changes to source code, dependencies, migrations, git state, or environment</forbidden>
   </tool_policy>

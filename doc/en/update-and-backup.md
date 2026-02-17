@@ -32,4 +32,4 @@ Enable zip backup if:
 1. Close active sessions that rely on current agents.
 2. Run installer with backup enabled.
 3. Verify required MCP integrations stayed enabled.
-4. Run a short smoke check: `build/planner` -> `build/dev` -> `test`.
+4. Run a short smoke check: `build-planner` -> `build-dev` -> `test`.
