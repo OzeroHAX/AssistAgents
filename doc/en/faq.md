@@ -10,7 +10,14 @@ Yes. No-key integrations are available immediately. Integrations that require ke
 
 ## How do I change the agent response language after installation?
 
-The easiest way is to re-run the installer and set a new `Preferred response language` value.
+Re-run the installer and set a new `Preferred response language` value. 
+
+## Which user profile settings can I configure?
+
+During installation you can configure:
+- `Preferred user skill level` (`Zero`, `Junior`, `Middle`, `Senior`)
+- `Known technologies (comma-separated)`
+- `Communication style` (`direct`, `friendly`, `academic`)
 
 ## Can I choose different models for different agents?
 

@@ -10,7 +10,16 @@
 
 ## Где изменить язык ответов агентов после установки?
 
-Проще всего повторно запустить установщик и указать новый `Preferred response language`.
+Повторно запустите установщик и укажите новый `Preferred response language`. 
+
+## Какие параметры профиля пользователя можно настроить?
+
+Во время установки можно настроить:
+- `Preferred user skill level` (`Zero`, `Junior`, `Middle`, `Senior`)
+- `Known technologies (comma-separated)`
+- `Communication style` (`direct`, `friendly`, `academic`)
+
+
 
 ## Можно ли выбрать разные модели для разных агентов?
 

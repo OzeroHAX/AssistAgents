@@ -189,6 +189,59 @@ test('model placeholders are wired in templates and cli replacements', () => {
   assert.match(
     cliSource,
     /\.\.\.modelPlaceholderReplacements,/,
-    'src/cli.ts must pass model replacements into replaceAgentPlaceholders(...)'
+    'src/cli.ts must pass model replacements into replaceMarkdownPlaceholders(...)'
+  );
+});
+
+const PROFILE_PLACEHOLDER_EXPECTATIONS: Array<{ token: string; cliConstantName: string }> = [
+  { token: '{{response_language}}', cliConstantName: 'RESPONSE_LANGUAGE_PLACEHOLDER' },
+  { token: '{{user_skill_level}}', cliConstantName: 'USER_SKILL_LEVEL_PLACEHOLDER' },
+  { token: '{{user_known_tech_xml}}', cliConstantName: 'USER_KNOWN_TECH_XML_PLACEHOLDER' },
+  { token: '{{user_os}}', cliConstantName: 'USER_OS_PLACEHOLDER' },
+  { token: '{{user_shell}}', cliConstantName: 'USER_SHELL_PLACEHOLDER' },
+  { token: '{{user_communication_style}}', cliConstantName: 'USER_COMMUNICATION_STYLE_PLACEHOLDER' },
+];
+
+test('profile placeholders are wired in base-rules skill and cli replacements', () => {
+  const cliSource = readFileSync('src/cli.ts', 'utf-8');
+  const baseRulesTemplate = readFileSync('templates/skills/shared/base-rules/SKILL.md', 'utf-8');
+
+  for (const expectation of PROFILE_PLACEHOLDER_EXPECTATIONS) {
+    assert.match(
+      cliSource,
+      new RegExp(`const ${expectation.cliConstantName} = '${escapeForRegex(expectation.token)}';`),
+      `src/cli.ts must define ${expectation.cliConstantName}`
+    );
+    assert.equal(
+      baseRulesTemplate.includes(expectation.token),
+      true,
+      `base-rules template must include ${expectation.token}`
+    );
+  }
+
+  assert.match(
+    cliSource,
+    /const profilePlaceholders: Record<string, string> = \{/,
+    'src/cli.ts must build profile replacements map'
+  );
+  assert.match(
+    cliSource,
+    /replaceMarkdownPlaceholders\(paths\.targetSkills, profilePlaceholders\)/,
+    'src/cli.ts must apply profile placeholders to skills templates'
+  );
+});
+
+test('markdown placeholder replacement supports inline tokens', () => {
+  const cliSource = readFileSync('src/cli.ts', 'utf-8');
+
+  assert.match(
+    cliSource,
+    /const inlineTokenRegex = new RegExp\(escapeRegex\(token\), 'g'\);/,
+    'src/cli.ts must define global token regex for inline placeholders'
+  );
+  assert.match(
+    cliSource,
+    /updated = updated\.replace\(inlineTokenRegex, \(\) => value\);/,
+    'src/cli.ts must replace inline placeholders using the same replacement map'
   );
 });
