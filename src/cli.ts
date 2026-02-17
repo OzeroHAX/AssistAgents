@@ -1,4 +1,4 @@
-import { checkbox, confirm, input, password } from '@inquirer/prompts';
+import { checkbox, confirm, input, password, select } from '@inquirer/prompts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
@@ -22,6 +22,11 @@ import {
 } from './mcp-registry.js';
 
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
+const USER_SKILL_LEVEL_PLACEHOLDER = '{{user_skill_level}}';
+const USER_KNOWN_TECH_XML_PLACEHOLDER = '{{user_known_tech_xml}}';
+const USER_OS_PLACEHOLDER = '{{user_os}}';
+const USER_SHELL_PLACEHOLDER = '{{user_shell}}';
+const USER_COMMUNICATION_STYLE_PLACEHOLDER = '{{user_communication_style}}';
 const FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER = '{{file_tools_dev_permissions}}';
 const BASH_READONLY_PERMISSION_PLACEHOLDER = '{{bash_readonly_permissions}}';
 const MODEL_ASSIST_PLACEHOLDER = '{{model_assist}}';
@@ -123,7 +128,7 @@ const BASH_READONLY_PERMISSIONS = [
   '"tree *": allow',
   '"true": allow',
   '"pwd": allow',
-  '"date": allow',
+  '"date *": allow',
 ].join('\n');
 
 function getTemplatesRoot(): string {
@@ -153,6 +158,17 @@ async function writeKeyFile(filePath: string, value: string | undefined, dryRun:
 }
 
 type PromptContext = { input: Readable; output: Writable } | undefined;
+
+type UserSkillLevel = 'Zero' | 'Junior' | 'Middle' | 'Senior';
+type UserCommunicationStyle = 'direct' | 'friendly' | 'academic';
+
+type UserProfile = {
+  skillLevel: UserSkillLevel;
+  knownTech: string[];
+  os: string;
+  shell: string;
+  communicationStyle: UserCommunicationStyle;
+};
 
 function tryGetPromptContext(): PromptContext {
   const ttyOk = Boolean(process.stdin.isTTY && process.stdout.isTTY);
@@ -201,8 +217,7 @@ async function promptEnabledMcpIds(keyFilledState: Record<KeyId, boolean>): Prom
   const defaults = new Set(getDefaultEnabledMcpIds(keyFilledState));
   const selected = await checkbox(
     {
-      message: 'Choose MCP integrations to enable',
-      instructions: 'Use Space to toggle, Enter to confirm',
+      message: 'Choose MCP integrations to enable (Space to toggle, Enter to confirm)',
       choices: getMcpDefinitions().map((mcp) => ({
         name: mcp.requiresKeys.length === 0 ? `${mcp.label} (no key required)` : `${mcp.label} (requires: ${mcp.requiresKeys.join(', ')})`,
         value: mcp.id,
@@ -299,6 +314,67 @@ async function promptResponseLanguage(): Promise<string> {
   return responseLanguage.trim();
 }
 
+async function promptUserSkillLevel(): Promise<UserSkillLevel> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  return await select<UserSkillLevel>(
+    {
+      message: 'Preferred user skill level?',
+      default: 'Senior',
+      choices: [
+        { name: 'Zero', value: 'Zero' },
+        { name: 'Junior', value: 'Junior' },
+        { name: 'Middle', value: 'Middle' },
+        { name: 'Senior', value: 'Senior' },
+      ],
+    },
+    promptCtx
+  );
+}
+
+async function promptKnownTechnologies(): Promise<string[]> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  const rawValue = await input(
+    {
+      message: 'Known technologies (comma-separated)?',
+      default: 'TypeScript, C#, Docker',
+    },
+    promptCtx
+  );
+
+  return parseKnownTechnologies(rawValue);
+}
+
+async function promptCommunicationStyle(): Promise<UserCommunicationStyle> {
+  const promptCtx = tryGetPromptContext();
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
+  if (!interactive) {
+    throw new Error('No TTY available for interactive mode (run from a terminal).');
+  }
+
+  return await select<UserCommunicationStyle>(
+    {
+      message: 'Communication style?',
+      default: 'friendly',
+      choices: [
+        { name: 'direct', value: 'direct' },
+        { name: 'friendly', value: 'friendly' },
+        { name: 'academic', value: 'academic' },
+      ],
+    },
+    promptCtx
+  );
+}
+
 async function promptAgentModels(): Promise<Record<string, string>> {
   const promptCtx = tryGetPromptContext();
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) || Boolean(promptCtx);
@@ -308,8 +384,7 @@ async function promptAgentModels(): Promise<Record<string, string>> {
 
   const selectedTargets = await checkbox(
     {
-      message: 'Select agents to set explicit models (optional)',
-      instructions: 'Use Space to toggle, Enter to confirm',
+      message: 'Select agents to set explicit models (optional, Space to toggle, Enter to confirm)',
       choices: AGENT_MODEL_TARGETS.map((target) => ({
         name: target.label,
         value: target.id,
@@ -417,6 +492,25 @@ async function main(): Promise<void> {
   const responseLanguage = await promptResponseLanguage();
   report.push(`Response language: ${responseLanguage}`);
 
+  const skillLevel = await promptUserSkillLevel();
+  report.push(`User skill level: ${skillLevel}`);
+
+  const knownTech = await promptKnownTechnologies();
+  report.push(`Known technologies: ${knownTech.length > 0 ? knownTech.join(', ') : 'none'}`);
+
+  const communicationStyle = await promptCommunicationStyle();
+  report.push(`Communication style: ${communicationStyle}`);
+
+  const userProfile: UserProfile = {
+    skillLevel,
+    knownTech,
+    os: detectUserOs(),
+    shell: detectUserShell(),
+    communicationStyle,
+  };
+  report.push(`User OS: ${userProfile.os}`);
+  report.push(`User shell: ${userProfile.shell}`);
+
   const selectedModelReplacements = await promptAgentModels();
   const selectedModelLabels = AGENT_MODEL_TARGETS
     .filter((target) => target.placeholderTokens.some((token) => token in selectedModelReplacements))
@@ -493,7 +587,16 @@ async function main(): Promise<void> {
   const modelPlaceholderReplacements: Record<string, string> = Object.fromEntries(
     ALL_MODEL_PLACEHOLDER_TOKENS.map((token) => [token, selectedModelReplacements[token] ?? ''])
   );
-  const agentReplacements = await replaceAgentPlaceholders(paths.targetAgents, {
+  const profilePlaceholders: Record<string, string> = {
+    [RESPONSE_LANGUAGE_PLACEHOLDER]: responseLanguage,
+    [USER_SKILL_LEVEL_PLACEHOLDER]: userProfile.skillLevel,
+    [USER_KNOWN_TECH_XML_PLACEHOLDER]: renderKnownTechXml(userProfile.knownTech),
+    [USER_OS_PLACEHOLDER]: userProfile.os,
+    [USER_SHELL_PLACEHOLDER]: userProfile.shell,
+    [USER_COMMUNICATION_STYLE_PLACEHOLDER]: userProfile.communicationStyle,
+  };
+
+  const agentReplacements = await replaceMarkdownPlaceholders(paths.targetAgents, {
     [RESPONSE_LANGUAGE_PLACEHOLDER]: responseLanguage,
     [FILE_TOOLS_DEV_PERMISSION_PLACEHOLDER]: fileToolsDevPermissions,
     [BASH_READONLY_PERMISSION_PLACEHOLDER]: BASH_READONLY_PERMISSIONS,
@@ -501,6 +604,9 @@ async function main(): Promise<void> {
     ...mcpPermissionReplacements,
   });
   report.push(`Agents placeholders: ${agentReplacements} files updated`);
+
+  const skillReplacements = await replaceMarkdownPlaceholders(paths.targetSkills, profilePlaceholders);
+  report.push(`Skills placeholders: ${skillReplacements} files updated`);
 
   const requiredKeys = new Set(collectRequiredKeys(enabledMcpIds));
 
@@ -555,14 +661,14 @@ function renderPermissionLines(patterns: string[]): string {
   return patterns.map((pattern) => `${pattern}: allow`).join('\n');
 }
 
-async function replaceAgentPlaceholders(rootDir: string, replacementsByToken: Record<string, string>): Promise<number> {
+async function replaceMarkdownPlaceholders(rootDir: string, replacementsByToken: Record<string, string>): Promise<number> {
   let replacements = 0;
 
   const entries = await fs.readdir(rootDir, { withFileTypes: true });
   for (const entry of entries) {
     const entryPath = path.join(rootDir, entry.name);
     if (entry.isDirectory()) {
-      replacements += await replaceAgentPlaceholders(entryPath, replacementsByToken);
+      replacements += await replaceMarkdownPlaceholders(entryPath, replacementsByToken);
       continue;
     }
 
@@ -572,8 +678,12 @@ async function replaceAgentPlaceholders(rootDir: string, replacementsByToken: Re
     let updated = content;
     for (const [token, value] of Object.entries(replacementsByToken)) {
       if (!updated.includes(token)) continue;
+
       const lineScopedTokenRegex = new RegExp(`^(\\s*)${escapeRegex(token)}\\s*$`, 'gm');
       updated = updated.replace(lineScopedTokenRegex, (_match, indent: string) => indentBlock(value, indent));
+
+      const inlineTokenRegex = new RegExp(escapeRegex(token), 'g');
+      updated = updated.replace(inlineTokenRegex, () => value);
     }
 
     if (updated !== content) {
@@ -583,6 +693,53 @@ async function replaceAgentPlaceholders(rootDir: string, replacementsByToken: Re
   }
 
   return replacements;
+}
+
+function parseKnownTechnologies(rawValue: string): string[] {
+  return rawValue
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
+function renderKnownTechXml(technologies: string[]): string {
+  return technologies
+    .map((technology) => `<tech>${escapeXml(technology)}</tech>`)
+    .join('\n');
+}
+
+function detectUserOs(): string {
+  switch (process.platform) {
+    case 'win32':
+      return 'Windows';
+    case 'darwin':
+      return 'macOS';
+    case 'linux':
+      return 'Linux';
+    default:
+      return process.platform;
+  }
+}
+
+function detectUserShell(): string {
+  if (process.platform === 'win32') {
+    const comSpec = process.env.ComSpec?.trim();
+    if (!comSpec) return 'Unknown';
+    return path.basename(comSpec);
+  }
+
+  const shell = process.env.SHELL?.trim();
+  if (!shell) return 'Unknown';
+  return path.basename(shell);
+}
+
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 function indentBlock(content: string, indent: string): string {

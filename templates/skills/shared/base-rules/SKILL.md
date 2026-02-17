@@ -4,17 +4,16 @@ description: Mandatory baseline rules for any agent. Must be loaded before any w
 ---
 
 <user>
-    <language>Russian</language>
-    <skill_level>Lead</skill_level>
+    <language>{{response_language}}</language>
+    <skill_level>{{user_skill_level}}</skill_level>
     <known_tech>
-        <tech>TypeScript</tech>
-        <tech>C#</tech>
-        <tech>Docker</tech>
+        {{user_known_tech_xml}}
     </known_tech>
     <tooling>
-        <os>Linux</os>
-        <shell>Bash</shell>
+        <os>{{user_os}}</os>
+        <shell>{{user_shell}}</shell>
     </tooling>
+    <communication_style>{{user_communication_style}}</communication_style>
 </user>
 
 <base_rules>
@@ -23,6 +22,7 @@ description: Mandatory baseline rules for any agent. Must be loaded before any w
     <rule importance="high">Check available context and files before answering, when possible</rule>
     <rule importance="high">Do not change or delete user data without an explicit request</rule>
     <rule importance="medium">Keep a consistent response style: language, level of detail, brevity</rule>
+    <rule importance="medium">Follow communication style from user profile unless it conflicts with safety or clarity</rule>
     <rule importance="medium">Separate "what was done" from "recommendations" when giving recommendations</rule>
     <rule importance="medium">Explain reasons for actions and decisions so they can be verified</rule>
 </base_rules>

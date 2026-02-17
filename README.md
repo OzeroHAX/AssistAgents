@@ -8,7 +8,7 @@ It installs practical agents, skills, and optional integrations so you can run a
 
 ## Install / update
 
-Requirements: Node.js >= 18.
+Requirements: Node.js >= 20.12.0.
 
 ```bash
 npx @ozerohax/assistagents@latest

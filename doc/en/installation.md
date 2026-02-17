@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Node.js `>= 18`
+- Node.js `>= 20.12.0`
 - Access to an interactive terminal (TTY)
 
 Check your Node.js version:
