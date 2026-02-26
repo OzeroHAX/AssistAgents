@@ -245,3 +245,27 @@ test('markdown placeholder replacement supports inline tokens', () => {
     'src/cli.ts must replace inline placeholders using the same replacement map'
   );
 });
+
+test('planner template has scope management anchors', () => {
+  const plannerTemplate = readFileSync('templates/agents/build/planner.md', 'utf-8');
+  
+  // Check for anchor markers in edit permission block
+  assert.match(
+    plannerTemplate,
+    /"__assistagents_planner_md_scope_begin__": deny/,
+    'planner template must include scope begin anchor'
+  );
+  assert.match(
+    plannerTemplate,
+    /"__assistagents_planner_md_scope_end__": deny/,
+    'planner template must include scope end anchor'
+  );
+  
+  
+  // Verify there are 2 pairs of anchors (edit and apply_patch)
+  const beginMatches = plannerTemplate.match(/__assistagents_planner_md_scope_begin__/g);
+  const endMatches = plannerTemplate.match(/__assistagents_planner_md_scope_end__/g);
+  
+  assert.equal(beginMatches ? beginMatches.length : 0, 2, 'planner template must have 2 begin anchors (edit and apply_patch)');
+  assert.equal(endMatches ? endMatches.length : 0, 2, 'planner template must have 2 end anchors (edit and apply_patch)');
+});
