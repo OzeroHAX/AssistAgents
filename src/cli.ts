@@ -21,6 +21,8 @@ import {
   type McpId,
 } from './mcp-registry.js';
 
+import { addPattern, listPatterns, removePattern, resetScope } from './planner-scope.js';
+
 const RESPONSE_LANGUAGE_PLACEHOLDER = '{{response_language}}';
 const USER_SKILL_LEVEL_PLACEHOLDER = '{{user_skill_level}}';
 const USER_KNOWN_TECH_XML_PLACEHOLDER = '{{user_known_tech_xml}}';
@@ -651,7 +653,106 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
+
+async function runPlannerScopeSubcommand(args: string[]): Promise<void> {
+  const subcommand = args[0];
+  
+  switch (subcommand) {
+    case 'list': {
+      const result = await listPatterns();
+      process.stdout.write('Planner scope patterns:\n');
+      for (const pattern of result.patterns) {
+        process.stdout.write(`  - ${pattern}\n`);
+      }
+      break;
+    }
+    
+    case 'add': {
+      const pattern = args[1];
+      if (!pattern) {
+        process.stderr.write('Error: Pattern argument required\n');
+        process.stderr.write('Usage: assistagents planner-scope add <glob> [--force]\n');
+        process.exitCode = 1;
+        return;
+      }
+      const force = args.includes('--force');
+      const result = await addPattern(pattern, force);
+      if (result.warning) {
+        process.stderr.write(`${result.warning}\n`);
+      }
+      if (!result.success) {
+        process.stderr.write(`Error: ${result.message}\n`);
+        process.exitCode = 1;
+        return;
+      }
+      process.stdout.write(`${result.message}\n`);
+      if (result.added) {
+        process.stdout.write('Note: Restart any active planner sessions to apply changes.\n');
+      }
+      break;
+    }
+    
+    case 'remove': {
+      const pattern = args[1];
+      if (!pattern) {
+        process.stderr.write('Error: Pattern argument required\n');
+        process.stderr.write('Usage: assistagents planner-scope remove <glob>\n');
+        process.exitCode = 1;
+        return;
+      }
+      const result = await removePattern(pattern);
+      if (!result.success) {
+        process.stderr.write(`Error: ${result.message}\n`);
+        process.exitCode = 1;
+        return;
+      }
+      process.stdout.write(`${result.message}\n`);
+      if (result.removed) {
+        process.stdout.write('Note: Restart any active planner sessions to apply changes.\n');
+      }
+      break;
+    }
+    
+    case 'reset': {
+      const result = await resetScope();
+      if (!result.success) {
+        process.stderr.write(`Error: ${result.message}\n`);
+        process.exitCode = 1;
+        return;
+      }
+      process.stdout.write(`${result.message}\n`);
+      process.stdout.write('Note: Restart any active planner sessions to apply changes.\n');
+      break;
+    }
+    
+    default:
+      process.stderr.write(`Unknown planner-scope subcommand: ${subcommand}\n`);
+      process.stderr.write('Available subcommands: list, add, remove, reset\n');
+      process.exitCode = 1;
+  }
+}
+
+async function runCli(): Promise<void> {
+  const args = process.argv.slice(2);
+  
+  // Check for planner-scope subcommand
+  if (args[0] === 'planner-scope') {
+    const subcommandArgs = args.slice(1);
+    if (subcommandArgs.length === 0) {
+      process.stderr.write('Error: planner-scope requires a subcommand\n');
+      process.stderr.write('Available subcommands: list, add, remove, reset\n');
+      process.exitCode = 1;
+      return;
+    }
+    await runPlannerScopeSubcommand(subcommandArgs);
+    return;
+  }
+  
+  // Default: run interactive setup
+  await main();
+}
+
+runCli().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
   process.stderr.write(`assistagents failed: ${message}\n`);
   process.exitCode = 1;

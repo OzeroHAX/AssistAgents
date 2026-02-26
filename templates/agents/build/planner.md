@@ -23,10 +23,14 @@ permission:
     list: allow
     edit: 
         "*": deny
+        "__assistagents_planner_md_scope_begin__": deny
         "ai-docs/dev-plans/**.md": allow
+        "__assistagents_planner_md_scope_end__": deny
     apply_patch: 
         "*": deny
+        "__assistagents_planner_md_scope_begin__": deny
         "ai-docs/dev-plans/**.md": allow
+        "__assistagents_planner_md_scope_end__": deny
     question: allow
     webfetch: allow
     todoread: allow
@@ -105,7 +109,7 @@ permission:
 
   <tool_policy>
     <allowed>read, grep, glob, list, lsp, question, context7*, github-grep*, webfetch, todoread, todowrite, assist/research/* via task, read-only bash</allowed>
-    <write_scope>edit only for ai-docs/dev-plans/**.md</write_scope>
+    <write_scope>edit only for allowed scope patterns (manage via /planner-scope command)</write_scope>
     <forbidden>any changes to source code, dependencies, migrations, git state, or environment</forbidden>
   </tool_policy>
 
