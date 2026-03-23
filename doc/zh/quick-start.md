@@ -29,7 +29,7 @@ npx -g @ozerohax/assistagents@latest
 
 该命令会：
 
-- 仅在当前仓库的 `.opencode/skills/coder/` 下创建或更新 skills；
+- 仅在当前仓库的 `.opencode/skills/` 下创建或更新 skills；
 - 在未传参数时，根据代码和配置自动识别语言；
 - 通过 `$ARGUMENTS` 支持显式语言列表（逗号分隔），例如：
 

@@ -4,7 +4,10 @@ agent: build/dev
 ---
 You are implementing a project bootstrap command: /init-agent-assist-code.
 
-Goal: create or update project-local coder skill groups in `.opencode/skills/coder/<lang>/<skill-name>/SKILL.md` for each programming language used in this repository.
+Mandatory first step:
+- Load `skill-authoring`. It is the source of truth for runtime skill layout, `SKILL.md` quality, trigger-oriented descriptions, review criteria, and when one request should split into multiple skills.
+
+Goal: create or update project-local coder skills in `.opencode/skills/<skill-name>/SKILL.md` for each programming language used in this repository.
 
 Inputs:
 - `$ARGUMENTS`: optional comma-separated list of languages to initialize (example: `typescript,csharp`). If empty, auto-detect languages from repository evidence.
@@ -13,8 +16,9 @@ Hard requirements:
 - Do not reference internal repository examples or templates in your output.
 - Do not reference external example repositories or templates in your output.
 - Create only project-local artifacts under `.opencode/skills/`.
-- Skills must be written as `SKILL.md` with YAML frontmatter + structured tag sections.
-- Each skill `name` must match its directory name (`<skill-name>`) and satisfy `^[a-z0-9]+(-[a-z0-9]+)*$`.
+- Use flat OpenCode skill layout: `.opencode/skills/<skill-name>/SKILL.md`.
+- Baseline skill names must use the `coder-<lang>-...` pattern.
+- Every created or updated skill must pass the `skill-authoring` review workflow before completion.
 - Keep edits minimal and deterministic.
 
 Process:
@@ -44,10 +48,10 @@ Process:
 3) Web research (official primary sources only)
    - For each detected language and key technology, gather best practices from official docs/standards/official repositories.
    - For each language/technology area, produce 3-7 practices labeled as `must`, `should`, `must not`.
-   - Provide source links in each skill `<sources>` section.
+   - Provide source links inside each generated skill according to `skill-authoring`.
 
-4) Write skills
-   - For each language, create or update skills under `.opencode/skills/coder/<lang>/<skill-name>/SKILL.md`.
+4) Plan skill set per language
+   - For each language, create or update skills under `.opencode/skills/<skill-name>/SKILL.md`.
    - Minimum baseline skills per language:
      - `coder-<lang>-stack`
      - `coder-<lang>-conventions`
@@ -59,17 +63,10 @@ Process:
      - `coder-<lang>-async-concurrency`
    - Add framework/library-specific skills when justified by detected stack.
 
-5) Required SKILL.md structure
-   - YAML frontmatter:
-     - `name: <skill-name>`
-     - `description: <short description>`
-   - Body must begin with `<skill_overview>` and include:
-     - `<purpose>`
-     - `<triggers>` with one or more `<trigger>` items
-     - `<sources>` with one or more `<source url="...">...</source>` entries
-   - Add 2-6 topic sections relevant to the skill.
-   - Include `<anti_patterns>` or `<do_not>` where applicable.
-   - Include `<update_checklist>` in every skill.
+5) Author skills through `skill-authoring`
+   - For each planned skill, follow the `skill-authoring` author workflow instead of restating generic skill methodology here.
+   - Use repository evidence and official docs to keep rules concrete and stack-specific.
+   - If one planned skill becomes too broad, split it according to `skill-authoring`.
 
 6) Additional mandatory content for `coder-<lang>-stack`
    - `<tech_inventory>`: language, runtime, frameworks, build, test, lint/format, infra.
@@ -77,10 +74,10 @@ Process:
    - `<code_style_and_conventions>`: formatter/linter/naming/strictness and evidence paths.
    - `<verification_commands>`: lint/typecheck/test/build command lines.
 
-7) Skill content quality
-   - Include 6-12 prioritized principles (`P0`, `P1`, `P2`) across relevant skills.
-   - Include 5-10 checklist items in `<update_checklist>`.
-   - Keep rules concrete, actionable, and tied to detected stack evidence.
+7) Review and fix
+   - Run the `skill-authoring` review workflow on every created or updated skill.
+   - Resolve all `critical` and `high` findings before finishing.
+   - If evidence is missing for a planned rule, remove or downgrade the claim instead of inventing support.
 
 8) Report
    - List created/updated files.
@@ -88,5 +85,5 @@ Process:
 
 Output format expectations:
 - Print a concise execution log by research pass and language.
-- Print the final file tree for `.opencode/skills/coder/`.
+- Print the final file tree for `.opencode/skills/`.
 - Print warnings for missing evidence or uncertain detections.

@@ -29,7 +29,7 @@ Run it via the `build/dev` agent.
 
 What this command does:
 
-- creates or updates skills only under `.opencode/skills/coder/` in the current repository;
+- creates or updates skills only under `.opencode/skills/` in the current repository;
 - auto-detects languages from code and configs when no arguments are provided;
 - supports an explicit comma-separated language list via `$ARGUMENTS`, for example:
 

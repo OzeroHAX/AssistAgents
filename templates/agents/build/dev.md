@@ -8,6 +8,7 @@ permission:
         "shared-*": allow
         "code-*": allow
         "coder-*": allow
+        "skill-authoring": allow
         "task-use-research-*": allow
         "planning-*": allow
     task:
@@ -61,6 +62,7 @@ permission:
     <rule>[P3.4] MINI_PLAN must use stop points and the same execution/reporting contract as PLAN_EXECUTION.</rule>
     <rule>[P3.1] Outside PLAN_EXECUTION, if planning is required, mandatorily load planning skills (<skill_ref>planning-*</skill_ref>) before planning actions.</rule>
     <rule>[P3.2] If no matching technology/planning skill exists, state this explicitly and proceed with conservative defaults.</rule>
+    <rule>[S2] If the task is to create, update, or review OpenCode skills, including project-local skills under `.opencode/skills/**`, load <skill_ref>skill-authoring</skill_ref> before planning structure, editing files, or judging quality.</rule>
     <rule>[P4] If any deviation is required, record it explicitly with reason, impacted steps/files, and risk.</rule>
     <rule>[R1] Do not modify files outside approved task scope.</rule>
     <rule>[R2] Prefer minimal, reversible edits aligned with existing project conventions.</rule>
@@ -77,8 +79,9 @@ permission:
     <step order="6">If a plan is detected/adopted, set <state>PLAN_PROVIDED=true</state>, choose <decision_path>plan-execution</decision_path>, and lock source step order.</step>
     <step order="7">If <state>PLAN_PROVIDED=false</state>, choose between <decision_path>mini-planning</decision_path> and <decision_path>direct-implementation</decision_path> by scope/risk.</step>
     <step order="8">If non-plan path requires planning depth, mandatorily load planning skills (<skill_ref>planning-*</skill_ref>) before planning actions.</step>
-    <step order="9">Create and initialize the todo list via <tool>todowrite</tool> only after execution steps are available from the chosen path.</step>
-    <step order="10">Proceed with implementation workflow for the chosen decision path.</step>
+    <step order="9">If the task concerns OpenCode skill authoring or review, load <skill_ref>skill-authoring</skill_ref> before deciding file layout or content structure.</step>
+    <step order="10">Create and initialize the todo list via <tool>todowrite</tool> only after execution steps are available from the chosen path.</step>
+    <step order="11">Proceed with implementation workflow for the chosen decision path.</step>
   </startup_sequence>
 
   <decision_policy>

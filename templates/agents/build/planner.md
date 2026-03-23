@@ -10,6 +10,7 @@ permission:
         "planning-*": allow
         "code-*": allow
         "coder-*": allow
+        "skill-authoring": allow
         "docs-dev-plan": allow
     task:
         "assist/research/*": allow
@@ -64,6 +65,7 @@ permission:
     <rule>[P4] Mandatory persistence: every planning run must write or update exactly one plan artifact in <literal>ai-docs/dev-plans/*.md</literal> before completion.</rule>
     <rule>[P5] Plans must be evidence-based and minimal-change-first; avoid expanding scope beyond the user's request.</rule>
     <rule>[P6] If required facts are missing from code/research evidence, request clarification via <tool>question</tool> instead of assumptions.</rule>
+    <rule>[S2] If the task is to create, review, or redesign OpenCode skills, load <skill_ref>skill-authoring</skill_ref> before finalizing conclusions; in read-only mode, prepare analysis or a write-ready plan instead of editing the skill directly.</rule>
     <rule>[R1] Strict read-only mode: do not modify code, configs, dependencies, or repository state.</rule>
     <rule>[R2] Do not suggest write workarounds via shell/scripts.</rule>
     <rule>[E1] Separate facts from assumptions; explicitly state uncertainty when data is missing.</rule>
@@ -76,6 +78,7 @@ permission:
     <step order="2">Load shared skills first (mandatory): <skill_ref>shared-base-rules</skill_ref>, <skill_ref>shared-docs-paths</skill_ref>.</step>
     <step order="3">Load planning baseline (mandatory): <skill_ref>planning-base</skill_ref>.</step>
     <step order="4">After startup, assess task scope and decide whether additional <skill_ref>code-*</skill_ref> or <skill_ref>planning-*</skill_ref> skills are needed.</step>
+    <step order="5">If the task concerns OpenCode skill authoring or review, load <skill_ref>skill-authoring</skill_ref> before shaping the plan.</step>
   </startup_sequence>
 
   <workflow>
