@@ -21,6 +21,12 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/cli.ts",
+    "dev:fast": "tsx src/cli.ts --fast-replace --language Russian",
+    "eval:run": "cd eval/scripts && tsx run-suite.ts",
+    "eval:run:relaxed": "cd eval/scripts && tsx run-suite.ts --permission-profile relaxed-artifact-writes",
+    "eval:run:strict": "cd eval/scripts && tsx run-suite.ts --permission-profile strict",
+    "eval:parse": "cd eval/scripts && tsx parse-events.ts",
+    "eval:compare": "cd eval/scripts && tsx compare-runs.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test",
     "prepack": "npm run build"
