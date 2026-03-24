@@ -61,10 +61,5 @@ description: Clean code execution rules for coding agents with verifiable qualit
 </output_requirements>
 
 <references>
-  <source url="https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide/">OpenAI Codex Prompting Guide</source>
-  <source url="https://code.claude.com/docs/en/best-practices">Claude Code Best Practices</source>
-  <source url="https://docs.github.com/copilot/how-tos/agents/copilot-coding-agent/best-practices-for-using-copilot-to-work-on-tasks">GitHub Copilot Coding Agent Best Practices</source>
-  <source url="https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api">OpenAI Prompt Engineering Best Practices</source>
-  <source url="https://google.github.io/eng-practices/review/reviewer/standard.html">Google Engineering Practices: Review Standard</source>
   <source url="https://docs.sonarsource.com/sonarqube-server/10.8/core-concepts/clean-code/definition">SonarQube Clean Code Definition</source>
 </references>

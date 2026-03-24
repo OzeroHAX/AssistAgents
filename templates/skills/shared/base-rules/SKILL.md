@@ -1,6 +1,6 @@
 ---
 name: shared-base-rules
-description: Mandatory baseline rules for any agent. Must be loaded before any work
+description: Mandatory baseline rules for any agent. Must be loaded before any work.
 ---
 
 <user>
