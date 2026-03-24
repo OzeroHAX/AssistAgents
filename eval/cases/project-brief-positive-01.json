@@ -1,0 +1,30 @@
+{
+  "id": "project-brief-positive-01",
+  "agent": "project",
+  "promptFile": "eval/prompts/project/brief-ts-api.md",
+  "fixtureDir": "eval/fixtures/repos/ts-api",
+  "attachments": [],
+  "expectedFiles": ["ai-docs/project/brief.md", "ai-docs/project/status.json"],
+  "requiredSkills": ["project-discovery-mode-selector", "docs-project-brief"],
+  "forbiddenSkills": ["review-code-security"],
+  "allowedBootstrapSkills": [
+    "shared-base-rules",
+    "shared-docs-paths",
+    "planning-task-classifier",
+    "planning-scope-definition",
+    "planning-requirements-extraction",
+    "planning-risk-assessment"
+  ],
+  "allowedOptionalSkills": [
+    "docs-project-status",
+    "project-fast-init",
+    "project-fast-status",
+    "project-standart-brief",
+    "project-standart-status",
+    "task-use-research-code-strategy"
+  ],
+  "strictUnexpectedSkills": false,
+  "rubricFile": "eval/rubrics/project-brief.json",
+  "repeat": 1,
+  "tags": ["project", "routing", "quality", "artifact"]
+}

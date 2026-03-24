@@ -22,6 +22,12 @@ function extractPermissionSection(configJsonc: string): Record<string, unknown> 
   return parsed.permission ?? {};
 }
 
+function extractAgentSection(configJsonc: string): Record<string, unknown> {
+  const withoutLineComments = configJsonc.replace(/^\s*\/\/.*$/gm, '');
+  const parsed = JSON.parse(withoutLineComments) as { agent?: Record<string, unknown> };
+  return parsed.agent ?? {};
+}
+
 test('renderGlobalConfigJsonc produces empty mcp map when no integrations enabled', () => {
   const config = renderGlobalConfigJsonc(keyFiles, { enabledMcpIds: [] });
   const mcp = extractMcpSection(config);
@@ -60,4 +66,25 @@ test('renderGlobalConfigJsonc does not include manual MCP permission drift entri
   const permission = extractPermissionSection(config);
 
   assert.ok(!('pencil*' in permission));
+});
+
+test('renderGlobalConfigJsonc includes scoped edit overrides for doc, project, and test agents', () => {
+  const config = renderGlobalConfigJsonc(keyFiles, { enabledMcpIds: [] });
+  const agent = extractAgentSection(config) as Record<string, { permission?: { edit?: Record<string, string> } }>;
+
+  assert.deepEqual(agent.doc?.permission?.edit, {
+    '*': 'deny',
+    'ai-docs/guides/**.md': 'allow',
+    'ai-docs/changelogs/**.md': 'allow',
+  });
+  assert.deepEqual(agent.project?.permission?.edit, {
+    '*': 'deny',
+    'ai-docs/project/**.md': 'allow',
+    'ai-docs/project/status.json': 'allow',
+  });
+  assert.deepEqual(agent.test?.permission?.edit, {
+    '*': 'deny',
+    'ai-docs/reports/test-reports/**.md': 'allow',
+    'ai-docs/reports/bug-reports/**.md': 'allow',
+  });
 });

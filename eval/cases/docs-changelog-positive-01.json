@@ -1,0 +1,16 @@
+{
+  "id": "docs-changelog-positive-01",
+  "agent": "doc",
+  "promptFile": "eval/prompts/docs/changelog-fast-replace.md",
+  "fixtureDir": "eval/fixtures/repos/docs-space",
+  "attachments": [],
+  "expectedFiles": ["ai-docs/changelogs/fast-replace.md"],
+  "requiredSkills": ["docs-changelog"],
+  "forbiddenSkills": ["docs-guide"],
+  "allowedBootstrapSkills": ["shared-base-rules", "shared-docs-paths"],
+  "allowedOptionalSkills": ["review-doc-quality", "review-doc-strategy"],
+  "strictUnexpectedSkills": false,
+  "rubricFile": "eval/rubrics/docs-changelog.json",
+  "repeat": 1,
+  "tags": ["docs", "routing", "quality"]
+}

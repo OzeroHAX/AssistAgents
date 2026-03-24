@@ -1,0 +1,34 @@
+{
+  "id": "test-report",
+  "passThreshold": 0.75,
+  "checks": [
+    {
+      "id": "mentions_report_path",
+      "kind": "regex_any",
+      "weight": 2,
+      "description": "Mentions the report artifact path",
+      "patterns": ["auth-manual-check\\.md", "ai-docs/reports/test-reports/auth-manual-check\\.md"]
+    },
+    {
+      "id": "mentions_auth_scope",
+      "kind": "regex_any",
+      "weight": 1,
+      "description": "Mentions auth-related verification scope",
+      "patterns": ["auth", "session", "token", "авторизац", "аутентификац", "токен"]
+    },
+    {
+      "id": "mentions_status_or_blocked",
+      "kind": "regex_any",
+      "weight": 1,
+      "description": "Mentions an execution status or blocked condition",
+      "patterns": ["blocked", "done", "status", "заблок", "выполн", "статус"]
+    },
+    {
+      "id": "not_too_short",
+      "kind": "min_length",
+      "weight": 1,
+      "description": "The response is not trivial",
+      "min": 80
+    }
+  ]
+}

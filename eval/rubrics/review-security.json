@@ -1,0 +1,41 @@
+{
+  "id": "review-security",
+  "passThreshold": 0.8,
+  "checks": [
+    {
+      "id": "has_verdict",
+      "kind": "regex_any",
+      "weight": 2,
+      "description": "Includes an explicit review verdict",
+      "patterns": ["approve", "request-changes", "approve-with-conditions", "одобр", "нужн.*доработ", "требует.*доработ"]
+    },
+    {
+      "id": "mentions_secret_or_token_risk",
+      "kind": "regex_any",
+      "weight": 2,
+      "description": "Flags token or secret exposure",
+      "patterns": ["token", "secret", "credential", "лог.*token", "секрет", "токен"]
+    },
+    {
+      "id": "mentions_auth_risk",
+      "kind": "regex_any",
+      "weight": 1,
+      "description": "Flags authentication or authorization weakness",
+      "patterns": ["auth", "authorization", "permission", "authentication", "авторизац", "аутентификац", "доступ"]
+    },
+    {
+      "id": "has_fix_guidance",
+      "kind": "regex_any",
+      "weight": 1,
+      "description": "Provides remediation guidance",
+      "patterns": ["fix", "mitigat", "remove", "replace", "исправ", "убрат", "замен"]
+    },
+    {
+      "id": "not_too_short",
+      "kind": "min_length",
+      "weight": 1,
+      "description": "The review is substantial",
+      "min": 180
+    }
+  ]
+}
