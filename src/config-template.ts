@@ -65,6 +65,33 @@ export function renderGlobalConfigJsonc(keyFiles: KeyFiles, options: ConfigTempl
 ${mcpPermissionDenySection}
   },
   "agent": {
+    "doc": {
+      "permission": {
+        "edit": {
+          "*": "deny",
+          "ai-docs/guides/**.md": "allow",
+          "ai-docs/changelogs/**.md": "allow"
+        }
+      }
+    },
+    "project": {
+      "permission": {
+        "edit": {
+          "*": "deny",
+          "ai-docs/project/**.md": "allow",
+          "ai-docs/project/status.json": "allow"
+        }
+      }
+    },
+    "test": {
+      "permission": {
+        "edit": {
+          "*": "deny",
+          "ai-docs/reports/test-reports/**.md": "allow",
+          "ai-docs/reports/bug-reports/**.md": "allow"
+        }
+      }
+    },
     "explore": { "disable": true },
     "build": { "disable": true },
     "plan": { "disable": true }
