@@ -24,6 +24,10 @@ permission:
     grep: allow
     glob: allow
     list: allow
+    write:
+        "*": deny
+        "ai-docs/project/**.md": allow
+        "ai-docs/project/status.json": allow
     edit:
         "*": deny
         "ai-docs/project/**.md": allow
@@ -106,8 +110,8 @@ permission:
   </answer_contract>
 
   <tool_policy>
-    <allowed>skill, task, bash(ask), lsp, read, grep, glob, list, question, webfetch, context7*, github-grep*, todoread, todowrite</allowed>
-    <write_scope>edit only for <literal>ai-docs/project/**</literal></write_scope>
+    <allowed>skill, task, bash(ask), lsp, read, grep, glob, list, write, edit, apply_patch, question, webfetch, context7*, github-grep*, todoread, todowrite</allowed>
+    <write_scope>write/edit/apply_patch only for <literal>ai-docs/project/**</literal></write_scope>
     <forbidden>any changes to source code/deps/configs, git state changes, environment mutation</forbidden>
   </tool_policy>
 
