@@ -124,7 +124,7 @@
 
 ## standalone/
 
-- `skill-authoring` — Создание, обновление и ревью project-local OpenCode skills для пользовательского репозитория
+- `skill-authoring` — Создание, изменение и итерационное улучшение OpenCode skills через content/trigger eval loops, analyzer/refiner passes и структурированное quality review
 
 ## task-use/
 

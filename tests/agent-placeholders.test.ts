@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { globSync } from 'glob';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 
 import { AGENT_MCP_CONFIGS } from '../src/agent-config/index.js';
 import { ALL_MCP_IDS } from '../src/mcp-registry.js';
@@ -9,7 +9,26 @@ import { ALL_MCP_IDS } from '../src/mcp-registry.js';
 const PLACEHOLDER_PATTERN = /\{\{mcp_([a-z_]+)_permissions\}\}/g;
 
 function extractPlaceholderTokensFromTemplates(): Set<string> {
-  const templateFiles = globSync('templates/agents/**/*.md');
+  const templateFiles: string[] = [];
+  const rootDir = 'templates/agents';
+  const stack = [rootDir];
+
+  while (stack.length > 0) {
+    const currentDir = stack.pop();
+    if (!currentDir) continue;
+
+    for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
+      const entryPath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(entryPath);
+        continue;
+      }
+      if (entry.isFile() && entry.name.endsWith('.md')) {
+        templateFiles.push(entryPath);
+      }
+    }
+  }
+
   const tokens = new Set<string>();
 
   for (const filePath of templateFiles) {
@@ -183,7 +202,7 @@ test('model placeholders are wired in templates and cli replacements', () => {
 
   assert.match(
     cliSource,
-    /ALL_MODEL_PLACEHOLDER_TOKENS\.map\(\(token\) => \[token, selectedModelReplacements\[token\] \?\? ''\]\)/,
+    /ALL_MODEL_PLACEHOLDER_TOKENS\.map\(\(token\) => \[token, settings\.selectedModelReplacements\[token\] \?\? ''\]\)/,
     'src/cli.ts must always provide replacements for all model placeholders'
   );
   assert.match(

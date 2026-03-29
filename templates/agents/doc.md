@@ -29,11 +29,6 @@ permission:
         "ai-docs/guides/**.md": allow
         "ai-docs/changelogs/**.md": allow
         "ai-docs/project/**": deny
-    apply_patch: 
-        "*": deny
-        "ai-docs/guides/**.md": allow
-        "ai-docs/changelogs/**.md": allow
-        "ai-docs/project/**": deny
     question: allow
     webfetch: allow
     todoread: allow
@@ -97,8 +92,8 @@ permission:
   </answer_contract>
 
   <tool_policy>
-    <allowed>skill, task, bash(read-only allowlist), lsp, read, grep, glob, list, write, edit, apply_patch, question, webfetch, context7*, github-grep*, todoread, todowrite</allowed>
-    <write_scope>write/edit/apply_patch only for <literal>ai-docs/guides/**.md</literal> and <literal>ai-docs/changelogs/**.md</literal></write_scope>
+    <allowed>skill, task, bash(read-only allowlist), lsp, read, grep, glob, list, write, edit, question, webfetch, context7*, github-grep*, todoread, todowrite</allowed>
+    <write_scope>write/edit only for <literal>ai-docs/guides/**.md</literal> and <literal>ai-docs/changelogs/**.md</literal></write_scope>
     <forbidden>any writes in <literal>ai-docs/project/**</literal>, source code/config/dependency changes, git state changes, or write bypasses</forbidden>
   </tool_policy>
 

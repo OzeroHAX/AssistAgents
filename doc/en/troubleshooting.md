@@ -24,15 +24,6 @@ What to do:
 2. Select required MCP integrations.
 3. Enter/update keys for required services.
 
-## Hash-Based File Tools Are Missing
-
-Cause: `Enable experimental hash-based file tools` was not enabled.
-
-What to do:
-
-- re-run the installer;
-- enable the hash tools option.
-
 ## Custom Edits in Agents/Skills/Commands Are Gone
 
 Cause: re-running installer replaces `~/.opencode/agents`, `~/.opencode/skills`, and `~/.opencode/commands` with templates.

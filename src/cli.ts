@@ -106,12 +106,6 @@ const DEV_CLASSIC_FILE_TOOLS_PERMISSIONS = [
   'list: allow',
   'edit: allow',
   'write: allow',
-  'apply_patch: allow',
-].join('\n');
-const DEV_HASH_FILE_TOOLS_PERMISSIONS = [
-  'hashread: allow',
-  'hashgrep: allow',
-  'hashedit: allow',
 ].join('\n');
 const BASH_READONLY_PERMISSIONS = [
   '"git status *": allow',
@@ -183,7 +177,6 @@ type InstallSettings = {
   responseLanguage: string;
   userProfile: UserProfile;
   selectedModelReplacements: Record<string, string>;
-  enableHashFileTools: boolean;
   enabledMcpIds: McpId[];
   keyInput: KeyInput;
 };
@@ -504,7 +497,6 @@ async function loadFastReplaceSettings(paths: InstallPaths, args: string[]): Pro
       communicationStyle: DEFAULT_COMMUNICATION_STYLE,
     },
     selectedModelReplacements: {},
-    enableHashFileTools: false,
     enabledMcpIds: getDefaultEnabledMcpIds(keyFilledState),
     keyInput: {},
   };
@@ -515,7 +507,6 @@ async function runInstall(paths: InstallPaths, settings: InstallSettings): Promi
   const templatesAgents = path.join(templatesRoot, 'agents');
   const templatesSkills = path.join(templatesRoot, 'skills');
   const templatesCommands = path.join(templatesRoot, 'commands');
-  const templatesTools = path.join(templatesRoot, 'tools');
 
   if (!(await pathExists(templatesAgents)) || !(await pathExists(templatesSkills)) || !(await pathExists(templatesCommands))) {
     throw new Error(`templates not found at ${templatesRoot}. Is the package built correctly?`);
@@ -548,7 +539,6 @@ async function runInstall(paths: InstallPaths, settings: InstallSettings): Promi
     .filter((target) => target.placeholderTokens.some((token) => token in settings.selectedModelReplacements))
     .map((target) => target.label);
   report.push(`Explicit agent models: ${selectedModelLabels.length > 0 ? selectedModelLabels.join(', ') : 'none'}`);
-  report.push(`Experimental hash file tools: ${settings.enableHashFileTools ? 'enabled' : 'disabled'}`);
 
   await removeIfExists(paths.targetAgents);
   report.push(`Replace: ${paths.targetAgents} <= ${templatesAgents}`);
@@ -562,18 +552,8 @@ async function runInstall(paths: InstallPaths, settings: InstallSettings): Promi
   report.push(`Replace: ${paths.targetCommands} <= ${templatesCommands}`);
   await copyDir(templatesCommands, paths.targetCommands);
 
-  if (settings.enableHashFileTools) {
-    if (await pathExists(templatesTools)) {
-      report.push(`Copy tools: ${paths.targetTools} <= ${templatesTools}`);
-      await removeIfExists(paths.targetTools);
-      await copyDir(templatesTools, paths.targetTools);
-    } else {
-      report.push(`Tools: none in ${templatesRoot}`);
-    }
-  } else {
-    await removeIfExists(paths.targetTools);
-    report.push(`Tools: disabled (${paths.targetTools} removed if it existed)`);
-  }
+  await removeIfExists(paths.targetTools);
+  report.push(`Legacy tools dir removed if it existed: ${paths.targetTools}`);
 
   report.push(`Keys dir: ${paths.targetKeys}`);
   await ensureDir(paths.targetKeys);
@@ -594,9 +574,7 @@ async function runInstall(paths: InstallPaths, settings: InstallSettings): Promi
     ])
   );
 
-  const fileToolsDevPermissions = settings.enableHashFileTools
-    ? DEV_HASH_FILE_TOOLS_PERMISSIONS
-    : DEV_CLASSIC_FILE_TOOLS_PERMISSIONS;
+  const fileToolsDevPermissions = DEV_CLASSIC_FILE_TOOLS_PERMISSIONS;
 
   const modelPlaceholderReplacements: Record<string, string> = Object.fromEntries(
     ALL_MODEL_PLACEHOLDER_TOKENS.map((token) => [token, settings.selectedModelReplacements[token] ?? ''])
@@ -703,14 +681,6 @@ async function main(): Promise<void> {
   };
 
   const selectedModelReplacements = await promptAgentModels();
-  const enableHashFileTools = await confirm(
-    {
-      message: 'Enable experimental hash-based file tools? (Improves weak models + speeds up edits)',
-      default: false,
-    },
-    promptCtx
-  );
-
   const keyFiles = buildKeyFiles(paths.targetKeys);
   const keyFilledState: Record<KeyId, boolean> = {
     zaiApi: await isKeyFileFilled(keyFiles.zaiApi),
@@ -732,7 +702,6 @@ async function main(): Promise<void> {
     responseLanguage,
     userProfile,
     selectedModelReplacements,
-    enableHashFileTools,
     enabledMcpIds,
     keyInput,
   });

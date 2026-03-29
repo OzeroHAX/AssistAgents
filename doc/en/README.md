@@ -22,7 +22,6 @@ This section contains complete user documentation for installing, launching, and
 `assistagents` is an interactive installer that prepares the `~/.opencode` directory:
 
 - installs/updates `agents`, `skills`, and `commands` from package templates;
-- optionally installs experimental hash-based tools into `tools`;
 - helps enable MCP integrations;
 - stores keys in `~/.opencode/keys`;
 - generates `~/.opencode/opencode.jsonc` with the required MCP config and permission restrictions.

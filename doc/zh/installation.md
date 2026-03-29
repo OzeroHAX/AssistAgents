@@ -26,9 +26,8 @@ npx -g @ozerohax/assistagents@latest
 1. 是否为当前的 `~/.opencode` 创建 zip 备份。
 2. 智能体的首选响应语言。
 3. 是否为选定的智能体显式设置模型（可选）。
-4. 是否启用实验性的基于哈希的文件工具。
-5. 启用哪些 MCP 集成。
-6. 仅为需要密钥的集成提供密钥值。
+4. 启用哪些 MCP 集成。
+5. 仅为需要密钥的集成提供密钥值。
 
 ## 更新的路径
 
@@ -36,7 +35,6 @@ npx -g @ozerohax/assistagents@latest
 
 - `~/.opencode/agents/`
 - `~/.opencode/skills/`
-- `~/.opencode/tools/`（如果启用了哈希工具）
 - `~/.opencode/keys/`
 - `~/.opencode/opencode.jsonc`
 

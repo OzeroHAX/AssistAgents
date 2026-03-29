@@ -26,9 +26,8 @@ The installer asks step by step:
 1. Whether to create a zip backup of the current `~/.opencode`.
 2. Preferred response language for agents.
 3. Whether to explicitly set models for selected agents (optional).
-4. Whether to enable experimental hash-based file tools.
-5. Which MCP integrations to enable.
-6. Key values only for integrations that require them.
+4. Which MCP integrations to enable.
+5. Key values only for integrations that require them.
 
 ## Which Paths Are Updated
 
@@ -37,7 +36,6 @@ During setup, the installer overwrites/creates:
 - `~/.opencode/agents/`
 - `~/.opencode/skills/`
 - `~/.opencode/commands/`
-- `~/.opencode/tools/` (if hash tools are enabled)
 - `~/.opencode/keys/`
 - `~/.opencode/opencode.jsonc`
 

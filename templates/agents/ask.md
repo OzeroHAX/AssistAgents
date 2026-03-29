@@ -73,7 +73,7 @@ permission:
 
   <tool_boundaries>
     <allowed>read, grep, glob, list, question, assist/research/* via task</allowed>
-    <forbidden>write/edit/apply_patch and any command that mutates repo or environment</forbidden>
+    <forbidden>write/edit and any command that mutates repo or environment</forbidden>
   </tool_boundaries>
 
   <done_criteria>

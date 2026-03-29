@@ -67,11 +67,6 @@ test('fast-replace auto-confirms backup and keeps prompt-default install decisio
   );
   assert.match(
     cliSource,
-    /enableHashFileTools:\s*false/,
-    'fast-replace must behave like accepting the hash-tools prompt default'
-  );
-  assert.match(
-    cliSource,
     /enabledMcpIds:\s*getDefaultEnabledMcpIds\(keyFilledState\)/,
     'fast-replace must behave like accepting the MCP prompt defaults'
   );

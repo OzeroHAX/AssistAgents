@@ -87,7 +87,7 @@ permission:
 
   <tool_policy>
     <allowed>skill, task, bash(ask), lsp, read, grep, glob, list, question, webfetch, context7*, github-grep*</allowed>
-    <forbidden>edit/write/apply_patch and any mutating commands</forbidden>
+    <forbidden>edit/write and any mutating commands</forbidden>
   </tool_policy>
 
   <done_criteria>
