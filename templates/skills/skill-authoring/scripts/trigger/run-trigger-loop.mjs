@@ -17,9 +17,18 @@ import {
   writeTextFile,
 } from '../shared/fs.mjs';
 import { getDefaultLlmCommand } from '../shared/llm.mjs';
-import { getSkillAuthoringRunDir } from '../shared/workspace.mjs';
+import {
+  getSkillAuthoringRunDir,
+  getSkillAuthoringRuntimeCacheRoot,
+} from '../shared/workspace.mjs';
 import { improveDescription } from './improve-description.mjs';
 import { runTriggerEval } from './run-trigger-eval.mjs';
+import {
+  buildRuntimePaths,
+  cleanupRuntimeWorkingState,
+  pruneRuntimeArchive,
+  shouldCleanupRuntimeArtifacts,
+} from '../shared/runtime.mjs';
 
 function splitEvalSet(evalItems, holdout) {
   const positive = evalItems.filter((item) => Boolean(item.shouldTrigger));
@@ -74,6 +83,7 @@ export async function runAdaptiveTriggerEval(options) {
       skillDir: options.skillDir,
       runDir: `${options.runDir}-runs${fallbackRunsPerQuery}`,
       runtimeRoot: options.runtimeRoot,
+      runtimeCacheRoot: options.runtimeCacheRoot,
       installCommand: options.installCommand,
       installCwd: options.installCwd,
       opencodeBin: options.opencodeBin,
@@ -121,6 +131,7 @@ export async function runTriggerLoop(options) {
       skillDir: candidateSkillDir,
       runDir: path.join(iterationDir, 'train'),
       runtimeRoot: options.runtimeRoot,
+      runtimeCacheRoot: options.runtimeCacheRoot,
       installCommand: options.installCommand,
       installCwd: options.installCwd,
       opencodeBin: options.opencodeBin,
@@ -283,6 +294,9 @@ async function main() {
   const runtimeRoot = getFlag(flags, '--runtime-root');
   const installCommand = getFlag(flags, '--install-command');
   const installCwd = getFlag(flags, '--install-cwd', process.cwd());
+  const runtimeCacheRoot = getFlag(flags, '--runtime-cache-root', getSkillAuthoringRuntimeCacheRoot(process.cwd()));
+  const keepRuntime = getFlag(flags, '--keep-runtime', 'failures');
+  const pruneRuntime = getFlag(flags, '--prune-runtime-archive', 'true') !== 'false';
   const llmCommand = getFlag(flags, '--llm-command', getDefaultLlmCommand());
   const opencodeBin = getFlag(flags, '--opencode-bin', 'opencode');
   const agent = getFlag(flags, '--agent', 'ask');
@@ -305,6 +319,7 @@ async function main() {
     skillDir,
     resultsDir,
     runtimeRoot,
+    runtimeCacheRoot,
     installCommand,
     installCwd,
     llmCommand,
@@ -319,6 +334,12 @@ async function main() {
     timeoutMs,
   });
 
+  const runtime = buildRuntimePaths(path.resolve(runtimeRoot));
+  if (shouldCleanupRuntimeArtifacts(keepRuntime, output.exitReason === 'passed_threshold')) {
+    await cleanupRuntimeWorkingState(runtime);
+  } else if (pruneRuntime) {
+    await pruneRuntimeArchive(runtime);
+  }
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 }
 

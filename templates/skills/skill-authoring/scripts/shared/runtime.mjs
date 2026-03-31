@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 import {
@@ -43,6 +44,13 @@ export function createRuntimeEnv(runtime) {
   };
 }
 
+function buildInstallCacheKey(installCommand, fingerprint) {
+  return createHash('sha256')
+    .update(JSON.stringify({ installCommand, fingerprint }))
+    .digest('hex')
+    .slice(0, 16);
+}
+
 export async function prepareRuntimeDirs(runtime) {
   await ensureDir(runtime.rootDir);
   await ensureDir(runtime.homeDir);
@@ -55,6 +63,56 @@ export async function resetRuntimeWorkingState(runtime) {
   await removeIfExists(runtime.xdgConfigHome);
   await removeIfExists(runtime.xdgDataHome);
   await prepareRuntimeDirs(runtime);
+}
+
+export async function cleanupRuntimeWorkingState(runtime) {
+  await removeIfExists(runtime.homeDir);
+  await removeIfExists(runtime.xdgConfigHome);
+  await removeIfExists(runtime.xdgDataHome);
+}
+
+export async function pruneRuntimeArchive(runtime) {
+  const targets = [
+    path.join(runtime.homeDir, '.npm'),
+    path.join(runtime.homeDir, '.bun'),
+    path.join(runtime.homeDir, '.cache'),
+    path.join(runtime.homeDir, '.opencode', 'node_modules'),
+    path.join(runtime.xdgConfigHome, 'opencode', 'node_modules'),
+    path.join(runtime.xdgDataHome, 'opencode', 'log'),
+    path.join(runtime.xdgDataHome, 'opencode', 'opencode.db'),
+    path.join(runtime.xdgDataHome, 'opencode', 'opencode.db-shm'),
+    path.join(runtime.xdgDataHome, 'opencode', 'opencode.db-wal'),
+  ];
+
+  const pruned = [];
+  for (const targetPath of targets) {
+    if (!(await pathExists(targetPath))) {
+      continue;
+    }
+    await removeIfExists(targetPath);
+    pruned.push(targetPath);
+  }
+
+  if (pruned.length > 0) {
+    await writeJsonFile(path.join(runtime.rootDir, 'runtime-prune.json'), {
+      prunedAt: new Date().toISOString(),
+      targets: pruned,
+    });
+  }
+
+  return pruned;
+}
+
+export function shouldCleanupRuntimeArtifacts(policy = 'failures', success = false) {
+  switch (policy) {
+    case 'always':
+      return false;
+    case 'never':
+      return true;
+    case 'failures':
+    default:
+      return success;
+  }
 }
 
 export async function maskRuntimeSkills(runtime, excludedSkillNames = []) {
@@ -132,8 +190,17 @@ async function computeInstallFingerprint(fingerprintPaths) {
 
 export async function decideRuntimeInstall(options) {
   const fingerprint = await computeInstallFingerprint(options.fingerprintPaths ?? []);
-  const stateFile = getInstallStatePath(options.runtime);
-  const baseConfigPath = path.join(options.runtime.baseOpencodeDir, 'opencode.jsonc');
+  const cacheKey = buildInstallCacheKey(options.installCommand, fingerprint);
+  const cacheRoot = options.sharedCacheRoot
+    ? path.resolve(options.sharedCacheRoot, cacheKey)
+    : options.runtime.rootDir;
+  const stateFile = options.sharedCacheRoot
+    ? path.join(cacheRoot, 'install-state.json')
+    : getInstallStatePath(options.runtime);
+  const baseOpencodeDir = options.sharedCacheRoot
+    ? path.join(cacheRoot, 'base-opencode')
+    : options.runtime.baseOpencodeDir;
+  const baseConfigPath = path.join(baseOpencodeDir, 'opencode.jsonc');
 
   if (options.skipInstall) {
     if (!(await pathExists(baseConfigPath))) {
@@ -143,6 +210,9 @@ export async function decideRuntimeInstall(options) {
       performed: false,
       reason: 'skip-install flag set',
       fingerprint,
+      cacheKey,
+      cacheRoot,
+      baseOpencodeDir,
       stateFile,
     };
   }
@@ -152,6 +222,9 @@ export async function decideRuntimeInstall(options) {
       performed: true,
       reason: 'base install is missing',
       fingerprint,
+      cacheKey,
+      cacheRoot,
+      baseOpencodeDir,
       stateFile,
     };
   }
@@ -162,6 +235,9 @@ export async function decideRuntimeInstall(options) {
       performed: true,
       reason: 'install state is missing or incompatible',
       fingerprint,
+      cacheKey,
+      cacheRoot,
+      baseOpencodeDir,
       stateFile,
     };
   }
@@ -171,6 +247,9 @@ export async function decideRuntimeInstall(options) {
       performed: true,
       reason: 'install command changed',
       fingerprint,
+      cacheKey,
+      cacheRoot,
+      baseOpencodeDir,
       stateFile,
     };
   }
@@ -180,6 +259,9 @@ export async function decideRuntimeInstall(options) {
       performed: true,
       reason: 'install fingerprint changed',
       fingerprint,
+      cacheKey,
+      cacheRoot,
+      baseOpencodeDir,
       stateFile,
     };
   }
@@ -188,12 +270,16 @@ export async function decideRuntimeInstall(options) {
     performed: false,
     reason: 'install fingerprint unchanged; reusing cached base install',
     fingerprint,
+    cacheKey,
+    cacheRoot,
+    baseOpencodeDir,
     stateFile,
   };
 }
 
 export async function prepareRuntimeBase(options) {
   const workingOpencodePath = path.join(options.runtime.homeDir, '.opencode');
+  const baseOpencodeDir = options.installDecision.baseOpencodeDir ?? options.runtime.baseOpencodeDir;
   let skillMask = {
     excludedSkillNames: [],
     removedSkills: [],
@@ -218,8 +304,9 @@ export async function prepareRuntimeBase(options) {
       throw new Error(`Install command failed with exit code ${result.exitCode}`);
     }
 
-    await removeIfExists(options.runtime.baseOpencodeDir);
-    await copyDir(workingOpencodePath, options.runtime.baseOpencodeDir);
+    await ensureDir(path.dirname(baseOpencodeDir));
+    await removeIfExists(baseOpencodeDir);
+    await copyDir(workingOpencodePath, baseOpencodeDir);
     await writeJsonFile(options.installDecision.stateFile, {
       version: INSTALL_STATE_VERSION,
       fingerprint: options.installDecision.fingerprint,
@@ -231,7 +318,7 @@ export async function prepareRuntimeBase(options) {
       await writeTextFile(path.join(options.runDir, 'install.log'), `install skipped: ${options.installDecision.reason}\n`);
       await writeTextFile(path.join(options.runDir, 'install.err.log'), '');
     }
-    await copyDir(options.runtime.baseOpencodeDir, workingOpencodePath);
+    await copyDir(baseOpencodeDir, workingOpencodePath);
   }
 
   if ((options.excludedSkillNames?.length ?? 0) > 0) {

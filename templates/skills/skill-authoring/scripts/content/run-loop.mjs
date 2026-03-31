@@ -15,7 +15,16 @@ import {
   writeTextFile,
 } from '../shared/fs.mjs';
 import { getDefaultLlmCommand } from '../shared/llm.mjs';
-import { getSkillAuthoringRunDir } from '../shared/workspace.mjs';
+import {
+  getSkillAuthoringRunDir,
+  getSkillAuthoringRuntimeCacheRoot,
+} from '../shared/workspace.mjs';
+import {
+  buildRuntimePaths,
+  cleanupRuntimeWorkingState,
+  pruneRuntimeArchive,
+  shouldCleanupRuntimeArtifacts,
+} from '../shared/runtime.mjs';
 import { runContentIteration } from './run-iteration.mjs';
 import { analyzeResults } from './analyze-results.mjs';
 import { compareSummaries } from './compare-summaries.mjs';
@@ -108,6 +117,9 @@ async function main() {
   const skillDir = getFlag(flags, '--skill-dir');
   const resultsDir = getFlag(flags, '--results-dir', getSkillAuthoringRunDir(timestampId(), process.cwd()));
   const runtimeRoot = getFlag(flags, '--runtime-root');
+  const runtimeCacheRoot = getFlag(flags, '--runtime-cache-root', getSkillAuthoringRuntimeCacheRoot(process.cwd()));
+  const keepRuntime = getFlag(flags, '--keep-runtime', 'failures');
+  const pruneRuntime = getFlag(flags, '--prune-runtime-archive', 'true') !== 'false';
   const installCommand = getFlag(flags, '--install-command');
   const installCwd = getFlag(flags, '--install-cwd', process.cwd());
   const fingerprintPath = getFlag(flags, '--fingerprint-path');
@@ -120,6 +132,8 @@ async function main() {
   const triggerEvalSetPath = getFlag(flags, '--trigger-eval-set');
   const triggerIterations = Number(getFlag(flags, '--trigger-max-iterations', '5'));
   const contentTimeoutMs = Number(getFlag(flags, '--content-timeout-ms', '180000'));
+  const contentStartupTimeoutMs = Number(getFlag(flags, '--content-startup-timeout-ms', '15000'));
+  const contentInfrastructureRetries = Number(getFlag(flags, '--content-infrastructure-retries', '1'));
   const triggerTimeoutMs = Number(getFlag(flags, '--trigger-timeout-ms', '30000'));
   const triggerRunsPerQuery = Number(getFlag(flags, '--trigger-runs-per-query', '3'));
   const logProgress = getFlag(flags, '--log-progress', 'true') !== 'false';
@@ -160,6 +174,7 @@ async function main() {
       skillDir: candidateDir,
       runDir: path.join(iterationDir, 'candidate-run'),
       runtimeRoot,
+      runtimeCacheRoot,
       installCommand,
       installCwd,
       fingerprintPath,
@@ -167,6 +182,8 @@ async function main() {
       permissionProfile,
       configurationId: 'candidate',
       timeoutMs: contentTimeoutMs,
+      startupTimeoutMs: contentStartupTimeoutMs,
+      infrastructureRetryCount: contentInfrastructureRetries,
       logProgress,
     });
     emitProgress(
@@ -185,6 +202,7 @@ async function main() {
         skillDir: baselineDir,
         runDir: path.join(iterationDir, 'baseline-run'),
         runtimeRoot,
+        runtimeCacheRoot,
         installCommand,
         installCwd,
         fingerprintPath,
@@ -192,6 +210,8 @@ async function main() {
         permissionProfile,
         configurationId: 'baseline',
         timeoutMs: contentTimeoutMs,
+        startupTimeoutMs: contentStartupTimeoutMs,
+        infrastructureRetryCount: contentInfrastructureRetries,
         logProgress,
       });
       emitProgress(
@@ -206,6 +226,7 @@ async function main() {
         skillDir: null,
         runDir: path.join(iterationDir, 'baseline-run'),
         runtimeRoot,
+        runtimeCacheRoot,
         installCommand,
         installCwd,
         fingerprintPath,
@@ -213,6 +234,8 @@ async function main() {
         permissionProfile,
         configurationId: 'without_skill',
         timeoutMs: contentTimeoutMs,
+        startupTimeoutMs: contentStartupTimeoutMs,
+        infrastructureRetryCount: contentInfrastructureRetries,
         logProgress,
       });
       emitProgress(
@@ -250,6 +273,17 @@ async function main() {
     await writeJsonFile(path.join(resultsDir, 'run.json'), runState);
     await writeTextFile(path.join(resultsDir, 'timeline.md'), renderTimeline(runState));
 
+    if (
+      candidateSummary.aggregate.status === 'INFRA_ERROR' ||
+      baselineSummary?.aggregate?.status === 'INFRA_ERROR'
+    ) {
+      emitProgress(logProgress, `iteration ${iteration}/${maxIterations}: content runtime infrastructure failure`);
+      runState.stopReason = 'content_runtime_error';
+      await writeJsonFile(path.join(resultsDir, 'run.json'), runState);
+      await writeTextFile(path.join(resultsDir, 'timeline.md'), renderTimeline(runState));
+      break;
+    }
+
     if (triggerEvalSetPath && candidateSummary.aggregate.status === 'PASS') {
       emitProgress(logProgress, `iteration ${iteration}/${maxIterations}: starting trigger loop`);
       const candidateDescription = parseSkillMarkdown(skillText).description;
@@ -258,6 +292,7 @@ async function main() {
         skillDir: candidateDir,
         resultsDir: path.join(iterationDir, 'trigger-loop'),
         runtimeRoot,
+        runtimeCacheRoot,
         installCommand,
         installCwd,
         llmCommand,
@@ -336,6 +371,7 @@ async function main() {
         skillDir: nextSkillDir,
         resultsDir: path.join(iterationDir, 'trigger-loop'),
         runtimeRoot,
+        runtimeCacheRoot,
         installCommand,
         installCwd,
         llmCommand,
@@ -373,6 +409,12 @@ async function main() {
   await writeJsonFile(path.join(resultsDir, 'run.json'), runState);
   await writeTextFile(path.join(resultsDir, 'timeline.md'), renderTimeline(runState));
   await writeTextFile(path.join(resultsDir, 'final-summary.md'), renderFinalSummary(runState));
+  const runtime = buildRuntimePaths(path.resolve(runtimeRoot));
+  if (shouldCleanupRuntimeArtifacts(keepRuntime, runState.stopReason === 'passed_threshold')) {
+    await cleanupRuntimeWorkingState(runtime);
+  } else if (pruneRuntime) {
+    await pruneRuntimeArchive(runtime);
+  }
   emitProgress(logProgress, `finished with stopReason=${runState.stopReason}`);
   process.stdout.write(`${JSON.stringify(runState, null, 2)}\n`);
 }

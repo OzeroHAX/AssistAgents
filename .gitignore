@@ -18,3 +18,6 @@ eval/runtime
 
 # Pack artifacts
 *.tgz
+
+# dev folder
+dev/

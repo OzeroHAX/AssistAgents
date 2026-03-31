@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
+import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  cleanupWorkspaceTransientState,
   ensureDir,
   getFlag,
   initGitRoot,
@@ -19,15 +21,20 @@ import {
 } from '../shared/fs.mjs';
 import {
   buildRuntimePaths,
+  cleanupRuntimeWorkingState,
   createRuntimeEnv,
   decideRuntimeInstall,
   prepareRuntimeBase,
   prepareRuntimeDirs,
+  pruneRuntimeArchive,
   resetRuntimeWorkingState,
+  shouldCleanupRuntimeArtifacts,
 } from '../shared/runtime.mjs';
 import { parseEventText } from '../shared/parse-events.mjs';
-import { runCommand } from '../shared/fs.mjs';
-import { getSkillAuthoringRunDir } from '../shared/workspace.mjs';
+import {
+  getSkillAuthoringRunDir,
+  getSkillAuthoringRuntimeCacheRoot,
+} from '../shared/workspace.mjs';
 
 function minimumTriggersForPass(runsPerQuery, threshold) {
   return Math.ceil(runsPerQuery * threshold);
@@ -101,6 +108,106 @@ function emitProgress(enabled, message) {
   process.stderr.write(`[skill-authoring][trigger] ${message}\n`);
 }
 
+export function evaluateTriggerRoutingState(trace, skillName) {
+  const triggered = trace.loadedSkills.includes(skillName);
+  const competingSkill = (trace.allLoadedSkills ?? []).find((loadedSkill) =>
+    loadedSkill !== skillName && !loadedSkill.startsWith('shared-'),
+  ) ?? null;
+  const firstNonSkillTool = trace.toolCalls.find((call) => call.name !== 'skill') ?? null;
+  return {
+    triggered,
+    routingSettled: triggered || Boolean(competingSkill) || Boolean(firstNonSkillTool),
+    settlingTool: triggered
+      ? 'skill'
+      : (competingSkill ? `skill:${competingSkill}` : (firstNonSkillTool?.name ?? null)),
+  };
+}
+
+async function runTriggerAttempt(options) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(options.command, options.args ?? [], {
+      cwd: options.cwd ?? process.cwd(),
+      env: options.env,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      detached: true,
+      shell: false,
+    });
+
+    let stdout = '';
+    let stderr = '';
+    let lineBuffer = '';
+    let timedOut = false;
+    let earlyStopReason = null;
+    let finalized = false;
+
+    function killChild() {
+      if (typeof child.pid === 'number') {
+        try {
+          process.kill(-child.pid, 'SIGKILL');
+          return;
+        } catch {
+          // Fall back to direct child kill if process-group kill is unavailable.
+        }
+      }
+      child.kill('SIGKILL');
+    }
+
+    const timeoutId = typeof options.timeoutMs === 'number' && options.timeoutMs > 0
+      ? setTimeout(() => {
+        timedOut = true;
+        killChild();
+      }, options.timeoutMs)
+      : null;
+
+    function maybeStopEarly() {
+      const trace = parseEventText(stdout, [options.skillName]);
+      const routing = evaluateTriggerRoutingState(trace, options.skillName);
+      if (!routing.routingSettled) {
+        return;
+      }
+      earlyStopReason = routing.triggered
+        ? 'target_skill_loaded'
+        : `non_skill_tool:${routing.settlingTool}`;
+      killChild();
+    }
+
+    child.stdout.on('data', (chunk) => {
+      const text = chunk.toString();
+      stdout += text;
+      lineBuffer += text;
+
+      let newlineIndex = lineBuffer.indexOf('\n');
+      while (newlineIndex >= 0) {
+        lineBuffer = lineBuffer.slice(newlineIndex + 1);
+        maybeStopEarly();
+        newlineIndex = lineBuffer.indexOf('\n');
+      }
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk.toString();
+    });
+    child.on('error', reject);
+    child.on('close', (exitCode, signal) => {
+      if (finalized) return;
+      finalized = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      const trace = parseEventText(stdout, [options.skillName]);
+      const routing = evaluateTriggerRoutingState(trace, options.skillName);
+      resolve({
+        exitCode,
+        signal,
+        stdout,
+        stderr,
+        timedOut,
+        earlyStopReason,
+        ...routing,
+      });
+    });
+
+    child.stdin.end();
+  });
+}
+
 export async function runTriggerEval(options) {
   await ensureDir(options.runDir);
   const skillText = await fs.readFile(path.join(options.skillDir, 'SKILL.md'), 'utf8');
@@ -112,6 +219,7 @@ export async function runTriggerEval(options) {
     installCommand: options.installCommand,
     skipInstall: false,
     fingerprintPaths: options.fingerprintPaths ?? [],
+    sharedCacheRoot: options.runtimeCacheRoot,
   });
   await resetRuntimeWorkingState(runtime);
   await prepareRuntimeBase({
@@ -159,7 +267,8 @@ export async function runTriggerEval(options) {
       await overlaySkillIntoWorkspace(options.skillDir, workspaceDir, skillName);
 
       const env = createRuntimeEnv(runtime);
-      const commandResult = await runCommand({
+      const commandResult = await runTriggerAttempt({
+        skillName,
         command: options.opencodeBin ?? 'opencode',
         args: [
           'run',
@@ -176,7 +285,6 @@ export async function runTriggerEval(options) {
         cwd: workspaceDir,
         env,
         timeoutMs,
-        killMode: 'process_group',
       });
 
       const eventsFile = path.join(workspaceDir, 'events.ndjson');
@@ -184,7 +292,8 @@ export async function runTriggerEval(options) {
       await writeTextFile(path.join(workspaceDir, 'stderr.log'), commandResult.stderr);
 
       const trace = parseEventText(commandResult.stdout, [skillName]);
-      const triggered = trace.loadedSkills.includes(skillName);
+      const routing = evaluateTriggerRoutingState(trace, skillName);
+      const triggered = routing.triggered;
       if (triggered) {
         triggeredCount += 1;
       }
@@ -194,9 +303,16 @@ export async function runTriggerEval(options) {
         triggered,
         exitCode: commandResult.exitCode,
         timedOut: Boolean(commandResult.timedOut),
+        routingSettled: routing.routingSettled,
+        settlingTool: routing.settlingTool,
+        earlyStopReason: commandResult.earlyStopReason,
         workspaceDir,
         trace,
       });
+
+      if (options.cleanupWorkspaceState !== false) {
+        await cleanupWorkspaceTransientState(workspaceDir);
+      }
 
       finalDecision = evaluateTriggerDecisionState({
         shouldTrigger: Boolean(item.shouldTrigger),
@@ -337,6 +453,9 @@ async function main() {
   const runtimeRoot = getFlag(flags, '--runtime-root');
   const installCommand = getFlag(flags, '--install-command');
   const installCwd = getFlag(flags, '--install-cwd', process.cwd());
+  const runtimeCacheRoot = getFlag(flags, '--runtime-cache-root', getSkillAuthoringRuntimeCacheRoot(process.cwd()));
+  const keepRuntime = getFlag(flags, '--keep-runtime', 'failures');
+  const pruneRuntime = getFlag(flags, '--prune-runtime-archive', 'true') !== 'false';
   const opencodeBin = getFlag(flags, '--opencode-bin', 'opencode');
   const agent = getFlag(flags, '--agent', 'ask');
   const permissionProfile = getFlag(flags, '--permission-profile', 'strict');
@@ -356,6 +475,7 @@ async function main() {
     skillDir,
     runDir,
     runtimeRoot,
+    runtimeCacheRoot,
     installCommand,
     installCwd,
     opencodeBin,
@@ -366,6 +486,13 @@ async function main() {
     timeoutMs,
   });
 
+  const success = output.summary.failed === 0 && output.summary.timedOutAttempts === 0;
+  const runtime = buildRuntimePaths(path.resolve(runtimeRoot));
+  if (shouldCleanupRuntimeArtifacts(keepRuntime, success)) {
+    await cleanupRuntimeWorkingState(runtime);
+  } else if (pruneRuntime) {
+    await pruneRuntimeArchive(runtime);
+  }
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 }
 

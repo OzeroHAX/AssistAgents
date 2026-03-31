@@ -19,6 +19,10 @@ export function getSkillAuthoringRunsRoot(baseDir = process.cwd()) {
   return path.join(getSkillAuthoringDocsRoot(baseDir), 'runs');
 }
 
+export function getSkillAuthoringRuntimeCacheRoot(baseDir = process.cwd()) {
+  return path.join(getSkillAuthoringDocsRoot(baseDir), 'runtime-cache');
+}
+
 export function getSkillAuthoringRunDir(runId, baseDir = process.cwd()) {
   return path.join(getSkillAuthoringRunsRoot(baseDir), runId);
 }

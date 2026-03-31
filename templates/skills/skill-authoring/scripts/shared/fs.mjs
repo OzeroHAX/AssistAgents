@@ -55,6 +55,23 @@ export async function writeTextFile(filePath, value) {
   await fs.writeFile(filePath, value, 'utf8');
 }
 
+export async function cleanupWorkspaceTransientState(workspaceDir) {
+  const opencodeDir = path.join(workspaceDir, '.opencode');
+  const transientTargets = [
+    path.join(opencodeDir, 'node_modules'),
+    path.join(opencodeDir, 'package.json'),
+    path.join(opencodeDir, 'package-lock.json'),
+    path.join(opencodeDir, 'pnpm-lock.yaml'),
+    path.join(opencodeDir, 'yarn.lock'),
+    path.join(opencodeDir, 'bun.lock'),
+    path.join(opencodeDir, 'bun.lockb'),
+  ];
+
+  for (const targetPath of transientTargets) {
+    await removeIfExists(targetPath);
+  }
+}
+
 export function timestampId(date = new Date()) {
   const pad = (value) => String(value).padStart(2, '0');
   return [
@@ -200,7 +217,10 @@ export async function runCommand(options) {
     let stdout = '';
     let stderr = '';
     let timeoutId = null;
+    let startupTimeoutId = null;
     let timedOut = false;
+    let startupTimedOut = false;
+    let sawStdout = false;
 
     if (typeof options.timeoutMs === 'number' && options.timeoutMs > 0) {
       timeoutId = setTimeout(() => {
@@ -217,7 +237,28 @@ export async function runCommand(options) {
       }, options.timeoutMs);
     }
 
+    if (typeof options.startupTimeoutMs === 'number' && options.startupTimeoutMs > 0) {
+      startupTimeoutId = setTimeout(() => {
+        if (sawStdout) return;
+        startupTimedOut = true;
+        if (options.killMode === 'process_group' && typeof child.pid === 'number') {
+          try {
+            process.kill(-child.pid, 'SIGKILL');
+            return;
+          } catch {
+            // Fall back to killing the direct child if the process group is unavailable.
+          }
+        }
+        child.kill('SIGKILL');
+      }, options.startupTimeoutMs);
+    }
+
     child.stdout.on('data', (chunk) => {
+      sawStdout = true;
+      if (startupTimeoutId) {
+        clearTimeout(startupTimeoutId);
+        startupTimeoutId = null;
+      }
       stdout += chunk.toString();
     });
     child.stderr.on('data', (chunk) => {
@@ -226,7 +267,8 @@ export async function runCommand(options) {
     child.on('error', reject);
     child.on('close', (exitCode, signal) => {
       if (timeoutId) clearTimeout(timeoutId);
-      resolve({ exitCode, signal, stdout, stderr, timedOut });
+      if (startupTimeoutId) clearTimeout(startupTimeoutId);
+      resolve({ exitCode, signal, stdout, stderr, timedOut, startupTimedOut });
     });
 
     if (typeof options.input === 'string' && options.input.length > 0) {

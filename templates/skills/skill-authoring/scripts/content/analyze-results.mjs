@@ -22,6 +22,17 @@ export function buildDiagnosisDraft(summary, baselineSummary = null) {
   const rootCauses = [];
   const changeTargets = new Set();
 
+  if ((summary.aggregate.status ?? 'FAIL') === 'INFRA_ERROR' || (summary.infrastructureFailures?.length ?? 0) > 0) {
+    rootCauses.push({
+      id: 'infra-runtime-failure',
+      severity: 'critical',
+      evidence: (summary.infrastructureFailures ?? []).map((item) =>
+        `${item.caseId}: ${item.infrastructureError?.kind ?? 'unknown'}`
+      ),
+      recommendation: 'Retry the eval after the runtime environment is healthy. Do not refine the skill body from this run.',
+    });
+  }
+
   if ((summary.aggregate.routingScore ?? 1) < 0.8) {
     changeTargets.add('body');
     rootCauses.push({
@@ -75,7 +86,9 @@ export function buildDiagnosisDraft(summary, baselineSummary = null) {
   const stopOrContinue = (summary.aggregate.status === 'PASS' && rootCauses.length === 0) ? 'stop' : 'continue';
 
   return {
-    executiveSummary: summary.aggregate.status === 'PASS'
+    executiveSummary: summary.aggregate.status === 'INFRA_ERROR'
+      ? 'The eval run hit infrastructure failures and should be retried before changing the skill.'
+      : summary.aggregate.status === 'PASS'
       ? 'The candidate passes the current threshold, but inspect remaining caveats before finalizing.'
       : 'The candidate is below threshold and needs another refinement pass.',
     changeTargets: Array.from(changeTargets),

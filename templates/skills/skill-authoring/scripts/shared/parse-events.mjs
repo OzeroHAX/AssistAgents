@@ -113,7 +113,7 @@ function looksLikeToolCall(record, pathLabel) {
   return looksToolish ? toolName : null;
 }
 
-function extractSkillToolMatches(record, knownSkillNames) {
+function extractSkillToolNames(record) {
   const status = lowerString(record.state?.status ?? record.status ?? '');
   if (status && status !== 'completed' && status !== 'success') {
     return [];
@@ -133,9 +133,11 @@ function extractSkillToolMatches(record, knownSkillNames) {
     .map((match) => match[1])
     .filter((value) => typeof value === 'string' && value.trim().length > 0);
 
-  return uniquePreserveOrder([...candidates, ...outputSkillNames]).filter((skillName) =>
-    knownSkillNames.includes(skillName),
-  );
+  return uniquePreserveOrder([...candidates, ...outputSkillNames]);
+}
+
+function extractSkillToolMatches(record, knownSkillNames) {
+  return extractSkillToolNames(record).filter((skillName) => knownSkillNames.includes(skillName));
 }
 
 function collectAssistantText(value, assistantContext, collected) {
@@ -212,8 +214,13 @@ function walkEvent(value, pathStack, knownSkillNames, toolCalls, skillCalls, usa
   if (toolName) {
     toolCalls.push({ name: toolName, eventPath: pathLabel });
     if (toolName === 'skill') {
-      const matchedSkills = extractSkillToolMatches(value, knownSkillNames);
-      skillCalls.push({ eventPath: pathLabel, matchedSkills: uniquePreserveOrder(matchedSkills) });
+      const allSkillNames = extractSkillToolNames(value);
+      const matchedSkills = allSkillNames.filter((skillName) => knownSkillNames.includes(skillName));
+      skillCalls.push({
+        eventPath: pathLabel,
+        matchedSkills: uniquePreserveOrder(matchedSkills),
+        allSkillNames: uniquePreserveOrder(allSkillNames),
+      });
     }
   }
 
@@ -259,6 +266,7 @@ export function parseEventText(rawContent, knownSkillNames) {
 
   const responseText = uniqueTexts.length === 0 ? '' : (uniqueTexts[uniqueTexts.length - 1] ?? '');
   const loadedSkills = uniquePreserveOrder(skillCalls.flatMap((call) => call.matchedSkills));
+  const allLoadedSkills = uniquePreserveOrder(skillCalls.flatMap((call) => call.allSkillNames ?? []));
 
   return {
     eventCount: parsedEvents.length,
@@ -267,6 +275,7 @@ export function parseEventText(rawContent, knownSkillNames) {
     toolCalls,
     skillCalls,
     loadedSkills,
+    allLoadedSkills,
     responseText,
     usage: chooseBestUsage(usageCandidates),
   };

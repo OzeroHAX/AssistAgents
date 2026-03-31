@@ -4,7 +4,11 @@ import path from 'node:path';
 import os from 'node:os';
 import { mkdtemp, writeFile, mkdir, stat } from 'node:fs/promises';
 
-import { parseSkillMarkdown, remapPathIntoWorkspace } from '../templates/skills/skill-authoring/scripts/shared/fs.mjs';
+import {
+  cleanupWorkspaceTransientState,
+  parseSkillMarkdown,
+  remapPathIntoWorkspace,
+} from '../templates/skills/skill-authoring/scripts/shared/fs.mjs';
 import { parseEventText } from '../templates/skills/skill-authoring/scripts/shared/parse-events.mjs';
 import {
   applyPermissionProfile,
@@ -12,12 +16,16 @@ import {
 } from '../templates/skills/skill-authoring/scripts/shared/runtime-permissions.mjs';
 import {
   buildRuntimePaths,
+  cleanupRuntimeWorkingState,
   prepareRuntimeBase,
   prepareRuntimeDirs,
+  pruneRuntimeArchive,
+  shouldCleanupRuntimeArtifacts,
 } from '../templates/skills/skill-authoring/scripts/shared/runtime.mjs';
 import {
   slugifySkillAuthoringName,
   getSkillAuthoringDocsRoot,
+  getSkillAuthoringRuntimeCacheRoot,
   getSkillAuthoringRunDir,
   getSkillAuthoringWorkspaceDir,
 } from '../templates/skills/skill-authoring/scripts/shared/workspace.mjs';
@@ -25,10 +33,14 @@ import { judgeRouting } from '../templates/skills/skill-authoring/scripts/conten
 import { judgeAssertions } from '../templates/skills/skill-authoring/scripts/content/score-assertions.mjs';
 import { lintSkillText } from '../templates/skills/skill-authoring/scripts/content/score-lint.mjs';
 import { buildDiagnosisDraft } from '../templates/skills/skill-authoring/scripts/content/analyze-results.mjs';
+import { detectInfrastructureIssue } from '../templates/skills/skill-authoring/scripts/content/run-iteration.mjs';
 import { renderTimeline } from '../templates/skills/skill-authoring/scripts/content/render-timeline.mjs';
 import { compareSummaries } from '../templates/skills/skill-authoring/scripts/content/compare-summaries.mjs';
 import { buildDescriptionPrompt } from '../templates/skills/skill-authoring/scripts/trigger/improve-description.mjs';
-import { evaluateTriggerDecisionState } from '../templates/skills/skill-authoring/scripts/trigger/run-trigger-eval.mjs';
+import {
+  evaluateTriggerDecisionState,
+  evaluateTriggerRoutingState,
+} from '../templates/skills/skill-authoring/scripts/trigger/run-trigger-eval.mjs';
 import {
   runAdaptiveTriggerEval,
   triggerEvalNeedsFallback,
@@ -60,6 +72,7 @@ test('parseEventText detects loaded skills from tool calls', () => {
   const trace = parseEventText(raw, ['docs-changelog']);
 
   assert.deepEqual(trace.loadedSkills, ['docs-changelog']);
+  assert.deepEqual(trace.allLoadedSkills, ['docs-changelog']);
   assert.equal(trace.usage.total, 30);
 });
 
@@ -88,6 +101,33 @@ test('parseEventText ignores failed skill loads and path noise', () => {
   const trace = parseEventText(raw, ['docs-changelog', 'shared-base-rules', 'skill-authoring']);
 
   assert.deepEqual(trace.loadedSkills, ['shared-base-rules']);
+  assert.deepEqual(trace.allLoadedSkills, ['shared-base-rules']);
+});
+
+test('parseEventText preserves non-target skill loads for routing diagnostics', () => {
+  const raw = [
+    JSON.stringify({
+      type: 'tool_use',
+      tool: 'skill',
+      state: {
+        status: 'completed',
+        input: { name: 'shared-base-rules' },
+      },
+    }),
+    JSON.stringify({
+      type: 'tool_use',
+      tool: 'skill',
+      state: {
+        status: 'completed',
+        input: { name: 'task-use-research-code-strategy' },
+      },
+    }),
+  ].join('\n');
+
+  const trace = parseEventText(raw, ['docs-changelog']);
+
+  assert.deepEqual(trace.loadedSkills, []);
+  assert.deepEqual(trace.allLoadedSkills, ['shared-base-rules', 'task-use-research-code-strategy']);
 });
 
 test('judgeRouting reports misses and forbidden hits', () => {
@@ -187,11 +227,25 @@ test('skill-authoring workspace helpers target ai-docs paths', () => {
 
   assert.equal(slugifySkillAuthoringName('Docs Changelog Review!'), 'docs-changelog-review');
   assert.equal(getSkillAuthoringDocsRoot(baseDir), '/repo/ai-docs/skill-authoring');
+  assert.equal(getSkillAuthoringRuntimeCacheRoot(baseDir), '/repo/ai-docs/skill-authoring/runtime-cache');
   assert.equal(getSkillAuthoringRunDir('run-1', baseDir), '/repo/ai-docs/skill-authoring/runs/run-1');
   assert.equal(
     getSkillAuthoringWorkspaceDir('Docs Changelog', baseDir),
     '/repo/ai-docs/skill-authoring/workspaces/docs-changelog',
   );
+});
+
+test('cleanupWorkspaceTransientState removes generated node_modules but keeps skill overlays', async () => {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'skill-authoring-workspace-'));
+  await mkdir(path.join(tempDir, '.opencode', 'node_modules', 'zod'), { recursive: true });
+  await mkdir(path.join(tempDir, '.opencode', 'skills', 'docs-changelog'), { recursive: true });
+  await writeFile(path.join(tempDir, '.opencode', 'node_modules', 'zod', 'index.js'), 'export default {};', 'utf8');
+  await writeFile(path.join(tempDir, '.opencode', 'skills', 'docs-changelog', 'SKILL.md'), '---\nname: docs-changelog\ndescription: sample\n---\n', 'utf8');
+
+  await cleanupWorkspaceTransientState(tempDir);
+
+  await assert.rejects(stat(path.join(tempDir, '.opencode', 'node_modules')));
+  await stat(path.join(tempDir, '.opencode', 'skills', 'docs-changelog', 'SKILL.md'));
 });
 
 test('lintSkillText fails mixed-language markdown-style skill body', () => {
@@ -224,6 +278,27 @@ test('buildDiagnosisDraft identifies weak sections', () => {
   assert.equal(diagnosis.stopOrContinue, 'continue');
   assert.ok(diagnosis.changeTargets.includes('body'));
   assert.ok(diagnosis.rootCauses.some((cause) => cause.id === 'no-baseline-win'));
+});
+
+test('buildDiagnosisDraft prioritizes infrastructure failures over skill rewrites', () => {
+  const diagnosis = buildDiagnosisDraft({
+    aggregate: {
+      status: 'INFRA_ERROR',
+      overallScore: 0.15,
+      routingScore: 0,
+      assertionScore: 0,
+      artifactScore: 0,
+    },
+    infrastructureFailures: [
+      {
+        caseId: 'docs-changelog-fast-replace',
+        infrastructureError: { kind: 'startup_timeout_after_init' },
+      },
+    ],
+  });
+
+  assert.match(diagnosis.executiveSummary, /infrastructure failures/i);
+  assert.ok(diagnosis.rootCauses.some((cause) => cause.id === 'infra-runtime-failure'));
 });
 
 test('renderTimeline creates a readable markdown summary', () => {
@@ -353,6 +428,72 @@ test('prepareRuntimeBase masks evaluated skill from working runtime without touc
   await stat(path.join(runtime.baseOpencodeDir, 'skills', 'docs', 'changelog', 'SKILL.md'));
 });
 
+test('cleanupRuntimeWorkingState removes transient runtime directories', async () => {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'skill-authoring-cleanup-'));
+  const runtime = buildRuntimePaths(tempDir);
+  await prepareRuntimeDirs(runtime);
+  await mkdir(path.join(runtime.homeDir, '.opencode'), { recursive: true });
+  await writeFile(path.join(runtime.homeDir, '.opencode', 'marker.txt'), 'x', 'utf8');
+
+  await cleanupRuntimeWorkingState(runtime);
+
+  await assert.rejects(stat(runtime.homeDir));
+  await assert.rejects(stat(runtime.xdgConfigHome));
+  await assert.rejects(stat(runtime.xdgDataHome));
+});
+
+test('detectInfrastructureIssue recognizes startup stalls with no events', () => {
+  const issue = detectInfrastructureIssue(
+    {
+      startupTimedOut: true,
+      timedOut: true,
+      stderr: 'ERROR service=models.dev error=Unable to connect\nsqlite-migration:done',
+    },
+    {
+      eventCount: 0,
+    },
+  );
+
+  assert.equal(issue?.kind, 'startup_timeout_after_init');
+  assert.equal(issue?.retryable, true);
+  assert.deepEqual(issue?.signals, ['models.dev_unreachable', 'database_migration_only']);
+});
+
+test('pruneRuntimeArchive removes heavyweight caches but keeps skills', async () => {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'skill-authoring-prune-'));
+  const runtime = buildRuntimePaths(tempDir);
+  await prepareRuntimeDirs(runtime);
+  await mkdir(path.join(runtime.homeDir, '.npm', '_cacache'), { recursive: true });
+  await mkdir(path.join(runtime.homeDir, '.bun', 'install', 'cache'), { recursive: true });
+  await mkdir(path.join(runtime.homeDir, '.cache', 'opencode'), { recursive: true });
+  await mkdir(path.join(runtime.homeDir, '.opencode', 'node_modules', 'zod'), { recursive: true });
+  await mkdir(path.join(runtime.homeDir, '.opencode', 'skills', 'docs', 'changelog'), { recursive: true });
+  await mkdir(path.join(runtime.xdgConfigHome, 'opencode', 'node_modules', 'zod'), { recursive: true });
+  await mkdir(path.join(runtime.xdgDataHome, 'opencode', 'log'), { recursive: true });
+  await writeFile(path.join(runtime.homeDir, '.npm', '_cacache', 'entry'), 'x', 'utf8');
+  await writeFile(path.join(runtime.homeDir, '.opencode', 'skills', 'docs', 'changelog', 'SKILL.md'), '---\nname: docs-changelog\ndescription: sample\n---\n', 'utf8');
+  await writeFile(path.join(runtime.xdgDataHome, 'opencode', 'opencode.db'), 'db', 'utf8');
+
+  const pruned = await pruneRuntimeArchive(runtime);
+
+  assert.ok(pruned.some((entry) => entry.endsWith(path.join('home', '.npm'))));
+  await assert.rejects(stat(path.join(runtime.homeDir, '.npm')));
+  await assert.rejects(stat(path.join(runtime.homeDir, '.bun')));
+  await assert.rejects(stat(path.join(runtime.homeDir, '.cache')));
+  await assert.rejects(stat(path.join(runtime.homeDir, '.opencode', 'node_modules')));
+  await assert.rejects(stat(path.join(runtime.xdgConfigHome, 'opencode', 'node_modules')));
+  await assert.rejects(stat(path.join(runtime.xdgDataHome, 'opencode', 'log')));
+  await assert.rejects(stat(path.join(runtime.xdgDataHome, 'opencode', 'opencode.db')));
+  await stat(path.join(runtime.homeDir, '.opencode', 'skills', 'docs', 'changelog', 'SKILL.md'));
+});
+
+test('shouldCleanupRuntimeArtifacts keeps failed runtimes by default', () => {
+  assert.equal(shouldCleanupRuntimeArtifacts('failures', true), true);
+  assert.equal(shouldCleanupRuntimeArtifacts('failures', false), false);
+  assert.equal(shouldCleanupRuntimeArtifacts('always', true), false);
+  assert.equal(shouldCleanupRuntimeArtifacts('never', false), true);
+});
+
 test('triggerEvalNeedsFallback only requests fallback when timed out attempts exceed the floor', () => {
   assert.equal(triggerEvalNeedsFallback({ summary: { timedOutAttempts: 2 } }, 3, 1), true);
   assert.equal(triggerEvalNeedsFallback({ summary: { timedOutAttempts: 0 } }, 3, 1), false);
@@ -388,6 +529,44 @@ test('evaluateTriggerDecisionState locks negative failures and positive passes e
     triggeredCount: 0,
   });
   assert.equal(undecided.finalized, false);
+});
+
+test('evaluateTriggerRoutingState settles when target skill loads or another tool starts', () => {
+  const targetLoaded = evaluateTriggerRoutingState({
+    loadedSkills: ['docs-changelog'],
+    allLoadedSkills: ['shared-base-rules', 'docs-changelog'],
+    toolCalls: [{ name: 'skill' }],
+  }, 'docs-changelog');
+  assert.equal(targetLoaded.routingSettled, true);
+  assert.equal(targetLoaded.triggered, true);
+  assert.equal(targetLoaded.settlingTool, 'skill');
+
+  const otherToolStarted = evaluateTriggerRoutingState({
+    loadedSkills: [],
+    allLoadedSkills: ['shared-base-rules'],
+    toolCalls: [{ name: 'skill' }, { name: 'grep' }],
+  }, 'docs-changelog');
+  assert.equal(otherToolStarted.routingSettled, true);
+  assert.equal(otherToolStarted.triggered, false);
+  assert.equal(otherToolStarted.settlingTool, 'grep');
+
+  const competingSkillLoaded = evaluateTriggerRoutingState({
+    loadedSkills: [],
+    allLoadedSkills: ['shared-base-rules', 'task-use-research-code-strategy'],
+    toolCalls: [{ name: 'skill' }],
+  }, 'docs-changelog');
+  assert.equal(competingSkillLoaded.routingSettled, true);
+  assert.equal(competingSkillLoaded.triggered, false);
+  assert.equal(competingSkillLoaded.settlingTool, 'skill:task-use-research-code-strategy');
+
+  const notSettled = evaluateTriggerRoutingState({
+    loadedSkills: [],
+    allLoadedSkills: ['shared-base-rules'],
+    toolCalls: [{ name: 'skill' }],
+  }, 'docs-changelog');
+  assert.equal(notSettled.routingSettled, false);
+  assert.equal(notSettled.triggered, false);
+  assert.equal(notSettled.settlingTool, null);
 });
 
 test('runAdaptiveTriggerEval reruns with fewer runs per query after timeout', async () => {
