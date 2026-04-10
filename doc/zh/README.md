@@ -11,11 +11,12 @@
 
 1. [安装指南](./installation.md)
 2. [快速开始](./quick-start.md)
-3. [智能体及其使用场景](./agents.md)
-4. [集成与 API 密钥](./integrations-and-keys.md)
-5. [更新与备份](./update-and-backup.md)
-6. [故障排除](./troubleshooting.md)
-7. [常见问题](./faq.md)
+3. [Skill-Authoring 指南](./skill-authoring.md)
+4. [智能体及其使用场景](./agents.md)
+5. [集成与 API 密钥](./integrations-and-keys.md)
+6. [更新与备份](./update-and-backup.md)
+7. [故障排除](./troubleshooting.md)
+8. [常见问题](./faq.md)
 
 ## 包简介
 

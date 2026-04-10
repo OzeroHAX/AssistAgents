@@ -11,11 +11,12 @@ This section contains complete user documentation for installing, launching, and
 
 1. [Installation](./installation.md)
 2. [Quick Start](./quick-start.md)
-3. [Agents and When to Use Them](./agents.md)
-4. [Integrations and API Keys](./integrations-and-keys.md)
-5. [Update and Backups](./update-and-backup.md)
-6. [Troubleshooting](./troubleshooting.md)
-7. [FAQ](./faq.md)
+3. [Skill-Authoring Guide](./skill-authoring.md)
+4. [Agents and When to Use Them](./agents.md)
+5. [Integrations and API Keys](./integrations-and-keys.md)
+6. [Update and Backups](./update-and-backup.md)
+7. [Troubleshooting](./troubleshooting.md)
+8. [FAQ](./faq.md)
 
 ## Package in Brief
 

@@ -6,7 +6,6 @@ mode: primary
 permission:
      skill:
         "shared-*": allow
-        "code-*": allow
         "coder-*": allow
         "task-use-research-*": allow
         "review-*": allow

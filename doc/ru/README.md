@@ -11,11 +11,12 @@
 
 1. [Установка](./installation.md)
 2. [Быстрый старт](./quick-start.md)
-3. [Агенты и когда какой использовать](./agents.md)
-4. [Интеграции и API-ключи](./integrations-and-keys.md)
-5. [Обновление и резервные копии](./update-and-backup.md)
-6. [Устранение неполадок](./troubleshooting.md)
-7. [FAQ](./faq.md)
+3. [Руководство по skill-authoring](./skill-authoring.md)
+4. [Агенты и когда какой использовать](./agents.md)
+5. [Интеграции и API-ключи](./integrations-and-keys.md)
+6. [Обновление и резервные копии](./update-and-backup.md)
+7. [Устранение неполадок](./troubleshooting.md)
+8. [FAQ](./faq.md)
 
 ## Коротко о пакете
 
