@@ -63,28 +63,94 @@ ${mcpPermissionDenySection}
   "agent": {
     "doc": {
       "permission": {
+        "write": {
+          "*": "deny",
+          "ai-docs/guides/**.md": "allow",
+          "*ai-docs/guides/**.md": "allow",
+          "ai-docs/changelogs/**.md": "allow",
+          "*ai-docs/changelogs/**.md": "allow"
+        },
         "edit": {
           "*": "deny",
           "ai-docs/guides/**.md": "allow",
-          "ai-docs/changelogs/**.md": "allow"
+          "*ai-docs/guides/**.md": "allow",
+          "ai-docs/changelogs/**.md": "allow",
+          "*ai-docs/changelogs/**.md": "allow"
         }
       }
     },
     "project": {
       "permission": {
+        "write": {
+          "*": "deny",
+          "ai-docs/project/**.md": "allow",
+          "*ai-docs/project/**.md": "allow",
+          "ai-docs/project/status.json": "allow",
+          "*ai-docs/project/status.json": "allow"
+        },
         "edit": {
           "*": "deny",
           "ai-docs/project/**.md": "allow",
-          "ai-docs/project/status.json": "allow"
+          "*ai-docs/project/**.md": "allow",
+          "ai-docs/project/status.json": "allow",
+          "*ai-docs/project/status.json": "allow"
+        }
+      }
+    },
+    "planner": {
+      "permission": {
+        "write": {
+          "*": "deny",
+          "ai-docs/dev-plans/**.md": "allow",
+          "*ai-docs/dev-plans/**.md": "allow"
+        },
+        "edit": {
+          "*": "deny",
+          "ai-docs/dev-plans/**.md": "allow",
+          "*ai-docs/dev-plans/**.md": "allow"
+        }
+      }
+    },
+    "skill-authoring": {
+      "permission": {
+        "external_directory": {
+          "~/.opencode/skills/skill-authoring/**": "allow"
+        },
+        "write": {
+          "*": "deny",
+          ".opencode/skills/**": "allow",
+          "*.opencode/skills/**": "allow",
+          "templates/skills/**": "allow",
+          "*templates/skills/**": "allow",
+          "ai-docs/skill-authoring/**": "allow",
+          "*ai-docs/skill-authoring/**": "allow"
+        },
+        "edit": {
+          "*": "deny",
+          ".opencode/skills/**": "allow",
+          "*.opencode/skills/**": "allow",
+          "templates/skills/**": "allow",
+          "*templates/skills/**": "allow",
+          "ai-docs/skill-authoring/**": "allow",
+          "*ai-docs/skill-authoring/**": "allow"
         }
       }
     },
     "test": {
       "permission": {
+        "write": {
+          "*": "deny",
+          "ai-docs/reports/test-reports/**.md": "allow",
+          "*ai-docs/reports/test-reports/**.md": "allow",
+          "ai-docs/reports/bug-reports/**.md": "allow",
+          "*ai-docs/reports/bug-reports/**.md": "allow"
+        },
         "edit": {
           "*": "deny",
           "ai-docs/reports/test-reports/**.md": "allow",
-          "ai-docs/reports/bug-reports/**.md": "allow"
+          "*ai-docs/reports/test-reports/**.md": "allow",
+          "ai-docs/reports/bug-reports/**.md": "allow",
+          "*ai-docs/reports/bug-reports/**.md": "allow"
         }
       }
     },

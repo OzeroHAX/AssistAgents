@@ -11,6 +11,7 @@ import { zipDirectory } from './backup.js';
 import { chmod600IfPossible, copyDir, ensureDir, isNonEmptyDir, pathExists, removeIfExists, writeFileAtomic } from './fs-utils.js';
 import { buildKeyFiles, getKeyLabel, type KeyId } from './key-registry.js';
 import { getInstallPaths, getKeyFileRefs, type InstallPaths } from './paths.js';
+import { installFlattenedSkills } from './skill-layout.js';
 import {
   ALL_MCP_IDS,
   collectRequiredKeys,
@@ -213,6 +214,7 @@ function readCliOption(args: string[], name: string): string | undefined {
   const prefixed = `${name}=`;
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
+    if (!arg) continue;
     if (arg === name) {
       const value = args[index + 1];
       if (value && !value.startsWith('--')) return value.trim();
@@ -545,8 +547,9 @@ async function runInstall(paths: InstallPaths, settings: InstallSettings): Promi
   await copyDir(templatesAgents, paths.targetAgents);
 
   await removeIfExists(paths.targetSkills);
-  report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills}`);
-  await copyDir(templatesSkills, paths.targetSkills);
+  report.push(`Replace: ${paths.targetSkills} <= ${templatesSkills} (flattened by skill name)`);
+  const installedSkillNames = await installFlattenedSkills(templatesSkills, paths.targetSkills);
+  report.push(`Installed skills: ${installedSkillNames.length}`);
 
   await removeIfExists(paths.targetCommands);
   report.push(`Replace: ${paths.targetCommands} <= ${templatesCommands}`);
