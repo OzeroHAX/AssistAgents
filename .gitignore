@@ -13,6 +13,7 @@ npm-debug.log*
 
 # OpenCode local assets
 .opencode/
+.codex
 .codex/
 ai-docs/
 eval/runtime
