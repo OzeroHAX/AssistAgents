@@ -9,6 +9,23 @@ export function resolveRepoPath(targetPath, baseDir = process.cwd()) {
   return path.isAbsolute(targetPath) ? targetPath : path.resolve(baseDir, targetPath);
 }
 
+export function resolveSkillEntry(targetPath, baseDir = process.cwd()) {
+  const resolvedPath = resolveRepoPath(targetPath, baseDir);
+  const skillFile = path.basename(resolvedPath) === 'SKILL.md'
+    ? resolvedPath
+    : path.join(resolvedPath, 'SKILL.md');
+  const skillDir = path.dirname(skillFile);
+
+  return {
+    skillDir,
+    skillFile,
+  };
+}
+
+export function getSkillTestsDir(skillDir) {
+  return path.join(skillDir, 'assets', 'tests');
+}
+
 export function remapPathIntoWorkspace(targetPath, sourceRoot, workspaceRoot) {
   const normalizedSourceRoot = path.resolve(sourceRoot);
   const normalizedTargetPath = path.resolve(targetPath);
@@ -218,9 +235,11 @@ export async function runCommand(options) {
     let stderr = '';
     let timeoutId = null;
     let startupTimeoutId = null;
+    let heartbeatId = null;
     let timedOut = false;
     let startupTimedOut = false;
     let sawStdout = false;
+    const startedAtMs = Date.now();
 
     if (typeof options.timeoutMs === 'number' && options.timeoutMs > 0) {
       timeoutId = setTimeout(() => {
@@ -253,6 +272,25 @@ export async function runCommand(options) {
       }, options.startupTimeoutMs);
     }
 
+    if (typeof options.heartbeatMs === 'number' && options.heartbeatMs > 0 && typeof options.onHeartbeat === 'function') {
+      heartbeatId = setInterval(() => {
+        try {
+          options.onHeartbeat({
+            elapsedMs: Date.now() - startedAtMs,
+            sawStdout,
+            stdoutBytes: Buffer.byteLength(stdout, 'utf8'),
+            stderrBytes: Buffer.byteLength(stderr, 'utf8'),
+          });
+        } catch {
+          // Ignore heartbeat callback failures; they are diagnostic only.
+        }
+      }, options.heartbeatMs);
+
+      if (typeof heartbeatId.unref === 'function') {
+        heartbeatId.unref();
+      }
+    }
+
     child.stdout.on('data', (chunk) => {
       sawStdout = true;
       if (startupTimeoutId) {
@@ -268,6 +306,7 @@ export async function runCommand(options) {
     child.on('close', (exitCode, signal) => {
       if (timeoutId) clearTimeout(timeoutId);
       if (startupTimeoutId) clearTimeout(startupTimeoutId);
+      if (heartbeatId) clearInterval(heartbeatId);
       resolve({ exitCode, signal, stdout, stderr, timedOut, startupTimedOut });
     });
 

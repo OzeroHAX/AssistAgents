@@ -15,8 +15,16 @@ export function getSkillAuthoringDocsRoot(baseDir = process.cwd()) {
   return path.join(baseDir, 'ai-docs', 'skill-authoring');
 }
 
+export function getSkillAuthoringInteractiveRunsRoot(baseDir = process.cwd()) {
+  return path.join(getSkillAuthoringDocsRoot(baseDir), 'interactive-runs');
+}
+
+export function getSkillAuthoringTestRunsRoot(baseDir = process.cwd()) {
+  return path.join(getSkillAuthoringDocsRoot(baseDir), 'test-runs');
+}
+
 export function getSkillAuthoringRunsRoot(baseDir = process.cwd()) {
-  return path.join(getSkillAuthoringDocsRoot(baseDir), 'runs');
+  return getSkillAuthoringTestRunsRoot(baseDir);
 }
 
 export function getSkillAuthoringRuntimeCacheRoot(baseDir = process.cwd()) {
@@ -25,6 +33,14 @@ export function getSkillAuthoringRuntimeCacheRoot(baseDir = process.cwd()) {
 
 export function getSkillAuthoringRunDir(runId, baseDir = process.cwd()) {
   return path.join(getSkillAuthoringRunsRoot(baseDir), runId);
+}
+
+export function getSkillAuthoringInteractiveRunDir(runId, baseDir = process.cwd()) {
+  return path.join(getSkillAuthoringInteractiveRunsRoot(baseDir), runId);
+}
+
+export function getSkillAuthoringTestRunDir(runId, baseDir = process.cwd()) {
+  return path.join(getSkillAuthoringTestRunsRoot(baseDir), runId);
 }
 
 export function getSkillAuthoringWorkspaceDir(skillName, baseDir = process.cwd()) {

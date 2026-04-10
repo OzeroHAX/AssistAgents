@@ -6,8 +6,11 @@ import { mkdtemp, writeFile, mkdir, stat } from 'node:fs/promises';
 
 import {
   cleanupWorkspaceTransientState,
+  getSkillTestsDir,
   parseSkillMarkdown,
   remapPathIntoWorkspace,
+  resolveSkillEntry,
+  runCommand,
 } from '../templates/skills/skill-authoring/scripts/shared/fs.mjs';
 import { parseEventText } from '../templates/skills/skill-authoring/scripts/shared/parse-events.mjs';
 import {
@@ -25,17 +28,21 @@ import {
 import {
   slugifySkillAuthoringName,
   getSkillAuthoringDocsRoot,
+  getSkillAuthoringInteractiveRunDir,
+  getSkillAuthoringInteractiveRunsRoot,
   getSkillAuthoringRuntimeCacheRoot,
   getSkillAuthoringRunDir,
+  getSkillAuthoringTestRunDir,
+  getSkillAuthoringTestRunsRoot,
   getSkillAuthoringWorkspaceDir,
 } from '../templates/skills/skill-authoring/scripts/shared/workspace.mjs';
 import { judgeRouting } from '../templates/skills/skill-authoring/scripts/content/score-routing.mjs';
 import { judgeAssertions } from '../templates/skills/skill-authoring/scripts/content/score-assertions.mjs';
 import { lintSkillText } from '../templates/skills/skill-authoring/scripts/content/score-lint.mjs';
-import { buildDiagnosisDraft } from '../templates/skills/skill-authoring/scripts/content/analyze-results.mjs';
-import { detectInfrastructureIssue } from '../templates/skills/skill-authoring/scripts/content/run-iteration.mjs';
-import { renderTimeline } from '../templates/skills/skill-authoring/scripts/content/render-timeline.mjs';
-import { compareSummaries } from '../templates/skills/skill-authoring/scripts/content/compare-summaries.mjs';
+import {
+  buildStaticValidation,
+  renderStaticValidationMarkdown,
+} from '../templates/skills/skill-authoring/scripts/content/validate-skill.mjs';
 import { buildDescriptionPrompt } from '../templates/skills/skill-authoring/scripts/trigger/improve-description.mjs';
 import {
   evaluateTriggerDecisionState,
@@ -179,6 +186,55 @@ test('judgeAssertions supports response and file checks', async () => {
   assert.equal(judgment.pass, true);
 });
 
+test('judgeAssertions accepts eval shorthand regex flags', async () => {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'skill-authoring-assertions-flags-'));
+  await mkdir(path.join(tempDir, 'ai-docs'), { recursive: true });
+  await writeFile(path.join(tempDir, 'ai-docs', 'note.md'), 'Audience:\n1. Operations managers', 'utf8');
+
+  const judgment = await judgeAssertions(
+    {
+      responseText: 'Open Questions remain, but the existing brief was updated.',
+      workspaceDir: tempDir,
+    },
+    [
+      {
+        id: 'response-inline-flags',
+        kind: 'regex_any',
+        description: 'Matches case-insensitive shorthand flags',
+        patterns: ['(?i)open questions', '(?i)existing brief'],
+      },
+      {
+        id: 'file-inline-flags',
+        kind: 'file_regex_any',
+        description: 'Matches multiline shorthand flags',
+        file: 'ai-docs/note.md',
+        patterns: ['(?m)^1\\. operations managers$', '(?i)audience'],
+      },
+    ],
+  );
+
+  assert.equal(judgment.score, 1);
+  assert.equal(judgment.pass, true);
+});
+
+test('runCommand emits heartbeat updates for long-running processes', async () => {
+  const heartbeats: Array<{ elapsedMs: number }> = [];
+  const result = await runCommand({
+    command: process.execPath,
+    args: ['-e', "setTimeout(() => { process.stdout.write('done\\n'); }, 80);"],
+    heartbeatMs: 20,
+    onHeartbeat: (heartbeat: { elapsedMs: number }) => {
+      heartbeats.push(heartbeat);
+    },
+    timeoutMs: 500,
+  });
+
+  assert.equal(result.exitCode, 0);
+  assert.match(result.stdout, /done/);
+  assert.ok(heartbeats.length >= 2);
+  assert.ok(heartbeats.every((heartbeat) => heartbeat.elapsedMs >= 0));
+});
+
 test('remapPathIntoWorkspace only rewrites paths under the source root', () => {
   const fixtureDir = '/repo/fixtures/example';
   const workspaceDir = '/repo/workspace/run-1';
@@ -227,11 +283,33 @@ test('skill-authoring workspace helpers target ai-docs paths', () => {
 
   assert.equal(slugifySkillAuthoringName('Docs Changelog Review!'), 'docs-changelog-review');
   assert.equal(getSkillAuthoringDocsRoot(baseDir), '/repo/ai-docs/skill-authoring');
+  assert.equal(getSkillAuthoringInteractiveRunsRoot(baseDir), '/repo/ai-docs/skill-authoring/interactive-runs');
+  assert.equal(getSkillAuthoringTestRunsRoot(baseDir), '/repo/ai-docs/skill-authoring/test-runs');
   assert.equal(getSkillAuthoringRuntimeCacheRoot(baseDir), '/repo/ai-docs/skill-authoring/runtime-cache');
-  assert.equal(getSkillAuthoringRunDir('run-1', baseDir), '/repo/ai-docs/skill-authoring/runs/run-1');
+  assert.equal(getSkillAuthoringRunDir('run-1', baseDir), '/repo/ai-docs/skill-authoring/test-runs/run-1');
+  assert.equal(getSkillAuthoringInteractiveRunDir('run-1', baseDir), '/repo/ai-docs/skill-authoring/interactive-runs/run-1');
+  assert.equal(getSkillAuthoringTestRunDir('run-1', baseDir), '/repo/ai-docs/skill-authoring/test-runs/run-1');
   assert.equal(
     getSkillAuthoringWorkspaceDir('Docs Changelog', baseDir),
     '/repo/ai-docs/skill-authoring/workspaces/docs-changelog',
+  );
+  assert.equal(getSkillTestsDir('/repo/.opencode/skills/docs-changelog'), '/repo/.opencode/skills/docs-changelog/assets/tests');
+});
+
+test('resolveSkillEntry accepts both skill directory and SKILL.md path', () => {
+  assert.deepEqual(
+    resolveSkillEntry('/repo/.opencode/skills/docs-changelog'),
+    {
+      skillDir: '/repo/.opencode/skills/docs-changelog',
+      skillFile: '/repo/.opencode/skills/docs-changelog/SKILL.md',
+    },
+  );
+  assert.deepEqual(
+    resolveSkillEntry('/repo/.opencode/skills/docs-changelog/SKILL.md'),
+    {
+      skillDir: '/repo/.opencode/skills/docs-changelog',
+      skillFile: '/repo/.opencode/skills/docs-changelog/SKILL.md',
+    },
   );
 });
 
@@ -252,126 +330,56 @@ test('lintSkillText fails mixed-language markdown-style skill body', () => {
   const judgment = lintSkillText(`---\nname: broken-skill\ndescription: Step by step process for everything\n---\n# Heading\nРусский текст\n`);
 
   assert.equal(judgment.pass, false);
-  assert.ok(judgment.failedRules.some((rule) => rule.id === 'L3'));
-  assert.ok(judgment.failedRules.some((rule) => rule.id === 'L7'));
+  assert.ok(judgment.failedRules.some((rule: { id: string }) => rule.id === 'L3'));
+  assert.ok(judgment.failedRules.some((rule: { id: string }) => rule.id === 'L7'));
 });
 
-test('buildDiagnosisDraft identifies weak sections', () => {
-  const diagnosis = buildDiagnosisDraft({
-    aggregate: {
-      status: 'FAIL',
-      overallScore: 0.61,
-      routingScore: 0.5,
-      assertionScore: 0.7,
-      artifactScore: 0.5,
-    },
-    lint: {
-      score: 0.85,
-      failedRules: [{ id: 'L3', reason: 'Body must primarily use XML-like tagged sections.' }],
-    },
-  }, {
-    aggregate: {
-      overallScore: 0.8,
-    },
-  });
+test('lintSkillText fails invalid skill names', () => {
+  const judgment = lintSkillText(`---\nname: Invalid_Skill\ndescription: Use when the user needs a narrow skill.\n---\n<when_to_use><item>ok</item></when_to_use>\n<when_not_to_use><item>no</item></when_not_to_use>\n<workflow><step>ok</step></workflow>\n<output_requirements><item>ok</item></output_requirements>\n`);
 
-  assert.equal(diagnosis.stopOrContinue, 'continue');
-  assert.ok(diagnosis.changeTargets.includes('body'));
-  assert.ok(diagnosis.rootCauses.some((cause) => cause.id === 'no-baseline-win'));
+  assert.equal(judgment.pass, false);
+  assert.ok(judgment.failedRules.some((rule: { id: string }) => rule.id === 'L1'));
 });
 
-test('buildDiagnosisDraft prioritizes infrastructure failures over skill rewrites', () => {
-  const diagnosis = buildDiagnosisDraft({
-    aggregate: {
-      status: 'INFRA_ERROR',
-      overallScore: 0.15,
-      routingScore: 0,
-      assertionScore: 0,
-      artifactScore: 0,
-    },
-    infrastructureFailures: [
-      {
-        caseId: 'docs-changelog-fast-replace',
-        infrastructureError: { kind: 'startup_timeout_after_init' },
-      },
-    ],
-  });
-
-  assert.match(diagnosis.executiveSummary, /infrastructure failures/i);
-  assert.ok(diagnosis.rootCauses.some((cause) => cause.id === 'infra-runtime-failure'));
-});
-
-test('renderTimeline creates a readable markdown summary', () => {
-  const markdown = renderTimeline({
-    skillName: 'docs-changelog',
-    startedAt: '2026-03-25T10:00:00Z',
-    stopReason: 'passed_threshold',
-    iterations: [
-      {
-        iteration: 1,
-        status: 'FAIL',
-        overallScore: 0.74,
-        note: 'Too many routing misses',
-      },
-      {
-        iteration: 2,
-        status: 'PASS',
-        overallScore: 0.92,
-        note: 'Description tightened and outputs clarified',
-      },
-    ],
-  });
-
-  assert.match(markdown, /Iteration \| Status \| Overall/);
-  assert.match(markdown, /Too many routing misses/);
-  assert.match(markdown, /0\.920/);
-});
-
-test('compareSummaries reports score regressions', () => {
-  const report = compareSummaries(
-    {
-      skillName: 'docs-changelog',
-      configurationId: 'candidate',
-      aggregate: {
-        overallScore: 0.75,
-        routingScore: 0.8,
-        assertionScore: 0.7,
-        artifactScore: 1,
-        lintScore: 0.9,
-      },
-      cases: [
-        {
-          caseId: 'case-1',
-          assertions: { score: 0.5 },
-          routing: { precision: 1, recall: 0.5 },
-          missingExpectedFiles: ['missing.md'],
-        },
-      ],
-    },
-    {
-      skillName: 'docs-changelog',
-      configurationId: 'baseline',
-      aggregate: {
-        overallScore: 0.9,
-        routingScore: 0.9,
-        assertionScore: 0.85,
-        artifactScore: 1,
-        lintScore: 1,
-      },
-      cases: [
-        {
-          caseId: 'case-1',
-          assertions: { score: 1 },
-          routing: { precision: 1, recall: 1 },
-          missingExpectedFiles: [],
-        },
-      ],
-    },
+test('buildStaticValidation reports missing structure and follow-up questions', () => {
+  const report = buildStaticValidation(
+    `---\nname: sample-skill\ndescription: Use when the user needs a sample skill.\n---\n<when_to_use><item>Use it.</item></when_to_use>\n`,
+    '/repo/.opencode/skills/sample-skill/SKILL.md',
   );
 
-  assert.ok(report.regressions.includes('overall_score_drop'));
-  assert.ok(report.caseDiffs[0].regressionReasons.includes('assertion_score_drop'));
-  assert.ok(report.caseDiffs[0].regressionReasons.includes('more_missing_expected_files'));
+  assert.equal(report.status, 'NEEDS_IMPROVEMENT');
+  assert.equal(report.skill.name, 'sample-skill');
+  assert.ok(report.findings.some((finding: string) => /workflow/i.test(finding)));
+  assert.ok(report.followUpQuestions.some((question: string) => /must be available/i.test(question)));
+  assert.match(renderStaticValidationMarkdown(report), /Follow-up Questions/);
+});
+
+test('buildStaticValidation preserves caller-provided draft path labels', () => {
+  const report = buildStaticValidation(
+    `---\nname: sample-skill\ndescription: Use when the user needs a sample skill.\n---\n<when_to_use><item>Use it.</item></when_to_use>\n<when_not_to_use><item>Do not use it.</item></when_not_to_use>\n<input_requirements><required>Context</required></input_requirements>\n<workflow><step>Act</step></workflow>\n<output_requirements><requirement>Return a result</requirement></output_requirements>\n<validation><item>Check success</item></validation>\n`,
+    'proposal/draft-skill.md',
+  );
+
+  assert.equal(report.skill.path, path.resolve('proposal/draft-skill.md'));
+  assert.equal(report.status, 'PASS');
+  assert.ok(report.qualityRubric.overallScore > 0);
+  assert.equal(report.qualityRubric.metrics.length, 14);
+});
+
+test('buildStaticValidation emits compactness advisories for verbose but valid skills', () => {
+  const report = buildStaticValidation(
+    `---\nname: docs-guide\ndescription: Use when the request is for a practical guide or setup/use instructions for a project-specific tool, package, environment, or repo operation.\n---\n<purpose>\n  <item>Create practical documentation that helps a reader use, configure, start, support, or operate a concrete project-specific tool, package, workflow, or environment.</item>\n  <item>Cover user guides, setup manuals, run manuals, usage instructions, and operational rules tied to concrete project artifacts.</item>\n</purpose>\n<when_to_use>\n  <item importance="critical">Use when the user explicitly asks for a guide, instruction, manual, setup document, run document, usage note, or operational rules for a concrete project-specific tool, package, workflow, or environment.</item>\n  <item importance="high">Use when the expected output must help someone perform a real task correctly: install, configure, launch, operate, troubleshoot, or use something specific to the project.</item>\n  <item importance="high">Use when the document should contain actionable steps, commands, options, constraints, or operating rules rather than theory or internals.</item>\n</when_to_use>\n<input_requirements>\n  <required>The target artifact, workflow, environment, or process.</required>\n  <required>The intended audience.</required>\n  <required>The prerequisites, warnings, and constraints.</required>\n  <required>The destination path or naming context.</required>\n</input_requirements>\n<workflow>\n  <step>Confirm the request is for practical usage or operation, not theory or architecture.</step>\n  <step>Identify audience, goal, prerequisites, commands, options, success checks, and failure points before drafting.</step>\n  <step>Organize the guide into purpose, prerequisites, setup, usage, rules, troubleshooting, and verification.</step>\n  <step>Write concise, action-oriented instructions using the exact project terms, commands, and paths relevant to the task.</step>\n</workflow>\n<output_requirements>\n  <requirement>Produce a structured guide with clear headings and a logical execution flow.</requirement>\n  <requirement>Make steps, commands, options, and expected results explicit and reproducible.</requirement>\n  <requirement>Keep content practical and project-specific; avoid theory and general education.</requirement>\n</output_requirements>\n<when_not_to_use>\n  <item importance="critical">Do not use for architecture descriptions, technical overviews, or conceptual explanations.</item>\n  <item importance="critical">Do not use for programming theory, coding standards, or design patterns.</item>\n  <item importance="critical">Do not use for generic tutorials not tied to a specific project artifact.</item>\n  <item importance="critical">Do not use for implementation, code review, or testing tasks.</item>\n</when_not_to_use>\n<validation>\n  <item importance="critical">The request is about how to use, configure, or operate a specific project artifact.</item>\n  <item importance="high">The output contains actionable steps, commands, or operational rules.</item>\n  <item importance="high">The guide is clear and usable by the intended audience without additional context.</item>\n</validation>\n`,
+    '/repo/.opencode/skills/docs-guide/SKILL.md',
+  );
+
+  assert.equal(report.status, 'PASS');
+  assert.ok(report.advisories.some((advisory: string) => /skill body is/i.test(advisory)));
+  assert.ok(report.advisories.some((advisory: string) => /when_to_use/i.test(advisory) || /semantically repetitive/i.test(advisory)));
+  assert.ok(report.metrics.sectionWordCounts.when_to_use > 0);
+  assert.match(renderStaticValidationMarkdown(report), /Advisories/);
+  assert.match(renderStaticValidationMarkdown(report), /Quality Rubric/);
+  assert.ok(report.qualityRubric.metrics.some((metric: { id: string; score: number }) => metric.id === 'concision' && metric.score < 8));
+  assert.ok(report.qualityRubric.metrics.every((metric: { reason: string; improvement: string }) => metric.reason.length > 0 && metric.improvement.length > 0));
 });
 
 test('buildDescriptionPrompt includes failed and false triggers', () => {
@@ -442,23 +450,6 @@ test('cleanupRuntimeWorkingState removes transient runtime directories', async (
   await assert.rejects(stat(runtime.xdgDataHome));
 });
 
-test('detectInfrastructureIssue recognizes startup stalls with no events', () => {
-  const issue = detectInfrastructureIssue(
-    {
-      startupTimedOut: true,
-      timedOut: true,
-      stderr: 'ERROR service=models.dev error=Unable to connect\nsqlite-migration:done',
-    },
-    {
-      eventCount: 0,
-    },
-  );
-
-  assert.equal(issue?.kind, 'startup_timeout_after_init');
-  assert.equal(issue?.retryable, true);
-  assert.deepEqual(issue?.signals, ['models.dev_unreachable', 'database_migration_only']);
-});
-
 test('pruneRuntimeArchive removes heavyweight caches but keeps skills', async () => {
   const tempDir = await mkdtemp(path.join(os.tmpdir(), 'skill-authoring-prune-'));
   const runtime = buildRuntimePaths(tempDir);
@@ -474,9 +465,9 @@ test('pruneRuntimeArchive removes heavyweight caches but keeps skills', async ()
   await writeFile(path.join(runtime.homeDir, '.opencode', 'skills', 'docs', 'changelog', 'SKILL.md'), '---\nname: docs-changelog\ndescription: sample\n---\n', 'utf8');
   await writeFile(path.join(runtime.xdgDataHome, 'opencode', 'opencode.db'), 'db', 'utf8');
 
-  const pruned = await pruneRuntimeArchive(runtime);
+  const pruned: string[] = await pruneRuntimeArchive(runtime);
 
-  assert.ok(pruned.some((entry) => entry.endsWith(path.join('home', '.npm'))));
+  assert.ok(pruned.some((entry: string) => entry.endsWith(path.join('home', '.npm'))));
   await assert.rejects(stat(path.join(runtime.homeDir, '.npm')));
   await assert.rejects(stat(path.join(runtime.homeDir, '.bun')));
   await assert.rejects(stat(path.join(runtime.homeDir, '.cache')));
@@ -570,7 +561,7 @@ test('evaluateTriggerRoutingState settles when target skill loads or another too
 });
 
 test('runAdaptiveTriggerEval reruns with fewer runs per query after timeout', async () => {
-  const calls = [];
+  const calls: Array<{ runDir: string; runsPerQuery: number }> = [];
 
   const output = await runAdaptiveTriggerEval({
     evalSet: [{ query: 'q', shouldTrigger: true }],
@@ -580,7 +571,7 @@ test('runAdaptiveTriggerEval reruns with fewer runs per query after timeout', as
     installCommand: 'echo install',
     runsPerQuery: 3,
     fallbackRunsPerQuery: 1,
-    runEval: async (options) => {
+    runEval: async (options: { runDir: string; runsPerQuery: number }) => {
       calls.push({ runDir: options.runDir, runsPerQuery: options.runsPerQuery });
       if (options.runsPerQuery === 3) {
         return {

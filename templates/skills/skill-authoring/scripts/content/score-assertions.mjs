@@ -21,6 +21,27 @@ async function readTargetText(context, assertion) {
   return context.responseText ?? '';
 }
 
+function compileEvalPattern(pattern) {
+  let source = pattern;
+  const flags = new Set(['i', 'm', 'u']);
+
+  while (source.startsWith('(?')) {
+    const match = source.match(/^\(\?([imsu]+)\)/u);
+
+    if (!match) {
+      break;
+    }
+
+    for (const flag of match[1]) {
+      flags.add(flag);
+    }
+
+    source = source.slice(match[0].length);
+  }
+
+  return new RegExp(source, Array.from(flags).sort().join(''));
+}
+
 export async function judgeAssertions(context, assertions) {
   const checks = [];
 
@@ -30,12 +51,12 @@ export async function judgeAssertions(context, assertions) {
     switch (assertion.kind) {
       case 'regex_any': {
         const target = context.responseText ?? '';
-        pass = assertion.patterns.some((pattern) => new RegExp(pattern, 'imu').test(target));
+        pass = assertion.patterns.some((pattern) => compileEvalPattern(pattern).test(target));
         break;
       }
       case 'regex_none': {
         const target = context.responseText ?? '';
-        pass = assertion.patterns.every((pattern) => !new RegExp(pattern, 'imu').test(target));
+        pass = assertion.patterns.every((pattern) => !compileEvalPattern(pattern).test(target));
         break;
       }
       case 'min_length': {
@@ -51,7 +72,7 @@ export async function judgeAssertions(context, assertions) {
       case 'file_regex_any': {
         const target = await readTargetText(context, assertion);
         pass = typeof target === 'string'
-          ? assertion.patterns.some((pattern) => new RegExp(pattern, 'imu').test(target))
+          ? assertion.patterns.some((pattern) => compileEvalPattern(pattern).test(target))
           : false;
         break;
       }

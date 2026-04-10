@@ -18,6 +18,10 @@ function containsNonEnglishSignal(text) {
   return cyrillic + han >= 10;
 }
 
+function isValidSkillName(name) {
+  return name.length >= 1 && name.length <= 64 && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(name);
+}
+
 export function lintSkillText(content) {
   let parsed = null;
   try {
@@ -40,13 +44,16 @@ export function lintSkillText(content) {
   const checks = [
     {
       id: 'L1',
-      pass: Boolean(parsed.name && parsed.description),
-      reason: 'Frontmatter must contain name and description.',
+      pass: Boolean(parsed.name && parsed.description) && isValidSkillName(parsed.name),
+      reason: 'Frontmatter must contain name and description, and name must satisfy OpenCode naming rules.',
     },
     {
       id: 'L2',
-      pass: parsed.description.length >= 20 && !/\b(step|workflow|process|algorithm)\b/i.test(parsed.description),
-      reason: 'Description should be trigger-oriented rather than workflow-heavy.',
+      pass:
+        parsed.description.length >= 1 &&
+        parsed.description.length <= 1024 &&
+        !/\b(step|workflow|process|algorithm)\b/i.test(parsed.description),
+      reason: 'Description should be trigger-oriented, non-workflow-heavy, and 1-1024 characters long.',
     },
     {
       id: 'L3',

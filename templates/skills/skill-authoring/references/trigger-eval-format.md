@@ -2,6 +2,15 @@
 
 Trigger evals measure whether `description` causes the skill to load when it should.
 
+Store them inside the skill itself:
+
+```text
+<skill-dir>/
+  assets/
+    tests/
+      trigger-evals.json
+```
+
 ## Schema
 
 ```json
@@ -34,3 +43,5 @@ Trigger evals measure whether `description` causes the skill to load when it sho
 - Use train/test split when there are enough queries.
 - Repeat each query multiple times to measure trigger variance.
 - Stop optimizing if score plateaus or overfitting signs appear.
+
+For the report-only isolated runner, trigger evals are used to measure quality and produce recommendations; they must not overwrite the source skill.

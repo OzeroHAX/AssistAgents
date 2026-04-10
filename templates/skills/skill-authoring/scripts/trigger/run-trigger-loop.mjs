@@ -18,8 +18,8 @@ import {
 } from '../shared/fs.mjs';
 import { getDefaultLlmCommand } from '../shared/llm.mjs';
 import {
-  getSkillAuthoringRunDir,
   getSkillAuthoringRuntimeCacheRoot,
+  getSkillAuthoringTestRunDir,
 } from '../shared/workspace.mjs';
 import { improveDescription } from './improve-description.mjs';
 import { runTriggerEval } from './run-trigger-eval.mjs';
@@ -289,7 +289,7 @@ async function main() {
   const resultsDir = getFlag(
     flags,
     '--results-dir',
-    getSkillAuthoringRunDir(`trigger-${timestampId()}`, process.cwd()),
+    getSkillAuthoringTestRunDir(`trigger-${timestampId()}`, process.cwd()),
   );
   const runtimeRoot = getFlag(flags, '--runtime-root');
   const installCommand = getFlag(flags, '--install-command');

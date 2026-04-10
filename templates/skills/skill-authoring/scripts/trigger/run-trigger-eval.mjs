@@ -32,8 +32,8 @@ import {
 } from '../shared/runtime.mjs';
 import { parseEventText } from '../shared/parse-events.mjs';
 import {
-  getSkillAuthoringRunDir,
   getSkillAuthoringRuntimeCacheRoot,
+  getSkillAuthoringTestRunDir,
 } from '../shared/workspace.mjs';
 
 function minimumTriggersForPass(runsPerQuery, threshold) {
@@ -449,7 +449,7 @@ async function main() {
   const { flags } = parseCliArgs(process.argv.slice(2));
   const evalSetPath = getFlag(flags, '--eval-set');
   const skillDir = getFlag(flags, '--skill-dir');
-  const runDir = getFlag(flags, '--run-dir', getSkillAuthoringRunDir(`trigger-eval-${timestampId()}`, process.cwd()));
+  const runDir = getFlag(flags, '--run-dir', getSkillAuthoringTestRunDir(`trigger-eval-${timestampId()}`, process.cwd()));
   const runtimeRoot = getFlag(flags, '--runtime-root');
   const installCommand = getFlag(flags, '--install-command');
   const installCwd = getFlag(flags, '--install-cwd', process.cwd());
