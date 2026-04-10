@@ -1,0 +1,39 @@
+{
+  "skill": "docs-diagram-gen",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Add a Mermaid architecture diagram to ai-docs/project/arch.md showing Web App, API Gateway, Auth Service, Billing Service, and PostgreSQL.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Refine the checkout use-case documentation with a Mermaid sequence diagram for the Customer, Checkout API, Payment Service, and Order Service.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a Mermaid flowchart for the onboarding scenario doc and keep the existing decision points intact.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Turn the documented system components into a Mermaid block for our architecture notes.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a bar chart of monthly revenue by pricing tier for the Q2 review deck.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design a mobile onboarding wireframe with three screens and CTA states.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement Mermaid rendering support in the frontend and add automated tests.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a guide explaining how the docs folder is organized and where architecture notes live.",
+      "shouldTrigger": false
+    }
+  ]
+}

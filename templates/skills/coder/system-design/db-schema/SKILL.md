@@ -1,14 +1,18 @@
 ---
 name: coder-system-design-db-schema
-description: Database schema design and migration safety rules for production systems.
+description: Use when designing or reviewing production database schemas, constraints, indexes, and safe migrations.
 ---
 
 <when_to_use>
   <trigger>Designing relational schema for new services or major feature changes</trigger>
-  <trigger>Planning schema evolution and data migrations in production</trigger>
-  <trigger>Reviewing index/constraint strategy and multi-tenant data isolation</trigger>
+  <trigger>Planning production schema evolution and data migrations</trigger>
+  <trigger>Choosing index, constraint, tenant-isolation, or delete strategy</trigger>
 </when_to_use>
 
+<when_not_to_use>
+  <item importance="critical">Do not use for project planning, document authoring, or runtime test execution.</item>
+  <item importance="high">Do not use when a narrower review, testing, or domain-specific skill is the better fit.</item>
+</when_not_to_use>
 <input_requirements>
   <required>Core entities and relationships</required>
   <required>Read/write access patterns and query shapes</required>
@@ -16,42 +20,50 @@ description: Database schema design and migration safety rules for production sy
   <required>Deployment constraints (downtime, lock tolerance, rollback)</required>
 </input_requirements>
 
+<workflow>
+  <step>Gather entities, query paths, compliance needs, and rollout constraints.</step>
+  <step>Choose keys, constraints, tenancy, delete or audit model, and indexes from access patterns.</step>
+  <step>Plan expand, backfill, switch, and contract rollout with lock mitigation, validation SQL, and recovery path.</step>
+</workflow>
+
 <design_principles>
   <principle priority="P0">Start normalized; denormalize only for measured bottlenecks</principle>
-  <principle priority="P0">Enforce integrity in database using PK/FK/unique/check constraints</principle>
-  <principle priority="P0">Design indexes from real query predicates and sort patterns</principle>
-  <principle priority="P1">Use compatibility-first schema evolution via expand and contract</principle>
-  <principle priority="P1">Treat tenant isolation as explicit schema and policy decision</principle>
-  <principle priority="P1">Separate audit history needs from soft-delete convenience</principle>
+  <principle priority="P0">Enforce integrity with PK/FK/unique/check constraints</principle>
+  <principle priority="P0">Design indexes from real predicates and sort order</principle>
+  <principle priority="P1">Use expand and contract for compatibility-first evolution</principle>
+  <principle priority="P1">Make tenancy, delete model, and audit strategy explicit</principle>
 </design_principles>
 
 <decision_points>
-  <item>Normalization vs denormalization based on read latency and write amplification tradeoff</item>
+  <item>Normalization vs denormalization from latency and write amplification tradeoff</item>
   <item>Tenant model: database-per-tenant vs schema-per-tenant vs shared-schema with tenant_id</item>
-  <item>Deletion model: hard delete vs soft delete vs temporal/audit tables</item>
-  <item>Key strategy: surrogate vs natural keys with interoperability constraints</item>
+  <item>Delete model: hard delete vs soft delete vs temporal or audit tables</item>
+  <item>Key strategy: surrogate vs natural keys under interoperability constraints</item>
 </decision_points>
 
 <migration_safety_checklist>
-  <item>Migration is split into expand, backfill, switch, and contract phases</item>
-  <item>Lock impact and long-running DDL risk are analyzed before rollout</item>
-  <item>Online index strategy is used where supported</item>
-  <item>Backfill is batched, idempotent, and observable</item>
-  <item>Rollback or roll-forward path is explicitly documented</item>
-  <item>Post-migration validation queries are defined before deploy</item>
+  <item>Use expand, backfill, switch, and contract phases</item>
+  <item>Analyze DDL lock risk and online index options before rollout</item>
+  <item>Keep backfills batched, idempotent, observable, and load-controlled</item>
+  <item>Define validation queries plus rollback or roll-forward path before deploy</item>
 </migration_safety_checklist>
 
 <quality_rules>
-  <rule importance="critical">Do not perform breaking schema changes without compatibility window</rule>
-  <rule importance="critical">Do not rely on app-level validation for integrity-critical constraints only</rule>
+  <rule importance="critical">Do not ship breaking schema changes without a compatibility window</rule>
+  <rule importance="critical">Do not leave integrity-critical constraints only in application code</rule>
   <rule importance="high">Do not ship index changes without query-path rationale</rule>
-  <rule importance="high">Do not run unbounded data backfill during peak load without controls</rule>
+  <rule importance="high">Do not run unbounded backfills during peak load without controls</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">Required outputs, constraints, and boundaries are explicit and complete.</item>
+  <item importance="critical">Decisions are traceable to query paths, integrity needs, and rollout constraints.</item>
+  <item importance="high">Migration safety includes compatibility window, backfill controls, validation queries, and recovery path.</item>
+</validation>
 <do_not>
-  <item importance="critical">Do not rename/drop hot-path columns and tables in same release as app switch</item>
+  <item importance="critical">Do not rename or drop hot-path columns and tables in the same release as the app switch</item>
   <item importance="high">Do not add broad indexes "just in case"</item>
-  <item importance="high">Do not treat soft delete as complete audit solution</item>
+  <item importance="high">Do not treat soft delete as a complete audit solution</item>
 </do_not>
 
 <output_requirements>

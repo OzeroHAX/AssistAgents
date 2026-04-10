@@ -1,0 +1,27 @@
+{
+  "skill": "testing-security",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Perform manual security testing on our staging app: verify broken access control for an admin endpoint using a regular user role, confirm session expiry after logout, and record request-response evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check the QA environment for CSRF on profile updates, rate limiting on password reset, and possible PII leaks in error responses, then document pass-fail results.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review the authentication middleware code for security bugs and suggest implementation fixes.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create automated Playwright tests for login, logout, and permission checks.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Run destructive penetration testing directly against production and try to exfiltrate secrets.",
+      "shouldTrigger": false
+    }
+  ]
+}

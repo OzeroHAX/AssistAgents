@@ -3,6 +3,18 @@ name: shared-docs-paths
 description: Project documentation map. Must be loaded before any work
 ---
 
+<loading_policy>
+    <rule importance="critical">Always load this skill before any work that reads, creates, or updates project documents.</rule>
+    <rule importance="critical">Treat this skill as mandatory shared bootstrap context for document routing.</rule>
+    <rule importance="high">Downstream skills may assume the document map is already available.</rule>
+</loading_policy>
+
+<validation>
+  <item importance="critical">This skill is loaded before any document path or document-type decision is made.</item>
+  <item importance="critical">The document map remains available as shared context for downstream skills.</item>
+  <item importance="high">The skill is treated as mandatory routing context, not as an optional artifact-producing skill.</item>
+</validation>
+
 <docs_paths>
     <root name="ai-docs">
         <section name="changelogs">
@@ -21,6 +33,24 @@ description: Project documentation map. Must be loaded before any work
             <purpose>Guides and instructions for users and developers</purpose>
             <when>When a user or technical guide is needed</when>
             <format>{user friendly name}.md</format>
+        </section>
+
+        <section name="skill-authoring">
+            <purpose>Workspaces, eval inputs, metrics, and conclusions for skill creation, validation, and refinement</purpose>
+            <when>When `skill-authoring` is used to create, review, benchmark, or improve OpenCode skills</when>
+            <format>{skill or request slug}/...</format>
+
+            <section name="runs">
+                <purpose>Per-run timelines, summaries, diagnoses, diffs, and benchmark outputs</purpose>
+                <when>On every `skill-authoring` evaluation or refinement loop</when>
+                <format>{date time or run id}/...</format>
+            </section>
+
+            <section name="workspaces">
+                <purpose>Persistent request context, eval files, and reusable skill-specific assets</purpose>
+                <when>When a skill needs stable authoring inputs across multiple runs</when>
+                <format>{skill slug}/...</format>
+            </section>
         </section>
 
         <section name="project">

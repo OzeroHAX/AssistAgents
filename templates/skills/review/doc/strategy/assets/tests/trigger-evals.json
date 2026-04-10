@@ -1,0 +1,35 @@
+{
+  "skill": "review-doc-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this onboarding guide draft before publish and list blocking issues, required fixes, and recommended improvements.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check this API documentation diff for factual errors, missing prerequisites, and whether it is ready to publish.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this runbook update and decide whether we should publish or revise it based on task readiness and evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write a new onboarding guide for contributors and include Docker setup steps.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design an organization-wide documentation governance process with roles and approval stages.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Edit this guide directly to improve tone and grammar.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Summarize the system architecture and explain the main services for new developers.",
+      "shouldTrigger": false
+    }
+  ]
+}

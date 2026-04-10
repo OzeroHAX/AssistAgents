@@ -1,0 +1,23 @@
+{
+  "skill": "planning-approach-selection",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We need to choose a database for a new service during planning. The project has no persistence infrastructure yet and no similar module to copy. Compare viable options, recommend one, and ask me to confirm the choice.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Before implementation, help me compare serializer options for a new .NET integration. We have no project precedent here, so I need a justified recommendation and a confirmation step.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Plan a migration from our existing PostgreSQL schema to a new version with rollback and verification steps.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Use our existing Redis cache pattern for the new module and outline the implementation plan.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skill": "planning-impact-analysis",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Before we implement this auth change, map what services, contracts, data flows, and downstream risks it could affect.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Analyze the blast radius of replacing this queue consumer and call out affected systems, schemas, and regression hotspots.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "List the exact files and configs we need to edit for this auth change, with the intended change in each file.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create a testing strategy with unit, integration, and e2e coverage for this rollout.",
+      "shouldTrigger": false
+    }
+  ]
+}

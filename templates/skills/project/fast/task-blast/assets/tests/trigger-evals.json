@@ -1,0 +1,31 @@
+{
+  "skill": "project-fast-task-blast",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We already have a verified fast proto-spec. Break it into an ordered MVP backlog with AC traceability, dependencies, per-task definition of done, and scope-cut options before implementation starts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Turn this one-iteration proto-spec into implementation-ready tasks, make the critical path explicit, and tell me what to cut first if the timebox slips.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The proto-spec has open blockers; either decompose it safely or surface the exact gaps and the next action for fast planning handoff.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We picked the stack but still need a compact proto-spec with AC, architecture, file impact, and a planning gate.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create or revise implementation task docs under ai-docs/project/tasks from the approved epic set.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the backlog tasks and start coding the MVP feature set.",
+      "shouldTrigger": false
+    }
+  ]
+}

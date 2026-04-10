@@ -1,0 +1,23 @@
+{
+  "skill": "planning-monitoring-checks",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Add post-release monitoring guidance to this rollout plan: which metrics, alerts, dashboards, and rollback thresholds should we watch after shipping the caching change?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define the burn-in window and measurable stop criteria for the payment-service rollout, including who owns the alerts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a rollback procedure for the migration, including the exact revert steps and recovery time.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan the regression test strategy for the release and list unit, integration, and manual checks.",
+      "shouldTrigger": false
+    }
+  ]
+}

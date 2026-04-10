@@ -1,0 +1,35 @@
+{
+  "skill": "planning-requirements-extraction",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Take this feature request and rewrite it into a goal, requirements, acceptance criteria, and open questions before we plan implementation.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Read this bug report with logs and extract observed vs expected, repro steps, constraints, and acceptance criteria for planning.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Turn this user request plus PRD notes into explicit requirements and verifiable acceptance criteria.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Classify this task as a bug, feature, refactor, or migration and tell me what the plan should emphasize.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Define what is in scope and out of scope for this task and list the assumptions.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design the testing strategy, test types, and required environments for these acceptance criteria.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write the implementation plan and list the concrete code changes needed for this request.",
+      "shouldTrigger": false
+    }
+  ]
+}

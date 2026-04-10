@@ -1,0 +1,27 @@
+{
+  "skill": "review-arch-full-check",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this ADR for moving payments to an event-driven architecture. Compare trade-offs, NFR impact, risks, monitoring signals, and rollback readiness, then return approve, approve-with-conditions, or reject.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We are replacing a public partner API contract. Perform a full architecture review with launch conditions, risk register, and rollback feasibility.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check whether this module violates existing layer boundaries and dependency rules.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Edit this ADR to make the wording clearer and shorter.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan the staged rollout and rollback steps for the architecture migration.",
+      "shouldTrigger": false
+    }
+  ]
+}

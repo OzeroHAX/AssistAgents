@@ -1,0 +1,23 @@
+{
+  "skill": "review-code-performance",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this PR for performance risk: it adds per-row database lookups in a batch import hot path.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check whether this queue worker refactor could hurt throughput or memory under load before we merge it.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Suggest general ideas to make our system faster over the next quarter.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review this API change mainly for auth and secret-handling issues before merge.",
+      "shouldTrigger": false
+    }
+  ]
+}

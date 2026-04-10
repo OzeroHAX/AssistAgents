@@ -1,0 +1,31 @@
+{
+  "skill": "testing-test-case",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Create detailed test cases for password reset based on these acceptance criteria, including positive, negative, and boundary scenarios.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design Given/When/Then test cases for checkout discount rules with one check per case.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "I need reproducible manual test cases for the user invitation flow from the story and AC.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prepare a short smoke checklist for the checkout release.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Add Playwright tests for password reset and stabilize selectors in CI.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review the implementation plan for the user invitation feature.",
+      "shouldTrigger": false
+    }
+  ]
+}

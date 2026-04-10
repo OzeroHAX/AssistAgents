@@ -1,0 +1,31 @@
+{
+  "skill": "testing-a11y",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Run a manual accessibility check for the checkout form against WCAG 2.1 AA in Chrome and NVDA, and report keyboard flow, announcements, and contrast issues with pass/fail evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Verify the account settings modal for focus traps, visible focus, and VoiceOver announcements on Safari, then list observed accessibility gaps.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Manually review the admin dashboard navigation and data table interactions for keyboard and semantic accessibility, then summarize findings by scenario.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Fix missing aria-label values in the signup form and update the component tests.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan a quarterly accessibility audit strategy and prioritize product areas by risk.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Run axe on the homepage and paste the raw scanner output.",
+      "shouldTrigger": false
+    }
+  ]
+}

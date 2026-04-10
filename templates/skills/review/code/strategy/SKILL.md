@@ -1,50 +1,58 @@
 ---
 name: review-code-strategy
-description: Code review strategy: PR review flow, risk prioritization, and merge blocking rules
+description: Use when a concrete PR review needs consistent blocking criteria and a clear merge decision
 ---
 
 <when_to_use>
-  <trigger>Need to review a pull request before merge</trigger>
-  <trigger>There is disagreement on comment strictness and blocking criteria</trigger>
-  <trigger>Need to align a unified review process across the team</trigger>
+  <trigger>A concrete PR or diff needs a merge verdict with blocking vs non-blocking findings</trigger>
+  <trigger>Review comments need consistent severity calibration so preference notes do not block merge</trigger>
 </when_to_use>
 
+<when_not_to_use>
+  <item importance="critical">Do not use to edit the reviewed artifact directly.</item>
+  <item importance="high">Do not use without a concrete PR, diff, decision, or document to review.</item>
+  <item importance="high">Do not use as the primary skill for checklist, requirements, security, or performance review.</item>
+</when_not_to_use>
+
 <input_requirements>
-  <required>PR link or diff</required>
-  <required>Task context and expected behavior</required>
-  <optional>Release risks and component criticality</optional>
-  <optional>Incident history in the changed area</optional>
+  <required>Concrete review artifact such as a PR link or diff</required>
+  <required>Expected behavior, acceptance criteria, or review goal</required>
+  <optional>Release risk or component criticality</optional>
 </input_requirements>
 
-<review_flow>
-  <step order="1">Understand PR goal and change boundaries</step>
-  <step order="2">Check architectural fit and impact on neighboring modules</step>
-  <step order="3">Review correctness, security, performance, and tests</step>
-  <step order="4">Split findings into blocking and non-blocking</step>
-  <step order="5">Provide short conclusion: approve or request changes with reasons</step>
-</review_flow>
+<workflow>
+  <step order="1">Establish the review target, expected behavior, and missing evidence.</step>
+  <step order="2">Judge each finding by product risk, regression risk, or missing critical evidence, not reviewer preference.</step>
+  <step order="3">Classify findings as `blocking`, `major`, or `minor` and keep only clear merge-stoppers in `blocking`.</step>
+  <step order="4">Return the merge decision, blockers, non-blocking follow-ups, and confirmed checks.</step>
+</workflow>
 
 <severity_model>
-  <level name="blocking">Requirement violation, vulnerability risk, potential behavior breakage, or missing critical tests</level>
-  <level name="major">Significant technical debt or high regression risk, but with a temporary workaround</level>
-  <level name="minor">Naming, style, local readability, and low-risk improvements</level>
+  <level name="blocking">Requirement violation, security risk, likely behavior breakage, or missing critical evidence that must be resolved before merge</level>
+  <level name="major">Important quality or regression risk that should be fixed soon, but does not block merge by default</level>
+  <level name="minor">Low-risk readability, naming, or style improvement that must not block merge</level>
 </severity_model>
 
 <quality_rules>
-  <rule importance="critical">Each blocking comment includes a reproducible risk and expected fix</rule>
-  <rule importance="high">Focus on code health, not personal preferences</rule>
-  <rule importance="high">Comments must be specific and tied to diff locations</rule>
-  <rule importance="medium">Non-blocking improvements are phrased briefly and constructively</rule>
+  <rule importance="critical">Each blocking finding includes evidence, risk, and a minimal fix or acceptance condition.</rule>
+  <rule importance="high">Do not escalate preference comments into blockers without clear product, reliability, or security impact.</rule>
+  <rule importance="high">Tie findings to exact diff locations or clearly identified review artifacts.</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">Every blocker explains why merge must stop.</item>
+  <item importance="critical">The merge decision matches the stated severity model.</item>
+  <item importance="high">The review stays focused on severity calibration and merge readiness.</item>
+</validation>
+
 <do_not>
-  <item importance="critical">Do not block merge over preference comments without risk</item>
-  <item importance="high">Do not leave comments without explaining impact</item>
-  <item importance="high">Do not combine multiple unrelated issues in one comment</item>
+  <item importance="critical">Do not block merge over preference-only comments.</item>
+  <item importance="high">Do not leave findings without impact or expected resolution.</item>
+  <item importance="high">Do not combine unrelated issues in one comment.</item>
 </do_not>
 
 <output_requirements>
-  <requirement>Short review summary: status, 2-5 key risks, merge decision</requirement>
-  <requirement>List blocking findings separately from non-blocking</requirement>
-  <requirement>Explicitly state which checks are already confirmed (tests/security/perf)</requirement>
+  <requirement>Short review summary with merge decision, 2-5 key risks, and confirmed checks</requirement>
+  <requirement>Separate `blocking` findings from `major` and `minor` follow-ups</requirement>
+  <requirement>For each blocker, state evidence, risk, and a minimal fix or acceptance condition</requirement>
 </output_requirements>

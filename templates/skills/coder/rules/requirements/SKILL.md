@@ -1,6 +1,6 @@
 ---
 name: coder-rules-requirements
-description: Requirement quality rules for coding tasks with traceable MUST/SHOULD and verifiable acceptance criteria.
+description: Use when defining or validating coding-task requirements that need explicit scope, verifiable acceptance criteria, and traceable evidence.
 ---
 
 <when_to_use>
@@ -9,6 +9,10 @@ description: Requirement quality rules for coding tasks with traceable MUST/SHOU
   <trigger>Need requirement-to-evidence traceability in reviews</trigger>
 </when_to_use>
 
+<when_not_to_use>
+  <item importance="critical">Do not use for project planning, document authoring, or runtime test execution.</item>
+  <item importance="high">Do not use when a narrower review, testing, or domain-specific skill is the better fit.</item>
+</when_not_to_use>
 <normative_language>
   <rule>MUST indicates absolute requirement</rule>
   <rule>SHOULD indicates strong recommendation with documented exception</rule>
@@ -22,6 +26,14 @@ description: Requirement quality rules for coding tasks with traceable MUST/SHOU
   <required>Constraints (security, compatibility, rollout, tooling)</required>
   <optional>Out-of-scope and future work notes</optional>
 </input_requirements>
+
+<workflow>
+  <step>Confirm task objective, scope boundaries, constraints, and out-of-scope notes before judging completeness</step>
+  <step>Normalize each requirement into singular MUST/SHOULD/MAY wording with one clear intent</step>
+  <step>Check acceptance criteria and definition-of-done gates for explicit pass/fail expectations</step>
+  <step>Map each requirement and acceptance criterion to verification, evidence, and any approved exception</step>
+  <step>Report ambiguity, uncovered acceptance criteria, missing gates, and broken traceability before implementation starts</step>
+</workflow>
 
 <requirement_categories>
   <category>Scope and intent</category>
@@ -45,6 +57,11 @@ description: Requirement quality rules for coding tasks with traceable MUST/SHOU
   <rule importance="high">NFRs are measurable when they affect release decisions</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">Required outputs, constraints, and boundaries are explicit and complete.</item>
+  <item importance="critical">The expected behavior can be verified by commands, evidence, or inspected artifacts.</item>
+  <item importance="high">The skill stays inside its coding/design scope and does not drift into unrelated planning or review work.</item>
+</validation>
 <checklist>
   <item>Requirements use explicit MUST/SHOULD/MAY intent</item>
   <item>Each REQ has verification method and evidence target</item>

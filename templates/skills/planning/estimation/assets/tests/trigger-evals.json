@@ -1,0 +1,31 @@
+{
+  "skill": "planning-estimation",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Estimate the effort for adding email verification. Break it down by backend, frontend, and QA, name your estimation method, and give min/likely/max with assumptions.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We already decomposed the audit logging work. Give me a time estimate by phase, list the assumptions, and explain what could move the range.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Use three-point estimation for the migration plan and show the likely range, assumptions, and major uncertainty drivers.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define what is in scope, out of scope, and which assumptions we are making before we estimate the audit logging task.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "List the concrete files, modules, and migrations that will change for audit logging and tie each one to the acceptance criteria.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Commit to shipping email verification by next Friday and give me the final promise we can share with the team.",
+      "shouldTrigger": false
+    }
+  ]
+}

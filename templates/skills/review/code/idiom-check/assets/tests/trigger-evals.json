@@ -1,0 +1,27 @@
+{
+  "skill": "review-code-idiom-check",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this React PR for non-idiomatic hooks and lifecycle usage, and separate blocking from advisory comments.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check whether this Laravel diff follows normal framework conventions instead of custom workarounds.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this PR for SQL injection, auth bypasses, and secret exposure.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Give me a quick overall pre-merge checklist for this code change.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Assess whether this refactor is maintainable and easy to evolve over time.",
+      "shouldTrigger": false
+    }
+  ]
+}

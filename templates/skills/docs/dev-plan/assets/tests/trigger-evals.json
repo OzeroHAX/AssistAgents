@@ -1,0 +1,31 @@
+{
+  "skill": "docs-dev-plan",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Create a development plan for migrating the billing sync worker to queued retries.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Draft a step-by-step implementation plan for adding SSO to the admin portal.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prepare a rollout plan for replacing the cache invalidation pipeline.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement SSO for the admin portal.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write release notes for the cache invalidation changes.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create a user guide for configuring billing sync.",
+      "shouldTrigger": false
+    }
+  ]
+}

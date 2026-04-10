@@ -1,0 +1,31 @@
+{
+  "skill": "review-code-security",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this PR for security issues before merge; it changes JWT parsing, role checks, and session token handling in the API.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Do a security review of this payment webhook diff and tell me whether secrets, PII, or error responses can leak.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this design decision to move authorization checks from the server to the client and flag any blocking security risks.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this PR for readability, naming, and code style issues.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement CSRF protection for this form handler and update the backend code.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Summarize our dependency update policy document for the team wiki.",
+      "shouldTrigger": false
+    }
+  ]
+}

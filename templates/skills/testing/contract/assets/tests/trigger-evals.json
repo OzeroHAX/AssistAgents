@@ -1,0 +1,27 @@
+{
+  "skill": "testing-contract",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Verify that the payments provider still satisfies Pact contract v3 for the checkout consumer after a response schema change, classify any breaking incompatibilities, and record evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check OpenAPI contract compatibility between the billing consumer and invoice provider, verify required and error fields, and say whether a version bump is required.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run manual API checks for GET /users and POST /users in Postman and verify the JSON payloads.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Fix the provider endpoint implementation and update the controller tests for the new response body.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan the rollout strategy for API v2 so old and new consumers can coexist during migration.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "project-fast-pulse-scan",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We already ran fast-init for a B2B SaaS. Before choosing the stack, do a quick pulse scan on Stripe limits, SOC 2, SLA, and webhook retry constraints that could force us out of fast mode.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "After fast-init, check whether GDPR, SSO, and Slack API rate limits could change architecture before we pick the stack.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We hit unknown vendor and compliance constraints after fast-init; run a short research scan and tell me if we should continue fast or escalate.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Pick between Next.js with Supabase and ASP.NET with Postgres for this MVP.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a full market research report about our competitors and long-term trends.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "We have enough context already. Start implementing the auth service and API endpoints.",
+      "shouldTrigger": false
+    }
+  ]
+}

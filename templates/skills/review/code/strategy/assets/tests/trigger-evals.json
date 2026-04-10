@@ -1,0 +1,31 @@
+{
+  "skill": "review-code-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this PR and separate merge blockers from non-blocking feedback; the team is arguing about what should block release.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Here is a diff. Give me a merge-ready verdict and classify each review finding as blocking, major, or minor.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Calibrate review severity for this pull request so preference comments do not become blockers.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run a quick pre-merge checklist on this PR and tell me whether the basic quality gate passes.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review this diff specifically for SQL injection, secret leakage, and auth bypass risks before merge.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Check whether this PR meets the original acceptance criteria and stays within scope.",
+      "shouldTrigger": false
+    }
+  ]
+}

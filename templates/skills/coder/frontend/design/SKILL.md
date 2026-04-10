@@ -10,6 +10,10 @@ description: Frontend design system practices: tokens, typography, color, layout
   <trigger>Reviewing UI consistency and scalability risks</trigger>
 </when_to_use>
 
+<when_not_to_use>
+  <item importance="critical">Do not use for project planning, document authoring, or runtime test execution.</item>
+  <item importance="high">Do not use when a narrower review, testing, or domain-specific skill is the better fit.</item>
+</when_not_to_use>
 <input_requirements>
   <required>Product context and target platforms (web/mobile web/desktop web)</required>
   <required>Brand constraints (colors, typography, tone)</required>
@@ -46,6 +50,11 @@ description: Frontend design system practices: tokens, typography, color, layout
   <rule importance="high">Exceptions are documented with scope and expiration criteria</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">Required outputs, constraints, and boundaries are explicit and complete.</item>
+  <item importance="critical">The expected behavior can be verified by commands, evidence, or inspected artifacts.</item>
+  <item importance="high">The skill stays inside its coding/design scope and does not drift into unrelated planning or review work.</item>
+</validation>
 <do_not>
   <item importance="critical">Do not hardcode colors, spacing, or typography in feature-level UI</item>
   <item importance="high">Do not introduce new variants before checking existing system patterns</item>

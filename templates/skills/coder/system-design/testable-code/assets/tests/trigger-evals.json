@@ -1,0 +1,31 @@
+{
+  "skill": "coder-system-design-testable-code",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Help me refactor a payment service that mixes business rules with the Stripe client, time-based retries, and random id generation so the core logic becomes easy to unit test.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We are designing a new order workflow service and need advice on dependency seams, deterministic clocks, and which parts should be covered by unit, integration, and contract tests.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this legacy batch module for hidden IO and concurrency dependencies and suggest how to make the architecture more testable without relying on flaky sleeps.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write a project plan for increasing automated test coverage across the team next quarter.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Run the existing Playwright and unit test suites, summarize the failures, and tell me which tests are flaky.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review the public HTTP API contract for pagination, error format, idempotency, and versioning compatibility.",
+      "shouldTrigger": false
+    }
+  ]
+}

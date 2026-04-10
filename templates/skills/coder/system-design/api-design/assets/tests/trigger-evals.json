@@ -1,0 +1,27 @@
+{
+  "skill": "coder-system-design-api-design",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Design a public HTTP API for orders and decide versioning, problem-details errors, pagination, and idempotency for create operations.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this API contract change: we want to remove a response field in v1 and switch to a new error format without breaking existing clients.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Plan the rollout for a new billing feature and write the implementation task breakdown.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design a PostgreSQL schema and migration strategy for order history retention.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Integrate with Stripe's external API and decide authentication, retries, and provider-specific error handling.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "coder-system-design-perf-patterns",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review our checkout latency bottleneck: p95 is 900ms because product reads hit the database on every request. Recommend caching or batching, expected SLI gains, and rollback guardrails.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We expect burst traffic during flash sales. Help choose queue-based load leveling, async processing, or load shedding, and explain SLO tradeoffs before rollout.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Hot partition keys are throttling writes in DynamoDB. Choose mitigation patterns and define monitoring plus rollback checks.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design the HTTP API contract for orders, including versioning, pagination, and idempotency.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create the implementation task breakdown and rollout checklist for the already-approved scaling project.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design a PostgreSQL schema migration with indexes, constraints, and a backfill strategy for billing history.",
+      "shouldTrigger": false
+    }
+  ]
+}

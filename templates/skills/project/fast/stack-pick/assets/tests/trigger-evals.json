@@ -1,0 +1,31 @@
+{
+  "skill": "project-fast-stack-pick",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We finished the fast research scan for our MVP. Compare Next.js + Supabase versus ASP.NET Core + Postgres and pick the best stack for shipping in one iteration.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "After pulse-scan, choose the most delivery-oriented stack for this prototype, show the trade-offs, and give me a fallback if the primary option is too risky.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "One platform is mandated by policy, but I still need the forcing constraint, fallback, and why it still fits fast MVP delivery before proto-spec.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement the selected Next.js + Supabase stack and scaffold the API routes and database schema.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a general guide comparing popular web stacks for startups.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "The client already fixed the stack and approved it. Break the work into tasks for the next sprint.",
+      "shouldTrigger": false
+    }
+  ]
+}

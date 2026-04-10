@@ -1,0 +1,51 @@
+{
+  "skill": "docs-guide",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Write an internal setup guide for running this repository locally with Docker and pnpm.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create instructions for using the project package assist-cli to scan docs and export a markdown report.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Draft a user guide for enabling two-factor authentication in the project portal.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create an operations runbook for rotating sandbox API keys in this repository and save it under ai-docs/guides/api-key-rotation.md.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Explain the system architecture of the product and describe the main services.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write coding rules for contributors and explain recommended design patterns.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Teach common backend design patterns and dependency inversion with examples.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a changelog entry for release 2.4 and list the visible changes.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Add a Mermaid sequence diagram for the login flow in arch.md.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review the existing onboarding guide and list missing prerequisites, unclear steps, and stale commands.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a bug report for the failed two-factor authentication flow, including reproduction steps and impact.",
+      "shouldTrigger": false
+    }
+  ]
+}

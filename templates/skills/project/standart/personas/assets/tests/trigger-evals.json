@@ -1,0 +1,31 @@
+{
+  "skill": "project-standart-personas",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Create ai-docs/project/personals.md from the baseline PRD for buyer, operator, and support personas, and show where their priorities conflict.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Refresh project personas before use cases so we can map requirements and objections across admin and end-user roles.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We have different user segments with different pains and success criteria; prepare the personas document before epic planning.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write the PRD from the brief and market research, then define acceptance criteria.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design the main and alternate checkout flows using the finalized personas and PRD.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement RBAC for admin and end-user accounts in the backend service.",
+      "shouldTrigger": false
+    }
+  ]
+}

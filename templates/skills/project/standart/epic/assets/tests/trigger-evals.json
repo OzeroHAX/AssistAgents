@@ -1,0 +1,27 @@
+{
+  "skill": "project-standart-epic",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Create prioritized epic docs from our PRD, use cases, and architecture so we can start task decomposition next sprint.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Revise the current epic set because the architecture changed and we need new sequencing by dependency and risk.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Break Epic 3 into implementation tasks with AC and DoD for the team backlog.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Update ai-docs/project/arch.md for the payment provider integration and migration risks.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the login flow and fix the OAuth bug.",
+      "shouldTrigger": false
+    }
+  ]
+}

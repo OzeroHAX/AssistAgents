@@ -1,0 +1,39 @@
+{
+  "skill": "project-discovery-mode-selector",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We are starting a new project from scratch. Help me choose the right discovery mode before we continue.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "This repository already has API, web, and docs folders. Decide whether the project should continue in fast or standart discovery mode first.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Before we start planning, decide whether this legacy multi-service repository should use fast or standart discovery mode.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement OAuth login in the existing API service.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Run project-fast-init for this idea.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "The discovery mode is already standart. Write the project brief now.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "We already chose fast mode. Continue with project-fast-init.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "We previously picked fast mode, but new compliance constraints appeared. Re-evaluate the discovery mode and change it if needed.",
+      "shouldTrigger": true
+    }
+  ]
+}

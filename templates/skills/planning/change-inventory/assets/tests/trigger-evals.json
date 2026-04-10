@@ -1,0 +1,27 @@
+{
+  "skill": "planning-change-inventory",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Before implementation, list the specific backend files, frontend modules, config files, and migrations we need to touch for email verification. Tie each edit to the acceptance criteria and show the dependency order.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a concrete change inventory for adding audit logging: name the likely artifacts, explain the intended edit for each one, and flag risky changes that need extra verification.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Analyze which systems, contracts, and data flows across the platform would be affected by adding audit logging.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Define what is in scope, out of scope, and what assumptions we are making for the audit logging task.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Build a testing strategy for the audit logging feature, including test types, data needs, and acceptance signals.",
+      "shouldTrigger": false
+    }
+  ]
+}

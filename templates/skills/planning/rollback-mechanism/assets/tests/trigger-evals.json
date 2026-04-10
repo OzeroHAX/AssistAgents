@@ -1,0 +1,27 @@
+{
+  "skill": "planning-rollback-mechanism",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Add a rollback section for the payments schema migration: define rollback triggers, execution steps, partial-data impact, and post-rollback checks.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We need a rollback plan for the canary release if checkout errors spike above 2%; describe the fallback mechanism, expected recovery time, and verification after rollback.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Plan the rollout stages for the new checkout release with 10%, 50%, and 100% exposure plus stop points.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Choose an expand-contract migration strategy for the customer API and define compatibility phases before cutover.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design the test strategy for rollback edge cases, regression coverage, and required test data.",
+      "shouldTrigger": false
+    }
+  ]
+}

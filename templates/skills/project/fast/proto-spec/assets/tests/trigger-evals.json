@@ -1,0 +1,27 @@
+{
+  "skill": "project-fast-proto-spec",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We already picked the MVP stack. Create a compact proto-spec for this iteration with AC, architecture skeleton, file-level change map, testing strategy, and a planning gate before task decomposition.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Turn the chosen stack into a one-iteration fast planning proto-spec and make the handoff to task decomposition explicit.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The stack is still undecided. Compare options and choose the best one for the MVP.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Break this verified proto-spec into an ordered implementation backlog with dependencies and definition of done.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a full multi-iteration PRD for the whole product roadmap.",
+      "shouldTrigger": false
+    }
+  ]
+}

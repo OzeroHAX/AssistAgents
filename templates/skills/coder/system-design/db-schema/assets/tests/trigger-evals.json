@@ -1,0 +1,27 @@
+{
+  "skill": "coder-system-design-db-schema",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Design a PostgreSQL schema for multi-tenant billing, pick keys and constraints, and outline a zero-downtime migration from the old tables.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review our order database changes: we need indexes for the new query paths and a safe expand/backfill/contract migration plan.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Help decide whether this customer archive should use hard delete, soft delete, or audit tables, and show the schema implications.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create the release checklist and deployment runbook for tonight's already-approved database migration.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design the HTTP API contract for pagination, idempotency, and versioning for the new orders endpoint.",
+      "shouldTrigger": false
+    }
+  ]
+}

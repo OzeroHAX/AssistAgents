@@ -1,27 +1,33 @@
 ---
 name: review-doc-strategy
-description: Documentation review strategy: readiness criteria, review flow, and feedback format
+description: Use when reviewing a documentation draft or diff for publication readiness, task fitness, and evidence-based feedback.
 ---
 
 <when_to_use>
-  <trigger>A unified documentation review process must be defined</trigger>
-  <trigger>New or substantially updated instructions/guides are being published</trigger>
+  <trigger>A documentation draft or diff must be reviewed before publish or merge.</trigger>
+  <trigger>A guide, runbook, API document, ADR, or onboarding document needs a readiness verdict tied to the target user task.</trigger>
 </when_to_use>
+
+<when_not_to_use>
+  <item importance="critical">Do not use to edit the reviewed artifact directly.</item>
+  <item importance="high">Do not use when there is no concrete draft, diff, or published artifact to review.</item>
+  <item importance="high">Do not use for broad documentation governance design without a target review artifact.</item>
+</when_not_to_use>
 
 <input_requirements>
   <required>Document type (guide, runbook, API, ADR, onboarding)</required>
-  <required>Target audience and their task</required>
-  <required>Document draft or change diff</required>
-  <optional>Project style guide and glossary</optional>
+  <required>Target audience and the task they must complete</required>
+  <required>Document draft, published artifact, or change diff</required>
+  <optional>Project style guide, glossary, or documentation standards</optional>
 </input_requirements>
 
-<review_flow>
-  <step order="1">Check document fitness for the target user task</step>
-  <step order="2">Check accuracy of facts, commands, and examples</step>
-  <step order="3">Check scenario completeness: prerequisites, steps, expected result, troubleshooting</step>
-  <step order="4">Check consistency of terminology, structure, and tone</step>
-  <step order="5">Record publication status and required revisions</step>
-</review_flow>
+<workflow>
+  <step order="1">Confirm the review target, audience task, and evidence source (draft, artifact, or diff).</step>
+  <step order="2">Check whether the document enables the target user to complete the task safely and correctly.</step>
+  <step order="3">Verify factual accuracy, commands, examples, and expected results against the provided artifact context.</step>
+  <step order="4">Check scenario completeness: prerequisites, steps, expected result, failure handling, and troubleshooting.</step>
+  <step order="5">Record findings with severity, evidence, publication impact, and a final decision: publish or revise.</step>
+</workflow>
 
 <severity_model>
   <level name="blocking">An issue that prevents the reader from completing the task safely and correctly</level>
@@ -30,17 +36,26 @@ description: Documentation review strategy: readiness criteria, review flow, and
 </severity_model>
 
 <quality_rules>
-  <rule importance="critical">The document is evaluated against the user task, not formal text volume</rule>
-  <rule importance="high">All blocking findings are tied to specific locations and are fixable</rule>
-  <rule importance="high">The review conclusion includes a decision: publish or revise</rule>
+  <rule importance="critical">Judge the document against the target user task, not text volume or style alone.</rule>
+  <rule importance="high">Tie each blocking or major finding to concrete evidence and a fixable change.</rule>
+  <rule importance="high">Keep required fixes separate from recommended improvements.</rule>
+  <rule importance="high">End with an explicit decision: publish or revise.</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">Each verdict and finding maps to concrete evidence, artifact context, or review criteria.</item>
+  <item importance="critical">Severity and blocking status are explicit for each required fix.</item>
+  <item importance="high">The review stays within review scope and does not drift into authoring or implementation work.</item>
+  <item importance="high">The final output contains a publish/revise decision plus required and recommended actions.</item>
+</validation>
+
 <do_not>
-  <item importance="critical">Do not accept a document with factual errors for the sake of publication speed</item>
-  <item importance="high">Do not suggest stylistic edits that do not improve clarity</item>
+  <item importance="critical">Do not accept a document with factual errors for the sake of publication speed.</item>
+  <item importance="high">Do not suggest stylistic edits that do not improve clarity or task completion.</item>
 </do_not>
 
 <output_requirements>
-  <requirement>Short verdict and list of required fixes</requirement>
-  <requirement>List of recommended improvements separated from required ones</requirement>
+  <requirement>Short verdict with explicit decision: `publish` or `revise`</requirement>
+  <requirement>Required fixes with severity, evidence, and publication impact</requirement>
+  <requirement>Recommended improvements listed separately from required fixes</requirement>
 </output_requirements>

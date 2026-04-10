@@ -1,0 +1,31 @@
+{
+  "skill": "project-standart-status",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We just finished the standard-flow PRD stage. Update status.json with the gate decision, blockers, and the next action before we move to architecture.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Initialize the standard planning flow and create the first status.json so the current stage and next action are tracked from the start.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Before implementation starts, record the final standard-planning readiness gate in status.json and keep any unresolved blockers explicit.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write the PRD for the new product increment and define functional requirements and acceptance criteria.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Break the epics into implementation tasks with acceptance criteria, dependencies, and estimates.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the API endpoint and add automated tests for the delivery flow.",
+      "shouldTrigger": false
+    }
+  ]
+}

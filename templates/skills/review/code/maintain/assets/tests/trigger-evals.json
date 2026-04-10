@@ -1,0 +1,31 @@
+{
+  "skill": "review-code-maintain",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this refactor for maintainability and readability risks before we merge it.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check whether this PR became harder to understand and modify after the new service layer changes.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Do a maintainability-focused review of this diff and call out quick wins versus deeper cleanup.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this patch for SQL injection and auth bypass issues.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Find performance regressions and suggest optimization opportunities in this PR.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the refactor directly and rewrite the service for better readability.",
+      "shouldTrigger": false
+    }
+  ]
+}

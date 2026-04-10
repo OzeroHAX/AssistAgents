@@ -1,0 +1,31 @@
+{
+  "skill": "testing-e2e-flow",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Design end-to-end checkout scenarios across web UI, payment gateway, order service, and notification service with environment assumptions, data cleanup, checkpoints, and pass/fail evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Verify the full registration -> email confirmation -> onboarding -> billing activation chain across multiple services and record where infrastructure failures differ from product logic failures.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prepare reproducible e2e flow checks for account recovery from entry action to final session restore, including timeouts, external dependency failures, and cleanup status.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Manually verify the orders API with curl requests, response schemas, and status codes for positive and negative cases.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement automated Playwright tests for checkout and stabilize selectors, retries, and failure artifacts in CI.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan the release rollout strategy for the payments system and compare rollback options.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "testing-api-manual",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Manually verify the orders API with reproducible curl requests against staging, covering create/get/update failures, auth errors, pagination, and expected response fields with pass/fail evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check this endpoint behavior manually from the OpenAPI spec: send explicit positive and negative HTTP requests, validate status codes and response schema, and summarize observed evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run a manual API test session for the billing service using a token, reproducible request templates, and clear expected results for each scenario.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design provider-consumer contract versioning checks and verify backward compatibility between API versions.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement automated API integration tests for the payments endpoints and add them to CI.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan the API testing strategy for the next quarter and compare tools for smoke, regression, and load coverage.",
+      "shouldTrigger": false
+    }
+  ]
+}

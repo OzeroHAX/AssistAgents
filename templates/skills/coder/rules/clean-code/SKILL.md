@@ -1,14 +1,18 @@
 ---
 name: coder-rules-clean-code
-description: Clean code execution rules for coding agents with verifiable quality gates.
+description: Use when implementing or refactoring code that needs minimal safe changes with verified results.
 ---
 
 <when_to_use>
-  <trigger>Implementing or refactoring code in any repository area</trigger>
-  <trigger>Need to keep changes minimal, readable, and maintainable</trigger>
-  <trigger>Need objective acceptance checks before task completion</trigger>
+  <trigger>Implementing or refactoring code where the smallest safe change matters</trigger>
+  <trigger>Need changes to stay readable and follow local patterns</trigger>
+  <trigger>Need checkable evidence before declaring the task done</trigger>
 </when_to_use>
 
+<when_not_to_use>
+  <item importance="critical">Do not use for project planning, document authoring, or runtime test execution.</item>
+  <item importance="high">Do not use when debugging, review, testing, or a domain-specific skill is the better fit.</item>
+</when_not_to_use>
 <input_requirements>
   <required>Task goal and scope boundaries</required>
   <required>Target files or modules</required>
@@ -16,12 +20,13 @@ description: Clean code execution rules for coding agents with verifiable qualit
   <required>Verification commands (tests/lint/typecheck/build as applicable)</required>
 </input_requirements>
 
-<execution_workflow>
-  <step>Explore relevant files and constraints before edits</step>
-  <step>Plan minimal change that solves requested problem only</step>
-  <step>Implement in small coherent edits following local conventions</step>
-  <step>Verify with required commands and observable outcomes</step>
-</execution_workflow>
+<workflow>
+  <step>Confirm scope, target files, local conventions, and required checks before editing</step>
+  <step>Inspect nearby code and reuse existing patterns or utilities when they fit</step>
+  <step>Choose the smallest safe change that solves the requested problem</step>
+  <step>Implement coherent edits with explicit intent and no speculative refactoring</step>
+  <step>Run required checks and report changed files, evidence, and remaining risks</step>
+</workflow>
 
 <core_principles>
   <principle priority="P0">Prefer smallest safe change that satisfies requirements</principle>
@@ -47,6 +52,11 @@ description: Clean code execution rules for coding agents with verifiable qualit
   <rule importance="high">Refactors are allowed only when they directly reduce risk of requested change</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">Required outputs, constraints, and boundaries are explicit and complete.</item>
+  <item importance="critical">The expected behavior can be verified by commands, evidence, or inspected artifacts.</item>
+  <item importance="high">The skill stays inside its coding/design scope and does not drift into unrelated planning or review work.</item>
+</validation>
 <do_not>
   <item importance="critical">Do not use destructive git or shell shortcuts without explicit approval</item>
   <item importance="critical">Do not hardcode secrets, credentials, or environment-specific values</item>

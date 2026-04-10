@@ -1,0 +1,31 @@
+{
+  "skill": "project-fast-status",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Initialize fast planning and create status.json before starting pulse-scan.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We finished fast proto-spec with open integration risks; update status.json and set the next action.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Before handing the fast plan to implementation, record the final gate in status.json.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Update status.json after the standard planning PRD stage.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write the fast proto-spec itself for the MVP scope.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement runtime service health tracking and status updates for production.",
+      "shouldTrigger": false
+    }
+  ]
+}

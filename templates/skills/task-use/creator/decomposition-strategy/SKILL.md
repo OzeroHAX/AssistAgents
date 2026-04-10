@@ -1,45 +1,43 @@
 ---
 name: task-use-creator-decomposition-strategy
-description: Use to draft decomposition for one feature/epic with dependencies and risks; final scope and priorities stay with main agent
+description: Use when the main agent needs a delegated draft decomposition for one feature or epic with dependencies, sequencing, and risks
 ---
 
 <when_to_use>
-  <trigger>Need a draft decomposition to accelerate planning</trigger>
+  <trigger>Need a draft decomposition for one scoped feature or epic</trigger>
   <trigger>Need a clear task list with scope, dependencies, and sequencing</trigger>
   <trigger>Need to transform requirements into actionable work items</trigger>
-  <trigger>Need to estimate or plan delivery phases</trigger>
+  <trigger>Need a rough phase plan before final scoping</trigger>
 </when_to_use>
 
+<when_not_to_use>
+  <item importance="critical">Do not use for open-ended delegation without one clear goal and deliverable.</item>
+  <item importance="critical">Do not use for product-wide or multi-epic planning in one request.</item>
+  <item importance="high">Do not use for final scope, priority, or acceptance decisions that must stay with the main agent.</item>
+</when_not_to_use>
+
 <delegation_policy>
-  <main_agent>Owns final decomposition, scope decisions, and user alignment</main_agent>
+  <main_agent>Owns final scope decisions and user alignment</main_agent>
   <subagent>Produces a draft breakdown, dependencies, risks, and open questions</subagent>
-  <do_delegate>Initial task list, dependency map, risk list, missing inputs</do_delegate>
+  <do_delegate>Draft task list, dependency map, sequencing notes, risk list, and missing inputs</do_delegate>
   <do_not_delegate>Final scope, priority, acceptance criteria, release commitments</do_not_delegate>
 </delegation_policy>
 
-<task_request>
-  <principles>
-    <principle>State the goal and expected granularity (epics -> stories -> tasks)</principle>
-    <principle>Provide constraints: timeline, team size, tech stack, non-goals</principle>
-    <principle>Include inputs: requirements, PRD, architecture, use cases</principle>
-    <principle>Limit scope to one epic or feature per request</principle>
-    <principle>Specify depth level when needed: standard, deep, expert</principle>
-  </principles>
-  <examples>
-    <good>
-      <task>Decompose the "User onboarding" epic into tasks with dependencies and acceptance criteria.</task>
-      <why>Clear scope, expected outputs</why>
-    </good>
-    <good>
-      <task>Break down payment integration into tasks, include risk areas and sequencing.</task>
-      <why>Focused feature and planning needs</why>
-    </good>
-    <bad>
-      <task>Plan the whole product</task>
-      <why>Too broad, no granularity or scope</why>
-    </bad>
-  </examples>
-</task_request>
+<input_requirements>
+  <required>One feature or epic with a clear goal and expected deliverable</required>
+  <required>Expected granularity or requested depth level</required>
+  <required>Known constraints such as timeline, team size, tech stack, and non-goals</required>
+  <optional>Requirements, PRD, architecture, use cases, or other supporting context</optional>
+  <optional>Known risks, unknowns, integration points, or assumptions that should shape the draft</optional>
+</input_requirements>
+
+<workflow>
+  <step order="1">Reject or narrow requests that are broader than one feature or epic or that lack a clear deliverable.</step>
+  <step order="2">Choose the best-fit strategy: vertical-slices, capability-first, or risk-first.</step>
+  <step order="3">Draft tasks, separating discovery, enabling, and implementation work when needed.</step>
+  <step order="4">Add dependencies, sequencing, critical-path notes, and key risks or unknowns.</step>
+  <step order="5">Flag assumptions and decisions that must return to the main agent.</step>
+</workflow>
 
 <decomposition_principles>
   <principle>Start from user outcomes and required behaviors</principle>
@@ -69,20 +67,24 @@ description: Use to draft decomposition for one feature/epic with dependencies a
 </decomposition_strategies>
 
 <output_requirements>
-  <requirement>Provide a structured task list with titles (draft)</requirement>
-  <requirement>Include dependencies and sequencing notes</requirement>
-  <requirement>Note risks, unknowns, and required inputs</requirement>
-  <requirement>Flag assumptions that need main-agent validation</requirement>
+  <requirement>Provide a structured draft task list with clear titles</requirement>
+  <requirement>Separate implementation, discovery, and enabling work when needed</requirement>
+  <requirement>Include dependencies, sequencing, critical-path notes, risks, unknowns, and assumptions for main-agent validation</requirement>
 </output_requirements>
+
+<validation>
+  <item importance="critical">The delegated request stays scoped to one goal and one expected deliverable.</item>
+  <item importance="critical">Returned output format, dependency notes, and main-agent boundaries are explicit.</item>
+  <item importance="high">The draft makes assumptions, missing inputs, and remaining decision points explicit.</item>
+</validation>
 
 <agent_limitations>
   <cannot>Edit or write files</cannot>
-  <cannot>Make product decisions without user confirmation</cannot>
-  <cannot>Remember previous sessions</cannot>
+  <cannot>Finalize scope, priorities, or acceptance criteria without main-agent confirmation</cannot>
 </agent_limitations>
 
 <depth_levels>
   <level name="standard">Task list + dependencies</level>
   <level name="deep">Acceptance criteria + risks + sequencing</level>
-  <level name="expert">Phased plan + estimation approach + rollout strategy</level>
+  <level name="expert">Phased plan + estimation approach + rollout risks</level>
 </depth_levels>

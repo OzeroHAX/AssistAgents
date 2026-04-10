@@ -1,0 +1,31 @@
+{
+  "skill": "coder-system-design-external-api",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Design a production integration with Stripe and decide auth strategy, timeouts, retries, idempotency, and rate-limit handling for charge creation.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review our partner API integration plan: we need fallback behavior, alerting, secret rotation, and a contract-change strategy before rollout.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We rely on an external fraud provider webhook. Help decide retry eligibility, duplicate-delivery handling, observability, and degradation strategy.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design the HTTP API contract for our internal orders service, including versioning, pagination, and problem-details errors.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan a PostgreSQL schema migration for billing data retention and index the new query paths.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write the release checklist and implementation task breakdown for an already-approved vendor integration rollout.",
+      "shouldTrigger": false
+    }
+  ]
+}

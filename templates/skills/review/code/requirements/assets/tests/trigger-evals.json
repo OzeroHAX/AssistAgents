@@ -1,0 +1,23 @@
+{
+  "skill": "review-code-requirements",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Check whether this PR actually covers the ticket requirements and acceptance criteria, and point out any extra scope.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this diff against the original request, map each requirement to evidence, and flag anything missing or out of scope.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Do a maintainability review of this refactor and focus on readability, complexity, and long-term upkeep.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Audit this PR for security issues and sensitive-data exposure.",
+      "shouldTrigger": false
+    }
+  ]
+}

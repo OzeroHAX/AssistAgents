@@ -1,0 +1,27 @@
+{
+  "skill": "planning-rollout-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Plan a canary rollout for the new billing API with 5%, 25%, and 100% stages, clear promotion gates, and actions if errors spike.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design a staged rollout plan for a search ranking change across internal users, 10% of traffic, and full release, including stop points and owner communications.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define rollback criteria and the exact rollback steps if the release fails after deployment.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "List the dashboards, alert thresholds, and burn-in window we should monitor after release.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement a feature flag and deployment script for phased release in production.",
+      "shouldTrigger": false
+    }
+  ]
+}

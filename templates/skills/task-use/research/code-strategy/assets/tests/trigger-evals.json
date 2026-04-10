@@ -1,0 +1,31 @@
+{
+  "skill": "task-use-research-code-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Trace where invoice totals are calculated across the billing code and explain the end-to-end flow with exact file and symbol references.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Find repository examples of retry and backoff handling, then list the key files, helper symbols, and how they relate.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Map the user profile update path through controller, service, and repository layers with exact file paths and symbols.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement the missing retry logic in the billing service.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Check src/api/users.ts and tell me what line 42 does.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan a refactor for the billing module based on the current architecture.",
+      "shouldTrigger": false
+    }
+  ]
+}

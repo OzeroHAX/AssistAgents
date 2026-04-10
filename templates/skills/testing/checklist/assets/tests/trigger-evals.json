@@ -1,0 +1,31 @@
+{
+  "skill": "testing-checklist",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Prepare a short smoke checklist for the checkout flow after yesterday's payment fix. Focus on login, purchase, and visible error handling.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Need a regression checklist for critical admin user-management paths after role permission changes.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a quick sanity checklist for profile settings before release, including access checks and validation errors.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write full Given/When/Then test cases for checkout validation and edge cases.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Investigate why login fails in staging and propose a code fix.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design one end-to-end scenario from registration to payment notification with dependencies and cleanup.",
+      "shouldTrigger": false
+    }
+  ]
+}
