@@ -43,6 +43,14 @@ npx -g @ozerohax/assistagents@latest
 - 技术栈发生明显变化后（新增语言、框架、测试工具、lint 工具）；
 - 需要让本地 coder skills 与当前仓库状态重新同步时。
 
+## Skill-authoring
+
+如果你要创建、检查或改进 skill 本身，请直接使用 `/skill-authoring`。
+
+你不需要手动选择 runtime agent。该命令会自动路由到专用的 authoring agent。
+
+完整 workflow 请查看 [Skill-Authoring 指南](./skill-authoring.md)。
+
 ## 4) 使用推荐的交付循环
 
 短迭代比一次性的大提示更可靠：

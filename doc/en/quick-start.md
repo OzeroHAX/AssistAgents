@@ -43,6 +43,14 @@ When to run it:
 - after significant stack changes (new language, framework, test runner, linter);
 - when you want to re-sync local coder skills with current repository state.
 
+## Skill-authoring
+
+If you want to create, check, or improve skills themselves, use `/skill-authoring` directly.
+
+You do not need to pick a runtime agent manually. The command routes to a dedicated authoring agent automatically.
+
+For the full workflow, see the [Skill-Authoring Guide](./skill-authoring.md).
+
 ## 4) Use the Recommended Delivery Loop
 
 Short iterations are more reliable than one huge prompt:
