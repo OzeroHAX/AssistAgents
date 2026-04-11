@@ -66,7 +66,7 @@ ai-docs/skill-authoring/interactive-runs/<run-id>/
 - `proposal/summary.md`
   Human-readable explanation of what was proposed and why.
 - `proposal/skill.diff.md`
-  The exact diff that was shown to the user.
+  The exact diff that was shown to the user. Prefer canonical git-style unified diff headers for the target path rather than the temporary draft path.
 - `after/target-skill.md`
   The current proposed target skill draft; after approval, this should match the applied result.
 - `after/validation.json` and `after/validation.md`
@@ -86,6 +86,7 @@ ai-docs/skill-authoring/interactive-runs/<run-id>/
   - files in scope
   - path to the saved proposal artifacts
   - exact diff or draft
+- In the visible diff itself, prefer `diff --git a/<target-path> b/<target-path>` with `--- a/<target-path>` and `+++ b/<target-path>`.
 - In chat, refer to target file paths as future apply routes until approval. Before approval, the real target skill subtree remains unchanged.
 - Do not duplicate long plan prose in both the chat and the saved artifacts.
 

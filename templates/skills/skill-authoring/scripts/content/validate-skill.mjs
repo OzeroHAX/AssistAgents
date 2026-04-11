@@ -22,6 +22,12 @@ function renderChecklistItem(pass, label) {
   return `${pass ? '[x]' : '[ ]'} ${label}`;
 }
 
+function escapeMarkdownTableCell(value) {
+  return String(value ?? '')
+    .replace(/\|/g, '\\|')
+    .replace(/\r?\n/g, '<br>');
+}
+
 function countWords(text) {
   return text
     .replace(/<[^>]+>/g, ' ')
@@ -511,8 +517,6 @@ export function renderStaticValidationMarkdown(report) {
     `- Name length: ${report.skill.nameLength}`,
     `- Description length: ${report.skill.descriptionLength}`,
     `- Lint score: ${report.lint.score.toFixed(3)}`,
-    `- Quality rubric score: ${report.qualityRubric.overallScore.toFixed(2)}/10`,
-    `- Quality rubric outcome: ${report.qualityRubric.outcome}`,
     '',
     '## Structural checklist',
     '',
@@ -550,11 +554,18 @@ export function renderStaticValidationMarkdown(report) {
   }
 
   if ((report.qualityRubric?.metrics?.length ?? 0) > 0) {
+    lines.push('## Quality Rubric Summary', '');
+    lines.push('| Overall Score | Outcome |');
+    lines.push('| --- | --- |');
+    lines.push(`| \`${report.qualityRubric.overallScore.toFixed(2)}/10\` | \`${escapeMarkdownTableCell(report.qualityRubric.outcome)}\` |`);
+    lines.push('');
     lines.push('## Quality Rubric', '');
+    lines.push('| Metric | Score | Reason | Improvement |');
+    lines.push('| --- | --- | --- | --- |');
     for (const metric of report.qualityRubric.metrics) {
-      lines.push(`- ${metric.label}: ${metric.score}/10`);
-      lines.push(`  Reason: ${metric.reason}`);
-      lines.push(`  Improvement: ${metric.improvement}`);
+      lines.push(
+        `| ${escapeMarkdownTableCell(metric.label)} | \`${metric.score}/10\` | ${escapeMarkdownTableCell(metric.reason)} | ${escapeMarkdownTableCell(metric.improvement)} |`,
+      );
     }
     lines.push('');
   }

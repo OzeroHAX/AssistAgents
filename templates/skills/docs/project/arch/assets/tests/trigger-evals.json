@@ -1,0 +1,23 @@
+{
+  "skill": "docs-project-arch",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We need to create ai-docs/project/arch.md for the new billing module. What should this architecture document cover?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review the current ai-docs/project/arch.md and tell me whether its architecture sections and constraints are complete.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement the architecture for the billing module in NestJS and add the missing services.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Give me general system design ideas for a marketplace platform; no document update is needed.",
+      "shouldTrigger": false
+    }
+  ]
+}

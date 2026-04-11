@@ -1,0 +1,23 @@
+{
+  "skill": "docs-project-research-summary",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Define what must be included in the dated project research summary document under ai-docs/project/researches/.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review whether this research summary document clearly separates verified findings, hypotheses, constraints, sources, and decision impact.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Research queueing libraries in the repo and on the web, then write the findings.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Turn this research into an implementation task and decide the next engineering step.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "docs-project-personals",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Define the contract for ai-docs/project/personals.md so our writing flow knows which persona fields are required.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review whether the personas document clearly captures user goals, pains, motivations, needs, and constraints.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What should ai-docs/project/personals.md contain before we prioritize features and scenarios?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write acceptance criteria for the new onboarding flow in the PRD.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Design a better onboarding UX flow for administrators and end users.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Update status.json with the current stage, blockers, and next action.",
+      "shouldTrigger": false
+    }
+  ]
+}

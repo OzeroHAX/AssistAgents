@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import os from 'node:os';
-import { mkdtemp, writeFile, mkdir, stat } from 'node:fs/promises';
+import { mkdtemp, writeFile, mkdir, readFile, stat } from 'node:fs/promises';
 
 import {
   cleanupWorkspaceTransientState,
@@ -43,6 +43,7 @@ import {
   buildStaticValidation,
   renderStaticValidationMarkdown,
 } from '../templates/skills/skill-authoring/scripts/content/validate-skill.mjs';
+import { renderSimpleDiff } from '../templates/skills/skill-authoring/scripts/content/run-report.mjs';
 import { buildDescriptionPrompt } from '../templates/skills/skill-authoring/scripts/trigger/improve-description.mjs';
 import {
   evaluateTriggerDecisionState,
@@ -376,10 +377,40 @@ test('buildStaticValidation emits compactness advisories for verbose but valid s
   assert.ok(report.advisories.some((advisory: string) => /skill body is/i.test(advisory)));
   assert.ok(report.advisories.some((advisory: string) => /when_to_use/i.test(advisory) || /semantically repetitive/i.test(advisory)));
   assert.ok(report.metrics.sectionWordCounts.when_to_use > 0);
-  assert.match(renderStaticValidationMarkdown(report), /Advisories/);
-  assert.match(renderStaticValidationMarkdown(report), /Quality Rubric/);
+  const markdown = renderStaticValidationMarkdown(report);
+  assert.match(markdown, /Advisories/);
+  assert.match(markdown, /Quality Rubric Summary/);
+  assert.match(markdown, /\| Metric \| Score \| Reason \| Improvement \|/);
+  assert.match(markdown, /\| Scope Coherence \| `\d+\/10` \|/);
+  assert.doesNotMatch(markdown, /- Scope Coherence: \d+\/10/);
   assert.ok(report.qualityRubric.metrics.some((metric: { id: string; score: number }) => metric.id === 'concision' && metric.score < 8));
   assert.ok(report.qualityRubric.metrics.every((metric: { reason: string; improvement: string }) => metric.reason.length > 0 && metric.improvement.length > 0));
+});
+
+test('renderSimpleDiff emits fenced diff blocks for OpenCode highlighting', () => {
+  const diff = renderSimpleDiff('line one\nline two', 'line one\nline three');
+
+  assert.match(diff, /^# Suggested Skill Diff\n\n```diff\n/);
+  assert.match(diff, /\n line one\n- line two\n\+ line three\n```/);
+});
+
+test('skill-authoring preview contract requires visible rubric table and diff fence in chat', async () => {
+  const [skillText, checklistText, commandText, historyText] = await Promise.all([
+    readFile('templates/skills/skill-authoring/SKILL.md', 'utf8'),
+    readFile('templates/skills/skill-authoring/references/interactive-checklist.md', 'utf8'),
+    readFile('templates/commands/skill-authoring.md', 'utf8'),
+    readFile('templates/skills/skill-authoring/references/interactive-run-history.md', 'utf8'),
+  ]);
+
+  assert.match(skillText, /visible Markdown rubric table/i);
+  assert.match(skillText, /diff fence language exactly `diff`/i);
+  assert.match(skillText, /canonical git-style unified diff headers/i);
+  assert.match(checklistText, /visible Markdown rubric table in chat/i);
+  assert.match(checklistText, /opening fence language exactly `diff`/i);
+  assert.match(checklistText, /diff --git a\/<target-path> b\/<target-path>/i);
+  assert.match(commandText, /compact rubric table plus a fenced `diff` block/i);
+  assert.match(commandText, /canonical git-style patch for the target path/i);
+  assert.match(historyText, /canonical git-style unified diff headers/i);
 });
 
 test('buildDescriptionPrompt includes failed and false triggers', () => {

@@ -1,0 +1,27 @@
+{
+  "skill": "docs-report-bug-reporting",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Write a bug report for the CSV import crash with reproduction steps, expected vs actual behavior, logs, and priority.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Document this regression as a defect report under ai-docs/reports/bug-reports/, including environment, impact, and screenshots.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a test report summarizing the regression suite results and all discovered issues.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Fix the CSV import crash and add automated tests for the parser.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Draft a root cause analysis for why the import pipeline crashed in production.",
+      "shouldTrigger": false
+    }
+  ]
+}

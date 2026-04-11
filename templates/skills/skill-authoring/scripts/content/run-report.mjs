@@ -37,18 +37,18 @@ function emitProgress(enabled, message) {
   process.stderr.write(`[skill-authoring][report] ${message}\n`);
 }
 
-function renderSimpleDiff(beforeText, afterText) {
+export function renderSimpleDiff(beforeText, afterText) {
   const beforeLines = beforeText.split('\n');
   const afterLines = afterText.split('\n');
   const maxLength = Math.max(beforeLines.length, afterLines.length);
-  const lines = ['# Suggested Skill Diff', ''];
+  const lines = ['# Suggested Skill Diff', '', '```diff'];
 
   for (let index = 0; index < maxLength; index += 1) {
     const beforeLine = beforeLines[index];
     const afterLine = afterLines[index];
     if (beforeLine === afterLine) {
       if (typeof beforeLine === 'string') {
-        lines.push(`  ${beforeLine}`);
+        lines.push(` ${beforeLine}`);
       }
       continue;
     }
@@ -60,6 +60,7 @@ function renderSimpleDiff(beforeText, afterText) {
     }
   }
 
+  lines.push('```', '');
   return `${lines.join('\n')}\n`;
 }
 

@@ -30,5 +30,7 @@ Routing rules:
 Output expectation:
 - In `check`, produce review findings and, when justified, a non-applied proposal.
 - In `check`, keep prepared draft files and prepared test files under `ai-docs/skill-authoring/**` until the user explicitly chooses the final apply decision.
+- In `check`, the visible preview in chat should include a compact rubric table plus a fenced `diff` block, not only artifact paths and bullet summaries.
+- In `check`, format the visible diff as a canonical git-style patch for the target path; keep temporary draft paths only in the separate apply-route lines.
 - In `create` and `improve`, use preview-before-apply and one explicit final decision prompt in chat: `apply`, `reject`, or `revise: ...`.
 - Persist interactive and benchmark artifacts under `ai-docs/skill-authoring/**` only as required by `skill-authoring`.

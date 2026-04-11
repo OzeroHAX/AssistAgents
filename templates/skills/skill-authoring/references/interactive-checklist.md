@@ -51,7 +51,7 @@ If any of these answers are missing or contradictory, ask follow-up questions be
 If the user wants a repair proposal after validation, also prepare:
 
 - the inferred-summary record and any user correction
-- a rubric table with `1..10` scores, reasons, and improvements
+- a Markdown rubric table with `1..10` scores, reasons, and improvements
 - an exact non-applied diff
 - detailed rationale for each suggested change
 - any prepared trigger tests under `after/tests/`, to be mapped into `<skill-dir>/assets/tests/` only if the user later chooses `apply`
@@ -72,11 +72,16 @@ Before any write, show:
 2. why each change is needed
 3. the exact diff or initial draft
 4. which files are included in the proposal package
-5. which rubric metrics are currently weakest and why
+5. a visible Markdown rubric table in chat, including at least the overall score/outcome and the currently weakest metrics with short reasons
 6. the skill name plus the exact future apply route from the prepared draft to the target path
 7. the final decision prompt should follow immediately after the preview rather than through a separate continuation step
 
+Do not replace the visible rubric table with a plain bullet summary when the preview already discusses rubric quality.
 Prefer rendering the visible diff as a fenced `diff` code block and omit timestamp noise when it does not help the user's decision.
+Keep the opening fence language exactly `diff` and keep the raw `+` and `-` line prefixes intact so OpenCode can render added and removed lines distinctly when supported by the client.
+Prefer canonical git-style unified diff headers in the visible preview:
+`diff --git a/<target-path> b/<target-path>` then `--- a/<target-path>` and `+++ b/<target-path>`.
+Do not put the prepared draft path under `ai-docs/skill-authoring/interactive-runs/**` into the visible diff header; keep that path only in the separate future apply route lines.
 For supporting files such as trigger-test JSON, summarize the file purpose and saved path instead of dumping the full file contents into chat unless the user explicitly asked to inspect them.
 If target test files are part of scope, describe them as future apply routes or scope-if-applied, not as already-written target files.
 

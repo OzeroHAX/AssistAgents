@@ -1,0 +1,31 @@
+{
+  "skill": "coder-frontend-ui-ux",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review our checkout flow UX: keyboard navigation is awkward, loading states are inconsistent, and error recovery after payment failure is confusing.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Help define form validation behavior, focus handling, and empty/error states for the onboarding screens.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We need frontend UX acceptance criteria for account settings, including interaction states, accessibility, and perceived responsiveness.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a design token palette, typography scale, and spacing system for our web app.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the React checkout components and add Playwright tests for the main purchase flow.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write the sprint plan and project brief for the dashboard redesign rollout.",
+      "shouldTrigger": false
+    }
+  ]
+}

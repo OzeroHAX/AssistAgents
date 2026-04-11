@@ -120,6 +120,7 @@ description: Use when creating, validating, or revising OpenCode skills, includi
     <step>For reference reading and target inspection, prefer native file-reading, glob, and search tools. Do not fall back to ad-hoc `python -c` or shell dump commands unless the task truly requires a bundled Python script.</step>
     <step>Read the rubric metrics from `references/scoring-model.md` and score the skill qualitatively, not only structurally.</step>
     <step>For each rubric metric, capture a `1..10` score plus a short reason and improvement note in the report artifacts.</step>
+    <step>When rubric scores are shown in chat or markdown artifacts, render them as a Markdown table with `Metric`, `Score`, `Reason`, and `Improvement` columns; prefer inline code formatting for scores and outcomes.</step>
     <step>Also verify that the knowledge is placed in the right form: core contract in `SKILL.md`, stable narrow detail in `references/`, project truth in project files, broad variable detail left to external on-demand lookup, and deterministic behavior in `scripts/`.</step>
     <step>After deterministic validation, ask follow-up questions guided by `references/interactive-checklist.md` to assess whether the skill is specific, reusable, and behaviorally valid.</step>
     <step>For interactive create or improve flows, do not run isolated runtime evals by default.</step>
@@ -156,8 +157,13 @@ description: Use when creating, validating, or revising OpenCode skills, includi
     <step>When isolated checks find problems, place diagnoses, scores, metrics, and any suggested corrected skill under the run directory and let the user decide whether to replace the source skill.</step>
   </phase>
   <phase name="finalize">
-    <step>Before writing changes in an interactive chat flow, prepare the proposal package under the interactive run directory, then send a user-visible chat message containing a compact proposal summary in the active session language plus the exact diff.</step>
+    <step>Before writing changes in an interactive chat flow, prepare the proposal package under the interactive run directory, then send a user-visible chat message containing a compact proposal summary in the active session language, a compact visible Markdown rubric table, plus the exact diff.</step>
+    <step>For `check` previews, the visible rubric table must appear in the chat message itself, not only inside saved validation artifacts. Include at least overall score/outcome and the weakest metrics with short reasons.</step>
+    <step>Do not collapse rubric quality into plain bullets only when a preview is already presenting validation results; keep the visible table and optionally add one short sentence after it.</step>
     <step>When showing a diff in chat, prefer a fenced `diff` code block and omit timestamp noise when it does not add decision value.</step>
+    <step>Keep the diff fence language exactly `diff` and preserve raw `+` and `-` prefixes instead of converting the diff into prose or list items.</step>
+    <step>Prefer canonical git-style unified diff headers in the visible preview: `diff --git a/<target-path> b/<target-path>`, then `--- a/<target-path>` and `+++ b/<target-path>`.</step>
+    <step>Do not use the temporary prepared draft path under `ai-docs/skill-authoring/interactive-runs/**` as the `+++` header inside the visible diff. Keep the draft path only in the separate future apply route lines.</step>
     <step>In `quick` mode, the proposal package may remain entirely in-memory; preview-first approval still remains mandatory.</step>
     <step>For a non-applied `check` preview, the visible chat close should normally stop after the compact status and scope summary. Do not append a separate closing line like "changes are not applied" when that state is already implicit from the non-applied proposal.</step>
     <step>For a non-applied `check` preview, show the exact diff for the prepared skill draft in chat, but do not dump the full contents of supporting JSON test files unless the user explicitly asked for those contents.</step>

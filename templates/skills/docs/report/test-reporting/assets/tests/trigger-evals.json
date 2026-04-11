@@ -1,0 +1,39 @@
+{
+  "skill": "docs-report-test-reporting",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Write a test report for the checkout regression run and save it under ai-docs/reports/test-reports/checkout-regression.md.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prepare a QA report for the login changes with covered scenarios, failures, and discovered issues.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a release verification report for the mobile auth fixes with passed checks, blockers, and linked bug reports.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Summarize the verification scope and run results in a test report for the payment retry changes.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run regression testing for checkout and tell me what breaks.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Draft a bug report for the crash in the export dialog with steps to reproduce.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a test plan for payment retries and edge cases before implementation starts.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Explain how test reports and bug reports are organized in ai-docs.",
+      "shouldTrigger": false
+    }
+  ]
+}

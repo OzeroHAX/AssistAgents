@@ -1,0 +1,31 @@
+{
+  "skill": "docs-project-brief",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review whether ai-docs/project/brief.md clearly defines the project goal, problem statement, MVP scope, and constraints.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What should ai-docs/project/brief.md contain before we start writing the PRD?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Need the document contract for the project brief so another planning skill can author it consistently.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement the MVP tasks described in the brief.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write the PRD with functional requirements and acceptance criteria.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Define the architecture document for the system components and interfaces.",
+      "shouldTrigger": false
+    }
+  ]
+}

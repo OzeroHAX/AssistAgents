@@ -1,0 +1,31 @@
+{
+  "skill": "docs-project-prd",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Draft the contract for ai-docs/project/prd.md so the team knows what functional requirements, non-functional requirements, and acceptance criteria belong there.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review whether this request belongs in ai-docs/project/prd.md or in another product document.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What should ai-docs/project/prd.md cover before architecture and implementation start?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement the API described in the PRD and add tests.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write the architecture contract for ai-docs/project/arch.md.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create a short project brief with goals and MVP boundaries.",
+      "shouldTrigger": false
+    }
+  ]
+}
