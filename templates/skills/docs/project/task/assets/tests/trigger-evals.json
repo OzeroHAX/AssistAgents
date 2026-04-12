@@ -1,0 +1,31 @@
+{
+  "skill": "docs-project-task",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We need the document contract for ai-docs/project/tasks so reviewers know what each implementation task markdown must contain.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What should a project task document include before the team starts implementation?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review whether this task markdown has scope, dependencies, acceptance criteria, definition of done, and validation signals.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Decompose this epic into implementation-ready task docs under ai-docs/project/tasks.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Update ai-docs/project/tasks/BE-12-payment-retries.md from the latest epic and architecture notes.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the payment retry worker and add integration tests.",
+      "shouldTrigger": false
+    }
+  ]
+}

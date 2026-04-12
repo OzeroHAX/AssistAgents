@@ -1,0 +1,31 @@
+{
+  "skill": "task-use-research-web-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Find the latest Stripe subscription lifecycle docs and official migration notes for the current API version. Summarize the key changes with direct links.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Compare Zustand vs Jotai for React 18 apps: TypeScript ergonomics, bundle size, and recent benchmarks. Include sources.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Find the official Next.js 14 documentation for server action caching behavior and list the relevant pages with caveats.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Trace where invoice totals are calculated across the billing code and cite exact files and symbols.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Learn about React.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan a migration from Zustand to Jotai for our app and propose the code changes.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "task-use-creator-decomposition-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Break down the user onboarding feature into draft tasks with dependencies, risks, and sequencing.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Decompose the payment integration epic into a phased task list and call out open questions.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Turn these requirements into a draft implementation breakdown for one feature, including critical path and assumptions.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Plan the whole product roadmap for the next two quarters.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Choose the final priorities and acceptance criteria for this epic.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the onboarding flow in React and write the code changes.",
+      "shouldTrigger": false
+    }
+  ]
+}

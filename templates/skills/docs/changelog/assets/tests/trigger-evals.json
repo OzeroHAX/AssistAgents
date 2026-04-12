@@ -1,0 +1,39 @@
+{
+  "skill": "docs-changelog",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Write a short changelog note for the new fast-replace installer mode and save it under ai-docs/changelogs/fast-replace.md.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create release notes for the new retry and backoff behavior in the web research integration.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Document the security hardening changes in a changelog entry for the latest release.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Summarize what changed in this task in a concise release-note style changelog.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write a setup guide for the installer flags and explain each prompt step by step.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create an operations guide for recovering from backup restore failures.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Explain how the docs folder is organized and where changelogs should live.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Draft a how-to guide for configuring retry backoff values in the web client.",
+      "shouldTrigger": false
+    }
+  ]
+}

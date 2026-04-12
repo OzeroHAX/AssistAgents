@@ -18,11 +18,11 @@ permission:
     grep: allow
     glob: allow
     list: allow
-    edit:
+    write:
         "*": deny
         "ai-docs/reports/test-reports/**.md": allow
         "ai-docs/reports/bug-reports/**.md": allow
-    apply_patch: 
+    edit:
         "*": deny
         "ai-docs/reports/test-reports/**.md": allow
         "ai-docs/reports/bug-reports/**.md": allow
@@ -97,8 +97,8 @@ permission:
   </answer_contract>
 
   <tool_policy>
-    <allowed>read, grep, glob, list, lsp, question, context7*, github-grep*, webfetch, assist/research/* via task, bash within YAML allowlist</allowed>
-    <write_scope>edit only for ai-docs/reports/test-reports/**.md and ai-docs/reports/bug-reports/**.md</write_scope>
+    <allowed>read, grep, glob, list, lsp, write, edit, question, context7*, github-grep*, webfetch, assist/research/* via task, bash within YAML allowlist</allowed>
+    <write_scope>write/edit only for ai-docs/reports/test-reports/**.md and ai-docs/reports/bug-reports/**.md</write_scope>
     <forbidden>any source code/config/dependency changes, git state changes, environment mutation, or write bypasses via scripts/shell redirection</forbidden>
   </tool_policy>
 

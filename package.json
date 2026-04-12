@@ -21,6 +21,13 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/cli.ts",
+    "dev:fast": "tsx src/cli.ts --fast-replace --language Russian",
+    "skill-authoring:validate": "node templates/skills/skill-authoring/scripts/content/validate-skill.mjs",
+    "skill-authoring:eval": "node templates/skills/skill-authoring/scripts/content/run-report.mjs",
+    "skill-authoring:parse": "node templates/skills/skill-authoring/scripts/shared/parse-events-cli.mjs",
+    "skill-authoring:trigger": "node templates/skills/skill-authoring/scripts/trigger/run-trigger-eval.mjs",
+    "skill-authoring:trigger:improve": "node templates/skills/skill-authoring/scripts/trigger/improve-description.mjs",
+    "skill-authoring:trigger:loop": "node templates/skills/skill-authoring/scripts/trigger/run-trigger-loop.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test",
     "prepack": "npm run build"

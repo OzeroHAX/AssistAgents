@@ -1,0 +1,31 @@
+{
+  "skill": "testing-browser-manual",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Use MCP to manually verify the checkout form in the browser, including validation errors, loading states, and console/network issues.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Manually check the login flow in browser snapshots at mobile and desktop widths and record focus, errors, and routing behavior.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design Playwright automation for the checkout and login flows.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Run a screenshot-only visual regression review for the marketing pages.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Manually verify auth API responses, status codes, and schemas with curl.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review the React code for the checkout form and suggest fixes for state bugs.",
+      "shouldTrigger": false
+    }
+  ]
+}

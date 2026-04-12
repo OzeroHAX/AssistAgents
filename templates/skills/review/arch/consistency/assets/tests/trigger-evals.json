@@ -1,0 +1,31 @@
+{
+  "skill": "review-arch-consistency",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this ADR update: a shared billing service now calls the notification module directly and introduces a new cross-layer dependency. Check whether the architecture stays consistent.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Assess whether this integration change duplicates an existing mechanism and conflicts with current architecture decisions or contracts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check whether splitting this module creates hidden coupling across layer boundaries and violates our accepted architecture rules.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Do a full architecture review for this platform redesign, including NFR trade-offs, rollout risks, and rollback strategy.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Rewrite the ADR wording and update the architecture diagram so the document is easier to read.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Run a code review for correctness, test coverage, and maintainability before merge.",
+      "shouldTrigger": false
+    }
+  ]
+}

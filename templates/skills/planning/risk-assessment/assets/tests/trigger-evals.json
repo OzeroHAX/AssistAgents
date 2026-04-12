@@ -1,0 +1,23 @@
+{
+  "skill": "planning-risk-assessment",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Assess the risks of introducing an async invoice-generation worker before implementation and list mitigations plus residual risk decisions.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We plan to add a breaking orders schema migration; identify the data, reliability, and rollout risks with likelihood, impact, mitigations, and residual risk.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a file-by-file edit inventory for the new billing feature.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Define monitoring alerts and dashboards for the checkout launch.",
+      "shouldTrigger": false
+    }
+  ]
+}

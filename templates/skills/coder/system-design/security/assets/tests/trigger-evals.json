@@ -1,0 +1,35 @@
+{
+  "skill": "coder-system-design-security",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this service architecture for trust boundaries, secrets handling, and residual security risks before release.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We are designing a payments platform with PII, admin workflows, and third-party dependencies; choose security controls and release gates.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Assess the architecture for service-to-service auth, sensitive-data handling, and supply-chain exposure.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design the versioning and error model for a public HTTP API.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan a PostgreSQL schema migration with index changes and backfill safety.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Set timeout, retry, and idempotency policy for a Stripe integration.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a penetration testing checklist for the staging environment.",
+      "shouldTrigger": false
+    }
+  ]
+}

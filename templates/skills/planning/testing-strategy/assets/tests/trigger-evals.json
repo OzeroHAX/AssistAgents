@@ -1,0 +1,27 @@
+{
+  "skill": "planning-testing-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Plan the test strategy for a CSV export feature: what should we verify, which checks should be unit vs integration, and what sample data or environments are needed?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Before implementation, outline the verification strategy for a payment retry change, including regression coverage, fixtures, and acceptance signals.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define the rollout stages, monitoring checks, and rollback criteria for the payment retry change.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "List the files, services, and downstream systems impacted by the payment retry change.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement automated tests for the CSV export feature.",
+      "shouldTrigger": false
+    }
+  ]
+}

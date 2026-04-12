@@ -1,0 +1,27 @@
+{
+  "skill": "project-standart-prd",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "На основе brief собери PRD; если требований не хватает, сначала уточни их у меня и при необходимости добери исследование по рынку или интеграциям.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Обнови ai-docs/project/prd.md, а если найдешь несколько возможных вариантов scope, покажи варианты и попроси меня подтвердить выбор.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Сделай только brief по проекту и при необходимости изучи рынок.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Проведи отдельное исследование конкурентов и оформи research summary без PRD.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Спроектируй архитектуру сервиса по готовому PRD.",
+      "shouldTrigger": false
+    }
+  ]
+}

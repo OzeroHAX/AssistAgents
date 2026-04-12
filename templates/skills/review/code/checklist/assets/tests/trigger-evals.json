@@ -1,0 +1,27 @@
+{
+  "skill": "review-code-checklist",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Do a quick pre-merge review of this PR diff and tell me whether it passes the minimum checklist.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this code diff before merge and call out blocking checklist failures.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Perform a deep security audit of the auth service and enumerate exploitation paths.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Edit this PR and fix the failing tests for me.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review this architecture decision record for long-term consistency.",
+      "shouldTrigger": false
+    }
+  ]
+}

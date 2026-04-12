@@ -1,0 +1,27 @@
+{
+  "skill": "example-skill",
+  "agent": "doc",
+  "threshold": 0.8,
+  "cases": [
+    {
+      "id": "example-positive-01",
+      "promptFile": "prompts/example-positive-01.md",
+      "fixtureDir": "fixtures/example-repo",
+      "attachments": [],
+      "expectedFiles": ["ai-docs/changelogs/example.md"],
+      "requiredSkills": ["example-skill"],
+      "forbiddenSkills": [],
+      "allowedSkills": ["shared-base-rules", "shared-docs-paths", "example-skill"],
+      "strictUnexpectedSkills": false,
+      "assertions": [
+        {
+          "id": "mentions_example",
+          "kind": "regex_any",
+          "description": "Mentions the expected feature by name",
+          "patterns": ["example"],
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

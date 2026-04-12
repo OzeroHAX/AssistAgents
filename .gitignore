@@ -13,7 +13,13 @@ npm-debug.log*
 
 # OpenCode local assets
 .opencode/
+.codex
+.codex/
 ai-docs/
+eval/runtime
 
 # Pack artifacts
 *.tgz
+
+# dev folder
+dev/

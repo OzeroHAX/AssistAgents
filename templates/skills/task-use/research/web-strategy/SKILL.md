@@ -1,77 +1,73 @@
 ---
 name: task-use-research-web-strategy
-description: Use for external web research with primary sources and links; not for local repository analysis
+description: Use for one scoped external web research question with primary-source links; not for local repository analysis, planning, or broad open-ended delegation
 ---
 
 <when_to_use>
-  <trigger>Need up-to-date external documentation or best practices</trigger>
-  <trigger>Compare tools, libraries, or approaches with evidence</trigger>
-  <trigger>Find solutions for known errors or issues</trigger>
-  <trigger>Collect code examples or tutorials from the web</trigger>
+  <trigger>Need current official docs, standards, vendor guidance, or best practices</trigger>
+  <trigger>Need a focused comparison of external tools, libraries, or approaches with evidence</trigger>
+  <trigger>Need public-web research for a known issue, migration path, or implementation example</trigger>
 </when_to_use>
 
-<task_request>
-  <principles>
-    <principle>Be specific about technology and version</principle>
-    <principle>One request = one topic/goal (1-3 subpoints max)</principle>
-    <principle>State expected output format</principle>
-    <principle>Include context about intended use</principle>
-    <principle>Specify depth level when needed: standard, deep, expert</principle>
-    <principle>Multi-stage research is orchestrated by the caller (separate requests per stage)</principle>
-  </principles>
-  <examples>
-    <good>
-      <task>Find current Next.js 14 App Router documentation: server components patterns, data fetching, and caching strategies</task>
-      <why>Specific version, clear topics, actionable scope</why>
-    </good>
-    <good>
-      <task>Compare Zustand vs Jotai for React state management: performance benchmarks, TypeScript support, bundle size</task>
-      <why>Comparative, measurable criteria, focused scope</why>
-    </good>
-    <bad>
-      <task>Learn about React</task>
-      <why>Too broad, no specific goal or deliverable</why>
-    </bad>
-  </examples>
-</task_request>
+<when_not_to_use>
+  <item importance="critical">Do not use for local repository analysis or doc-plus-code tracing.</item>
+  <item importance="critical">Do not use for broad learning or open-ended delegation without one research question and one deliverable.</item>
+  <item importance="high">Do not use when the main task is planning, code changes, or work the main agent should keep locally.</item>
+</when_not_to_use>
 
-<search_principles>
-  <principle>Define a single, testable research question before searching</principle>
-  <principle>Extract core keywords and synonyms; iterate queries based on results</principle>
-  <principle>Use operators: quotes for phrases, AND/OR/NOT to scope, site: for trusted domains</principle>
-  <principle>Prefer primary sources (official docs, standards, vendor pages, repo docs)</principle>
-  <principle>Evaluate sources for authority, accuracy, purpose, and relevance</principle>
-  <principle>Check freshness: publication/last updated date when it matters</principle>
-  <principle>Triangulate key claims using at least two independent sources</principle>
-  <principle>Record sources with links and dates while researching</principle>
-</search_principles>
+<input_requirements>
+  <required>One scoped research question and one expected deliverable</required>
+  <required>Technology, product, standard, or error context; include version when it matters</required>
+  <required>Evidence expectations: primary sources, direct links, and freshness needs</required>
+  <optional>Depth level: standard, deep, expert</optional>
+</input_requirements>
+
+<workflow>
+  <step order="1">Confirm the question, deliverable, scope boundary, and whether freshness or version specificity matters.</step>
+  <step order="2">Choose `official-docs-first`, `comparison`, or `issue-resolution` based on the request.</step>
+  <step order="3">Search primary sources first, add focused secondary sources only when needed, and record links plus dates for material claims.</step>
+  <step order="4">Return the answer first, then findings, direct links, and uncertainty or conflicting evidence.</step>
+</workflow>
+
+<request_shaping>
+  <principle>Name the technology and version when relevant</principle>
+  <principle>Keep the request to one question or one comparison with 1-3 criteria</principle>
+  <principle>State the expected output shape and intended use</principle>
+</request_shaping>
+
+<research_principles>
+  <principle>Prefer official docs, standards, vendor pages, issue trackers, or repository docs before blogs and tutorials</principle>
+  <principle>Use focused queries and site filters only as needed</principle>
+  <principle>Check freshness when version, API behavior, or best practices may have changed</principle>
+  <principle>Separate confirmed findings, uncertainties, and conflicts; triangulate material claims when possible</principle>
+</research_principles>
 
 <research_strategies>
-  <strategy name="multi-stage" use_for="Complex topics requiring depth">
-    <stage order="1" goal="overview">Broad landscape scan</stage>
-    <stage order="2" goal="deep-dive">Detailed analysis of selected options</stage>
-    <stage order="3" goal="validation">Edge cases and real-world examples</stage>
-    <note>One topic per request; caller coordinates multi-stage research</note>
+  <strategy name="official-docs-first" use_for="Documentation, standards, or best-practice lookups">
+    <step order="1">Find the canonical source</step>
+    <step order="2">Extract the relevant sections and version details</step>
   </strategy>
-  <strategy name="comparative" use_for="Technology decisions">
-    <template>Compare [A] vs [B] for [use-case]: [criteria-1], [criteria-2], [criteria-3]. Include recent benchmarks.</template>
+  <strategy name="comparison" use_for="Tool or library choices">
+    <step order="1">Define the comparison criteria</step>
+    <step order="2">Collect evidence from official sources and credible benchmarks</step>
   </strategy>
-  <strategy name="problem-solving" use_for="Debugging and issues">
-    <template>Find solutions for [specific error/issue] in [technology] [version]. Include root cause and workarounds.</template>
+  <strategy name="issue-resolution" use_for="Known errors or migration questions">
+    <step order="1">Search the exact issue with version context</step>
+    <step order="2">Prefer official issue trackers, release notes, and vendor guidance</step>
   </strategy>
 </research_strategies>
 
 <output_requirements>
-  <requirement>Provide a short summary and bullet findings</requirement>
-  <requirement>List sources with direct links</requirement>
-  <requirement>Highlight uncertainties, conflicts, or missing evidence</requirement>
+  <requirement>Answer the delegated question directly before background detail</requirement>
+  <requirement>Provide bullet findings and a source list with direct links</requirement>
+  <requirement>Highlight uncertainties, stale evidence, conflicts, or missing primary sources</requirement>
 </output_requirements>
 
-<agent_limitations>
-  <cannot>Access local project files or codebase</cannot>
-  <cannot>Edit or write files</cannot>
-  <cannot>Remember previous sessions</cannot>
-</agent_limitations>
+<validation>
+  <item importance="critical">The request stays scoped to one external research goal and one deliverable.</item>
+  <item importance="critical">Material claims are backed by direct links, and uncertainty is separated from confirmed findings.</item>
+  <item importance="high">Primary sources are preferred, and the boundary versus local-research skills remains explicit.</item>
+</validation>
 
 <depth_levels>
   <level name="standard">Summary + key sources + essential facts</level>

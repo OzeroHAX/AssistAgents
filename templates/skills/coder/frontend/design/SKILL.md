@@ -1,14 +1,20 @@
 ---
 name: coder-frontend-design
-description: Frontend design system practices: tokens, typography, color, layout, and component consistency.
+description: Use when defining or reviewing a web frontend design system: tokens, visual foundations, responsive layout, and component state consistency.
 ---
 
 <when_to_use>
   <trigger>Creating or updating a design system for web UI</trigger>
   <trigger>Defining visual foundations before implementation</trigger>
   <trigger>Aligning design decisions between design and engineering</trigger>
-  <trigger>Reviewing UI consistency and scalability risks</trigger>
+  <trigger>Reviewing system-level UI consistency and scalability risks</trigger>
 </when_to_use>
+
+<when_not_to_use>
+  <item importance="critical">Do not use for project planning, document authoring, or runtime test execution.</item>
+  <item importance="high">Do not use for isolated implementation bugs or one-off styling fixes that do not change the design system contract.</item>
+  <item importance="high">Do not use when a narrower review, testing, or domain-specific skill is the better fit.</item>
+</when_not_to_use>
 
 <input_requirements>
   <required>Product context and target platforms (web/mobile web/desktop web)</required>
@@ -17,6 +23,14 @@ description: Frontend design system practices: tokens, typography, color, layout
   <optional>Existing design system or UI kit</optional>
   <optional>Current component library and theming model</optional>
 </input_requirements>
+
+<workflow>
+  <step order="1">Capture product context, target platforms, accessibility target, brand constraints, and the current system baseline before proposing changes.</step>
+  <step order="2">Define or review foundations through tokens: primitive, semantic, and component layers; semantic color roles; typography and spacing scales; and responsive layout rules.</step>
+  <step order="3">Map foundations into component contracts: required variants, interactive states, theming behavior, and rules for avoiding one-off patterns.</step>
+  <step order="4">Check system quality: contrast, consistency, migration impact on existing components, exception scope, and handoff artifacts needed by design and engineering.</step>
+  <step order="5">Return the foundation decisions, component/state coverage, known risks, exceptions, and standards used.</step>
+</workflow>
 
 <core_principles>
   <principle priority="P0">Use design tokens as the single source of truth; avoid hardcoded visual values in components</principle>
@@ -27,16 +41,16 @@ description: Frontend design system practices: tokens, typography, color, layout
   <principle priority="P1">Use responsive grid rules and explicit breakpoints/window classes; do not design for fixed devices only</principle>
   <principle priority="P1">Define component variants and states (default, hover, focus, active, disabled, loading)</principle>
   <principle priority="P1">Keep component APIs minimal and reusable; avoid one-off visual patterns without system value</principle>
-  <principle priority="P2">Document handoff artifacts: token mapping, component anatomy, and edge-case behavior</principle>
+  <principle priority="P2">Document token mapping, component anatomy, and edge-case behavior for handoff</principle>
 </core_principles>
 
 <checklist>
-  <item>Token inventory exists and covers color, typography, spacing, radius, elevation, motion</item>
+  <item>Token inventory exists and covers color, typography, spacing, radius, elevation, and motion</item>
   <item>Semantic tokens are mapped to UI roles and component parts</item>
   <item>Typography rules include font sizes, line-height, and usage contexts</item>
   <item>Layout rules define container widths, columns, gutters, and responsive behavior</item>
   <item>Interactive states are specified for all actionable components</item>
-  <item>Dark/light or themed variants use tokens, not duplicated raw values</item>
+  <item>Dark/light or themed variants use tokens instead of duplicated raw values</item>
 </checklist>
 
 <quality_rules>
@@ -46,6 +60,12 @@ description: Frontend design system practices: tokens, typography, color, layout
   <rule importance="high">Exceptions are documented with scope and expiration criteria</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">Required outputs, constraints, and boundaries are explicit and complete.</item>
+  <item importance="critical">The result can be verified through explicit tokens, component/state coverage, accessibility checks, or implementation review evidence.</item>
+  <item importance="high">The skill stays inside design-system scope and does not drift into unrelated planning, testing, or one-off implementation fixes.</item>
+</validation>
+
 <do_not>
   <item importance="critical">Do not hardcode colors, spacing, or typography in feature-level UI</item>
   <item importance="high">Do not introduce new variants before checking existing system patterns</item>
@@ -54,10 +74,10 @@ description: Frontend design system practices: tokens, typography, color, layout
 </do_not>
 
 <output_requirements>
-  <requirement>List chosen foundations (tokens, typography, color roles, layout rules)</requirement>
-  <requirement>List component patterns and required states</requirement>
-  <requirement>List known risks and consistency trade-offs</requirement>
-  <requirement>Provide references to standards and system guidance used</requirement>
+  <requirement>List the chosen foundations: token layers, semantic color roles, typography/spacing scales, and layout rules</requirement>
+  <requirement>List component patterns, required variants/states, and theming behavior</requirement>
+  <requirement>List migration impact, known risks, and approved exceptions</requirement>
+  <requirement>Provide the standards or design-system guidance used</requirement>
 </output_requirements>
 
 <references>

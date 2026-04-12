@@ -1,0 +1,27 @@
+{
+  "skill": "planning-migration-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Plan a zero-downtime migration from integer user IDs to UUIDs across our Postgres schema and downstream events. I need phases, a compatibility window, and verification checks.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define a migration strategy for versioning our public API response while old mobile clients still rely on the previous contract.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We need a rollback plan for the new billing schema rollout if error rate spikes after cutover.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Help implement the SQL migration and write the backfill script for moving order status history into a new table.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create a test strategy for validating the data migration before release.",
+      "shouldTrigger": false
+    }
+  ]
+}

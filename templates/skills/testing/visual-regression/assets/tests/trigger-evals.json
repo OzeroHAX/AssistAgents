@@ -1,0 +1,31 @@
+{
+  "skill": "testing-visual-regression",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Compare the redesigned product card against the approved screenshot baseline on desktop, tablet, and mobile viewports.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run visual regression on the checkout modal with fixed seed data, dark theme, and masked timestamps, then attach diff artifacts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check whether the homepage still matches the release baseline after the CSS update and report changed visual regions.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Manually test the signup flow in the browser and inspect console and network errors while you click through it.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write Playwright code for screenshot testing and baseline management.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review this CSS refactor and explain possible visual risks without running any screenshot comparison.",
+      "shouldTrigger": false
+    }
+  ]
+}

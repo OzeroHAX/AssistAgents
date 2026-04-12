@@ -1,0 +1,31 @@
+{
+  "skill": "coder-rules-requirements",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Before implementation, turn this backend ticket into explicit MUST/SHOULD requirements, acceptance criteria, and verification evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review these feature requirements and tell me which acceptance criteria, quality gates, or constraints are missing before coding starts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a requirement table with REQ-ID, verification method, evidence target, and approved exceptions for this API change.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement the API change with the smallest safe diff and tell me which checks passed.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Classify this task and write the rollout and rollback plan for the migration.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Investigate why checkout fails in production and prove the root-cause fix with a repro.",
+      "shouldTrigger": false
+    }
+  ]
+}

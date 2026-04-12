@@ -1,0 +1,31 @@
+{
+  "skill": "project-standart-decomposition",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Decompose the current standard-flow epics into implementation-ready task docs with acceptance criteria, definition of done, dependencies, and estimates.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Update ai-docs/project/tasks after the epic changes and keep traceability back to the PRD, use cases, and architecture.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Revise the standard discovery task breakdown to expose sequencing, critical path, and scope-cut options before development starts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create prioritized epic documents from the PRD before task decomposition begins.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write the architecture document for service boundaries, API contracts, and data flows.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the payment retry feature and add automated tests.",
+      "shouldTrigger": false
+    }
+  ]
+}

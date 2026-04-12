@@ -1,7 +1,13 @@
 ---
 name: testing-api-manual
-description: Manually verify API behavior with reproducible requests and response checks; not contract version compatibility governance
+description: Use for manual API checks with reproducible HTTP requests and explicit response verification; not contract compatibility governance or automation design
 ---
+
+<when_to_use>
+  <trigger>Manual API verification from endpoint contracts, examples, or acceptance criteria</trigger>
+  <trigger>Manual endpoint behavior checks against approved environments</trigger>
+  <trigger>Need reproducible curl or HTTP requests with explicit pass-fail evidence</trigger>
+</when_to_use>
 
 <input_requirements>
   <required>Base environment URL</required>
@@ -12,14 +18,19 @@ description: Manually verify API behavior with reproducible requests and respons
   <optional>Rate limit and timeout constraints</optional>
 </input_requirements>
 
-<preparation>
-  <steps>
-    <step>Verify environment availability and basic health</step>
-    <step>Prepare tokens/keys and store them in variables</step>
-    <step>Prepare a minimal set of reusable curl templates</step>
-    <step>Set up request-id/correlation-id variables (if used)</step>
-  </steps>
-</preparation>
+<when_not_to_use>
+  <item importance="critical">Do not use for provider-consumer contract compatibility governance or versioning decisions.</item>
+  <item importance="critical">Do not use for automation design or as a replacement for implementation, planning, or static review work.</item>
+  <item importance="high">Do not use in production or destructive environments without explicit permission.</item>
+</when_not_to_use>
+
+<workflow>
+  <step>Confirm environment, auth, endpoint contracts, data assumptions, and destructive boundaries.</step>
+  <step>Prepare reproducible requests, variables, and correlation identifiers.</step>
+  <step>Define positive, negative, and edge scenarios with expected status, schema, and outcome.</step>
+  <step>Execute requests and record headers, parameters, dependencies, and responses.</step>
+  <step>Summarize pass-fail evidence, defects, and environment or data constraints.</step>
+</workflow>
 
 <execution_rules>
   <rule importance="critical">Every request must be reproducible</rule>
@@ -50,6 +61,18 @@ description: Manually verify API behavior with reproducible requests and respons
   <rule importance="high">Record request-id/correlation-id when available</rule>
   <rule importance="medium">If result recording is needed, use a single consistent format</rule>
 </quality_rules>
+
+<output_requirements>
+  <requirement>For each scenario, list the request, expected result, observed result, and pass-fail outcome.</requirement>
+  <requirement>Record environment assumptions, test data, and headers or parameters that materially affect behavior.</requirement>
+  <requirement>Separate positive, negative, and edge findings and include response snippets or request identifiers when relevant.</requirement>
+</output_requirements>
+
+<validation>
+  <item importance="critical">Scenarios or checks are reproducible and have explicit expected results.</item>
+  <item importance="critical">Environment, data, and execution constraints are recorded or assumed explicitly.</item>
+  <item importance="high">Result capture, pass-fail signals, or evidence recording are explicit.</item>
+</validation>
 
 <do_not>
   <item importance="critical">Do not run destructive requests in production</item>

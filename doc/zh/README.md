@@ -11,11 +11,12 @@
 
 1. [安装指南](./installation.md)
 2. [快速开始](./quick-start.md)
-3. [智能体及其使用场景](./agents.md)
-4. [集成与 API 密钥](./integrations-and-keys.md)
-5. [更新与备份](./update-and-backup.md)
-6. [故障排除](./troubleshooting.md)
-7. [常见问题](./faq.md)
+3. [Skill-Authoring 指南](./skill-authoring.md)
+4. [智能体及其使用场景](./agents.md)
+5. [集成与 API 密钥](./integrations-and-keys.md)
+6. [更新与备份](./update-and-backup.md)
+7. [故障排除](./troubleshooting.md)
+8. [常见问题](./faq.md)
 
 ## 包简介
 
@@ -35,7 +36,7 @@
 
 - 不带参数运行：根据仓库代码和配置自动识别语言。
 - 带参数运行：传入逗号分隔的语言列表，例如 `typescript,csharp`。
-- 输出位置：在当前仓库的 `.opencode/skills/coder/` 中创建或更新项目本地 skills。
+- 输出位置：在当前仓库的 `.opencode/skills/` 中创建或更新项目本地 skills。
 
 详细步骤与示例请查看[快速开始](./quick-start.md)。
 

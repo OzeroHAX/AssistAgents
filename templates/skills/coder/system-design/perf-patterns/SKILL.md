@@ -1,6 +1,6 @@
 ---
 name: coder-system-design-perf-patterns
-description: System-level performance pattern selection with measurable tradeoffs and SLO alignment.
+description: Use when choosing or reviewing system-level performance patterns under latency, throughput, scaling, or cost pressure.
 ---
 
 <when_to_use>
@@ -9,12 +9,22 @@ description: System-level performance pattern selection with measurable tradeoff
   <trigger>Reviewing performance bottlenecks and reliability tradeoffs</trigger>
 </when_to_use>
 
+<when_not_to_use>
+  <item importance="critical">Do not use for project planning, document authoring, or runtime test execution.</item>
+  <item importance="high">Do not use when a narrower review, testing, or domain-specific skill is the better fit.</item>
+</when_not_to_use>
 <input_requirements>
   <required>Current bottleneck description and baseline metrics</required>
   <required>Target SLO/SLI and error budget constraints</required>
   <required>Traffic profile (steady, bursty, hot keys, read/write ratio)</required>
   <required>Operational constraints (cost, team capacity, infra limits)</required>
 </input_requirements>
+
+<workflow>
+  <step>Gather baseline metrics, SLO or error-budget targets, traffic shape, and operational constraints, then identify the measured bottleneck and saturation signal.</step>
+  <step>Choose the smallest pattern set that relieves it, and state latency, consistency, cost, and operational tradeoffs.</step>
+  <step>Define expected SLI gain, observability guardrails, overload behavior, and rollout or rollback checks before recommending implementation.</step>
+</workflow>
 
 <pattern_catalog>
   <pattern>Cache-aside for read-heavy paths with tolerated staleness</pattern>
@@ -55,6 +65,11 @@ description: System-level performance pattern selection with measurable tradeoff
   <requirement>Rollout, monitoring, and rollback plan</requirement>
 </output_requirements>
 
+<validation>
+  <item importance="critical">Required outputs, constraints, and boundaries are explicit and complete.</item>
+  <item importance="critical">Decisions are traceable to measured bottlenecks, SLOs, and rollout guardrails, and verifiable from the summary or inspected artifacts.</item>
+  <item importance="high">The skill stays inside its coding/design scope and does not drift into unrelated planning or review work.</item>
+</validation>
 <references>
   <source url="https://aws.amazon.com/builders-library/using-load-shedding-to-avoid-overload/">AWS Builders Library: Load Shedding</source>
   <source url="https://sre.google/sre-book/service-level-objectives/">Google SRE: Service Level Objectives</source>

@@ -1,0 +1,31 @@
+{
+  "skill": "planning-scope-minimization",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We have a checkout regression after the tax patch. Give me the smallest safe fix plan with explicit non-goals, minimal verification, and a quick rollback path.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "An incident happens only for legacy tenants. I need a plan that limits the change surface to the nearest safe guard and avoids opportunistic cleanup.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Plan the minimal bug fix for a null pointer in invoice export. I want the narrowest change, rollback steps, and only the essential regression checks.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design the rollout strategy for a new billing feature across staged audiences with monitoring and stop points.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the production code fix for the invoice export null pointer and add tests.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Define in-scope and out-of-scope work for a broader checkout reliability refactor.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "docs-project-epic",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "What is the expected document contract for ai-docs/project/epics/*.md before we start decomposing work into tasks?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review whether our epic document template is missing scope, traceability, dependencies, or readiness criteria.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create prioritized epic documents from the PRD and write them under ai-docs/project/epics/.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the checkout epic and add backend tests for it.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "We need the epic document standard as supporting context for reviewing our project planning artifacts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write the PRD with functional and non-functional requirements for the new product.",
+      "shouldTrigger": false
+    }
+  ]
+}

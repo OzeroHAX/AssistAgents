@@ -1,0 +1,27 @@
+{
+  "skill": "planning-scope-definition",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Before we implement the billing rewrite, define what is in scope, what is out of scope, which assumptions we are making, and which open questions could still change the plan.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Scope this auth task for me: make the non-goals explicit, call out assumptions, and protect us from scope creep before we start implementation.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "List the exact backend files, frontend modules, and config files we need to edit for the billing rewrite, with the intended change in each one.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Analyze which services, contracts, and data flows could be affected if we change the billing rewrite now.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Build a testing strategy for the billing rewrite with test types, data needs, and acceptance signals.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "coder-rules-debug-requirements",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Investigate why the checkout API started returning 500s after the last deploy. I need a reproducible debug path, root cause, verified fix, and a regression test.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The mobile app crashes on launch for some users. Triage the issue, isolate the failing layer, and confirm the minimal root-cause fix with evidence.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We have an intermittent worker timeout. Help me build a minimal repro, instrument the failure, and prove the fix with before/after signals.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write implementation requirements for the new checkout flow and define acceptance criteria.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review this pull request for clean code issues and refactoring opportunities.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Run the end-to-end test suite and summarize the failures.",
+      "shouldTrigger": false
+    }
+  ]
+}

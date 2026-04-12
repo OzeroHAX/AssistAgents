@@ -1,0 +1,27 @@
+{
+  "skill": "project-fast-init",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Start a fast planning kickoff for a new product idea and define the goal, scope, timebox, minimal artifacts, and critical unknowns for the first iteration.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We already chose fast discovery. Prepare the initial kickoff with in-scope, out-of-scope, and the key unknowns before the next fast stage.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Choose whether this project should use fast or standart discovery mode before any planning starts.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Run a pulse-scan on integrations and compliance risks after fast-init so we can confirm escalation triggers.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Start implementing the backend endpoints for the MVP and wire up the runtime environment.",
+      "shouldTrigger": false
+    }
+  ]
+}

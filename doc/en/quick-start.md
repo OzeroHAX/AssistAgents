@@ -29,7 +29,7 @@ Run it via the `build/dev` agent.
 
 What this command does:
 
-- creates or updates skills only under `.opencode/skills/coder/` in the current repository;
+- creates or updates skills only under `.opencode/skills/` in the current repository;
 - auto-detects languages from code and configs when no arguments are provided;
 - supports an explicit comma-separated language list via `$ARGUMENTS`, for example:
 
@@ -42,6 +42,14 @@ When to run it:
 - right after installing/updating AssistAgents in a new project;
 - after significant stack changes (new language, framework, test runner, linter);
 - when you want to re-sync local coder skills with current repository state.
+
+## Skill-authoring
+
+If you want to create, check, or improve skills themselves, use `/skill-authoring` directly.
+
+You do not need to pick a runtime agent manually. The command routes to a dedicated authoring agent automatically.
+
+For the full workflow, see the [Skill-Authoring Guide](./skill-authoring.md).
 
 ## 4) Use the Recommended Delivery Loop
 

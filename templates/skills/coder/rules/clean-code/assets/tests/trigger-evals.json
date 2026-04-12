@@ -1,0 +1,31 @@
+{
+  "skill": "coder-rules-clean-code",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Implement this API change with the smallest safe diff, follow local patterns, and tell me which checks passed.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Refactor this parser to remove duplication, keep behavior unchanged, and verify the result with tests and lint.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Update the TypeScript handler with minimal edits, then list changed files, checks, and remaining risks.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Investigate why the integration tests are flaky and isolate the root cause before proposing a fix.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan the architecture for a new billing service and compare rollout options.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write deployment documentation for the release workflow and add examples for the team.",
+      "shouldTrigger": false
+    }
+  ]
+}

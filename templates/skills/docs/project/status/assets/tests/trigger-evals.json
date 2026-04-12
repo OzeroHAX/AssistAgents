@@ -1,0 +1,23 @@
+{
+  "skill": "docs-project-status",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "What is the contract for ai-docs/project/status.json and which core fields should it track before handoff?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review whether the project status tracker schema clearly defines phase, gate, blockers, and next_action.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Update ai-docs/project/status.json after the architecture stage and set the gate to PASS.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Fix the blocked status entry in status.json and add corrective_actions for the current planning stage.",
+      "shouldTrigger": false
+    }
+  ]
+}

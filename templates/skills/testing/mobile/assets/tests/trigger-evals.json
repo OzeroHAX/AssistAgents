@@ -1,0 +1,27 @@
+{
+  "skill": "testing-mobile",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Manually verify the iOS checkout flow after rotation, app backgrounding, and an LTE to offline to LTE transition.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check Android location permission denial handling and push notification recovery for a hybrid app.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write Appium automation for the Android login flow and add it to our mobile test suite.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Review the React Native code that handles notification permissions and background resume logic.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Manually verify the desktop checkout page in Chrome with DOM and console evidence.",
+      "shouldTrigger": false
+    }
+  ]
+}

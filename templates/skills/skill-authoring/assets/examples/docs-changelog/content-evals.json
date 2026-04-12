@@ -1,0 +1,113 @@
+{
+  "skill": "docs-changelog",
+  "agent": "doc",
+  "threshold": 0.9,
+  "cases": [
+    {
+      "id": "docs-changelog-fast-replace",
+      "promptFile": "prompts/changelog-fast-replace.md",
+      "fixtureDir": "fixtures/docs-space",
+      "attachments": [],
+      "expectedFiles": ["ai-docs/changelogs/fast-replace.md"],
+      "requiredSkills": ["docs-changelog"],
+      "forbiddenSkills": ["docs-guide"],
+      "allowedSkills": [
+        "shared-base-rules",
+        "shared-docs-paths",
+        "docs-changelog",
+        "review-doc-quality",
+        "review-doc-strategy"
+      ],
+      "strictUnexpectedSkills": false,
+      "assertions": [
+        {
+          "id": "mentions_fast_replace",
+          "kind": "regex_any",
+          "description": "Mentions fast-replace",
+          "patterns": ["fast-replace"],
+          "weight": 2
+        },
+        {
+          "id": "mentions_backup_or_non_interactive",
+          "kind": "regex_any",
+          "description": "Mentions skipped prompts or backup behavior",
+          "patterns": ["backup", "without prompts", "skipp(ed|ing) interactive"],
+          "weight": 1
+        },
+        {
+          "id": "substantial_length",
+          "kind": "min_length",
+          "description": "Response is substantial",
+          "min": 60,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "docs-changelog-security-hardening",
+      "promptFile": "prompts/changelog-security-hardening.md",
+      "fixtureDir": "fixtures/docs-space",
+      "attachments": [],
+      "expectedFiles": ["ai-docs/changelogs/security-hardening.md"],
+      "requiredSkills": ["docs-changelog"],
+      "forbiddenSkills": ["docs-guide"],
+      "allowedSkills": [
+        "shared-base-rules",
+        "shared-docs-paths",
+        "docs-changelog",
+        "review-doc-quality",
+        "review-doc-strategy"
+      ],
+      "strictUnexpectedSkills": false,
+      "assertions": [
+        {
+          "id": "mentions_security_hardening",
+          "kind": "regex_any",
+          "description": "Mentions security hardening",
+          "patterns": ["security", "hardening", "key", "warning"],
+          "weight": 2
+        },
+        {
+          "id": "release_note_style",
+          "kind": "min_length",
+          "description": "Response is substantial but concise",
+          "min": 50,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "docs-changelog-retry-backoff",
+      "promptFile": "prompts/changelog-retry-backoff.md",
+      "fixtureDir": "fixtures/docs-space",
+      "attachments": [],
+      "expectedFiles": ["ai-docs/changelogs/retry-backoff.md"],
+      "requiredSkills": ["docs-changelog"],
+      "forbiddenSkills": ["docs-guide"],
+      "allowedSkills": [
+        "shared-base-rules",
+        "shared-docs-paths",
+        "docs-changelog",
+        "review-doc-quality",
+        "review-doc-strategy"
+      ],
+      "strictUnexpectedSkills": false,
+      "assertions": [
+        {
+          "id": "mentions_retry_backoff",
+          "kind": "regex_any",
+          "description": "Mentions retry/backoff behavior",
+          "patterns": ["retry", "backoff", "transient", "fallback"],
+          "weight": 2
+        },
+        {
+          "id": "substantial_length",
+          "kind": "min_length",
+          "description": "Response is substantial",
+          "min": 50,
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

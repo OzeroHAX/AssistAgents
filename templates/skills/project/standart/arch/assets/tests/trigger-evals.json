@@ -1,0 +1,23 @@
+{
+  "skill": "project-standart-arch",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We already have the PRD and use cases. Create ai-docs/project/arch.md with components, interfaces, risks, and implementation guardrails before we split work into epics.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Update the project architecture document to reflect the new payment provider integration, migration constraints, and public API contract changes before epic planning.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Break the current epics into implementation-ready tasks with acceptance criteria and sequencing.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the authentication API and wire the frontend login form to it.",
+      "shouldTrigger": false
+    }
+  ]
+}

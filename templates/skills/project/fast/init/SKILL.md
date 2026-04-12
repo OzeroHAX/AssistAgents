@@ -1,52 +1,57 @@
 ---
 name: project-fast-init
-description: Quick project planning kickoff in one iteration (scope, goal, artifacts)
+description: Use when fast planning must set the first-iteration goal, scope, timebox, minimal artifacts, and critical unknowns before downstream fast stages
 ---
 
 <purpose>
-  <item>Capture the project goal, boundaries, and fast-planning readiness criteria</item>
-  <item>Prepare the minimum artifact set for a single iteration</item>
+  <item>Prepare the first fast-planning kickoff so downstream stages start with fixed boundaries.</item>
 </purpose>
 
 <when_to_use>
-  <item importance="critical">At the very start of fast planning for a new project or major initiative</item>
-  <item importance="high">When you need to move quickly from idea to an implementable plan without a long discovery phase</item>
+  <item importance="critical">After discovery mode is confirmed as `fast`, or when a new project needs first-iteration boundaries.</item>
+  <item importance="high">When the next fast stage depends on a quick goal, scope, timebox, and unknowns decision.</item>
 </when_to_use>
+
+<when_not_to_use>
+  <item importance="critical">Do not use to choose discovery mode, or after the fast kickoff boundaries are already fixed.</item>
+  <item importance="high">Do not use for pulse-scan, stack selection, detailed specification, implementation, delivery execution, or runtime work.</item>
+</when_not_to_use>
 
 <required_preload>
   <item>shared-base-rules</item>
 </required_preload>
 
-<inputs>
-  <required>User/stakeholder request in free form</required>
-  <optional>Constraints on timeline, budget, team, and compliance</optional>
-  <optional>Context of existing systems or integrations</optional>
-</inputs>
+<input_requirements>
+  <required>User or stakeholder request and the expected project outcome.</required>
+  <optional>Known constraints or system context that can change the first-iteration boundary.</optional>
+</input_requirements>
 
-<method>
-  <step>Define the goal as a measurable outcome, not a list of actions</step>
-  <step>Bound the fast iteration: define in-scope and out-of-scope</step>
-  <step>Set a timebox for one planning iteration (usually 60-120 minutes)</step>
-  <step>Define the minimum mandatory outputs of the fast flow</step>
-  <step>Identify critical unknowns that can block a one-iteration plan</step>
-</method>
+<workflow>
+  <step>Define the project goal as one measurable outcome for the fast iteration.</step>
+  <step>Fix the iteration boundary by stating explicit in-scope and out-of-scope items.</step>
+  <step>Set a concrete timebox and define the minimum artifacts required before the next fast stage.</step>
+  <step>List only the critical unknowns that can block the next fast decision, and escalate if they exceed the fast flow.</step>
+</workflow>
 
-<output_format>
-  <section>Goal</section>
-  <section>In scope</section>
-  <section>Out of scope</section>
-  <section>Timebox</section>
-  <section>Minimal artifacts to produce</section>
-  <section>Critical unknowns</section>
-</output_format>
+<output_requirements>
+  <requirement>Produce a structured kickoff result with exactly these sections: Goal, In scope, Out of scope, Timebox, Minimal artifacts to produce, Critical unknowns.</requirement>
+  <requirement>Make the goal measurable, the boundaries explicit, the timebox concrete, and each critical unknown a blocker or decision-driving question.</requirement>
+  <requirement>If critical unknowns can invalidate the fast flow, include an escalation note or next-step recommendation.</requirement>
+</output_requirements>
 
 <quality_rules>
-  <rule importance="critical">Task boundaries are explicitly defined and verifiable</rule>
-  <rule importance="critical">There is a completion criterion for planning itself (planning done), not implementation</rule>
-  <rule importance="high">The minimal artifact set is defined before detailed elaboration starts</rule>
+  <rule importance="critical">Task boundaries are explicitly defined and verifiable.</rule>
+  <rule importance="critical">There is a completion criterion for planning itself, not implementation.</rule>
+  <rule importance="high">The minimal artifact set is defined before detailed elaboration starts.</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">The kickoff result contains all required sections and each section is concrete enough to guide the next fast stage.</item>
+  <item importance="critical">Required preload skills are satisfied and the first-iteration boundary is fixed before completion.</item>
+  <item importance="high">The next phase handoff or escalation condition is explicit.</item>
+</validation>
+
 <do_not>
-  <item importance="critical">Do not move to implementation before fast-iteration boundaries are fixed</item>
-  <item importance="high">Do not expand scope without explicit escalation to the standard flow</item>
+  <item importance="critical">Do not move to implementation before fast-iteration boundaries are fixed.</item>
+  <item importance="high">Do not expand scope without explicit escalation to the standard flow.</item>
 </do_not>

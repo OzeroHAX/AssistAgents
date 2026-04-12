@@ -1,0 +1,15 @@
+{
+  "skill": "example-skill",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Update the changelog for the example feature and mention the rollout note.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write a general guide for the docs folder structure.",
+      "shouldTrigger": false
+    }
+  ]
+}

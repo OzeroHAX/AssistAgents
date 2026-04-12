@@ -1,0 +1,31 @@
+{
+  "skill": "task-use-research-context-strategy",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Map the billing domain: entities, suspension rules, main flows, and where those rules are enforced. Cite docs and related code.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Compare the refund requirements in project docs with the current implementation and list mismatches with sources.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Explain the onboarding business flow, glossary, exceptions, and enforcement points across docs and code.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Trace the auth request path through controllers, services, and repositories with exact files and functions.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Find the latest Stripe subscription best practices and official docs links.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan how to refactor the suspension service and propose code changes.",
+      "shouldTrigger": false
+    }
+  ]
+}

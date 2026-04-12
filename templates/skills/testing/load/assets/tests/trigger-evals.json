@@ -1,0 +1,23 @@
+{
+  "skill": "testing-load",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Prepare a k6 load test plan for the checkout API with ramp-up, soak phase, p95 latency threshold, and CPU monitoring.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design a spike test for the login service and define pass-fail thresholds, traffic mix, and baseline comparison.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review the implementation of our checkout performance optimizations in code and suggest refactors.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create a short regression checklist for the checkout release instead of a detailed load plan.",
+      "shouldTrigger": false
+    }
+  ]
+}

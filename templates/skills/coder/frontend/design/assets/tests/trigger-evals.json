@@ -1,0 +1,31 @@
+{
+  "skill": "coder-frontend-design",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review our web app design system foundations: tokens, semantic colors, typography scale, and responsive layout rules.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define button, input, and card variants with hover, focus, disabled, and loading states for our frontend design system.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We are refactoring design tokens and need a system-level consistency check for theming, accessibility, and component APIs.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Fix the CSS bug where the mobile navigation overlaps the hero banner on iPhone SE.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a project plan and milestones for redesigning the marketing site.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create a one-off landing page mockup for a campaign without changing the design system.",
+      "shouldTrigger": false
+    }
+  ]
+}

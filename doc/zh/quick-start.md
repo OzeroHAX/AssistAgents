@@ -29,7 +29,7 @@ npx -g @ozerohax/assistagents@latest
 
 该命令会：
 
-- 仅在当前仓库的 `.opencode/skills/coder/` 下创建或更新 skills；
+- 仅在当前仓库的 `.opencode/skills/` 下创建或更新 skills；
 - 在未传参数时，根据代码和配置自动识别语言；
 - 通过 `$ARGUMENTS` 支持显式语言列表（逗号分隔），例如：
 
@@ -42,6 +42,14 @@ npx -g @ozerohax/assistagents@latest
 - 在新项目中安装/更新 AssistAgents 后立即执行；
 - 技术栈发生明显变化后（新增语言、框架、测试工具、lint 工具）；
 - 需要让本地 coder skills 与当前仓库状态重新同步时。
+
+## Skill-authoring
+
+如果你要创建、检查或改进 skill 本身，请直接使用 `/skill-authoring`。
+
+你不需要手动选择 runtime agent。该命令会自动路由到专用的 authoring agent。
+
+完整 workflow 请查看 [Skill-Authoring 指南](./skill-authoring.md)。
 
 ## 4) 使用推荐的交付循环
 

@@ -1,74 +1,97 @@
 ---
 name: planning-task-classifier
-description: Classify a task (bug/feature/refactor/migration) and what the plan must emphasize
+description: Use when planning must first classify the work as bug, feature, refactor, or migration
 ---
 
 <purpose>
-  <item>Determine the task type and what matters most for that type</item>
-  <item>Reduce planning mistakes (e.g., planning a bug like a feature)</item>
+  <item>Choose the task type early so later planning uses the right priorities and avoids mismatched assumptions.</item>
 </purpose>
 
-<inputs>
-  <required>Short task description</required>
-  <optional>Artifacts: logs/errors/AC/screenshots/incident links</optional>
-</inputs>
+<when_to_use>
+  <item importance="critical">Use when the next planning choice depends on whether the work is a bug, feature, refactor, or migration.</item>
+  <item importance="high">Use when the input mixes signals and the dominant planning concern is still unclear.</item>
+</when_to_use>
+
+<when_not_to_use>
+  <item importance="critical">Do not use to implement changes or write production code.</item>
+  <item importance="high">Do not use when the task type is already explicit and a narrower planning skill should drive the answer.</item>
+  <item importance="high">Do not use for scope definition, change inventory, impact analysis, or test strategy.</item>
+</when_not_to_use>
+
+<input_requirements>
+  <required>Task description or issue statement</required>
+  <optional>AC, expected vs actual, repro, incidents, logs, screenshots, or rollout constraints</optional>
+</input_requirements>
 
 <classification>
   <type id="bug">
     <signals>
-      <item>There is "expected vs actual"</item>
-      <item>There is an error/crash/regression/incident</item>
-      <item>There is a repro or conditions under which it occurs</item>
+      <item>Expected vs actual, error, crash, regression, or incident</item>
+      <item>Repro, triggering conditions, or operational impact</item>
     </signals>
     <planning_focus>
-      <item>Confirm the repro</item>
-      <item>Minimal fix</item>
-      <item>Fast rollback</item>
+      <item>Confirm repro and failure boundaries</item>
+      <item>Prefer the smallest safe fix with rollback and regression coverage</item>
     </planning_focus>
   </type>
   <type id="feature">
     <signals>
-      <item>New functionality/behavior</item>
-      <item>User value and acceptance criteria (AC)</item>
+      <item>New capability or user-facing behavior</item>
+      <item>AC, user value, or rollout expectations</item>
     </signals>
     <planning_focus>
-      <item>Clear AC and edge cases</item>
-      <item>In/out-of-scope boundaries</item>
-      <item>Rollout and monitoring</item>
+      <item>Clarify AC and edge cases</item>
+      <item>Make scope and rollout expectations explicit</item>
     </planning_focus>
   </type>
   <type id="refactor">
     <signals>
-      <item>Goal: quality/maintainability/performance without changing external behavior</item>
-      <item>There are metrics/pain/debt</item>
+      <item>Quality, maintainability, or performance improvement without intended external behavior change</item>
+      <item>Technical debt or engineering pain is cited</item>
     </signals>
     <planning_focus>
-      <item>Preserve behavior</item>
-      <item>Improvement metrics</item>
-      <item>Incremental steps and regression coverage</item>
+      <item>Preserve existing behavior</item>
+      <item>Use measurable improvement goals and regression coverage</item>
     </planning_focus>
   </type>
   <type id="migration">
     <signals>
-      <item>Schema/data/contracts/infra change in a way that requires compatibility</item>
-      <item>There is data volume/windows/dual-write/backfill</item>
+      <item>Schema, data, contract, or infrastructure change requires compatibility handling</item>
+      <item>Backfill, dual-write, cutover, or phased transition is involved</item>
     </signals>
     <planning_focus>
-      <item>Data integrity</item>
-      <item>Backward compatibility</item>
-      <item>Step-by-step migration and verification</item>
+      <item>Protect data integrity and compatibility</item>
+      <item>Use staged migration with explicit verification</item>
     </planning_focus>
   </type>
 </classification>
 
-<output_format>
-  <section>Task type + confidence</section>
-  <section>Why (signals)</section>
-  <section>Planning focus</section>
-  <section>Key unknowns</section>
-</output_format>
+<workflow>
+  <step>Extract the signals from the input that point to each type.</step>
+  <step>Choose the dominant type and state confidence.</step>
+  <step>If evidence is mixed, name the leading alternative and the missing information that could change the call.</step>
+  <step>Return only the classifier result and the planning focus for the chosen type.</step>
+</workflow>
+
+<output_requirements>
+  <requirement>Provide `Task type + confidence`, `Why`, `Planning focus`, and `Key unknowns`.</requirement>
+  <requirement>`Why` cites concrete input signals rather than generic definitions.</requirement>
+  <requirement>`Key unknowns` includes only information that could change the classification or its emphasis.</requirement>
+</output_requirements>
 
 <quality_rules>
-  <rule importance="critical">Task type is justified by signals from the input</rule>
-  <rule importance="high">If confidence is low, state it explicitly and list questions</rule>
+  <rule importance="critical">Classify from task signals, not assumptions.</rule>
+  <rule importance="critical">If confidence is low, say so and name the leading alternative.</rule>
+  <rule importance="high">Stay at classification level; do not expand into a full plan.</rule>
 </quality_rules>
+
+<validation>
+  <item importance="critical">The chosen type is tied to concrete task signals or constraints.</item>
+  <item importance="critical">Confidence and ambiguity are explicit when the case is not clear-cut.</item>
+  <item importance="high">The result stays at classifier level and uses the required sections.</item>
+</validation>
+
+<do_not>
+  <item importance="critical">Do not force certainty when the evidence is incomplete.</item>
+  <item importance="high">Do not let downstream planning preferences override the classification evidence.</item>
+</do_not>

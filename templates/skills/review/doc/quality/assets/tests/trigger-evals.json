@@ -1,0 +1,31 @@
+{
+  "skill": "review-doc-quality",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Review this onboarding guide before publishing and tell me whether the documentation quality is good enough to ship, including any blocking issues.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Audit this runbook diff for documentation quality and return a PASS or FAIL verdict with prioritized defects.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Give me a documentation quality review for this API guide with findings on accuracy, completeness, consistency, and freshness.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Rewrite this guide to make it clearer and fix the examples directly.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Define a reusable documentation review process for the team before we publish new guides.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Check whether these backend implementation requirements are complete before coding starts.",
+      "shouldTrigger": false
+    }
+  ]
+}

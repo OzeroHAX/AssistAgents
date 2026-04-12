@@ -1,39 +1,38 @@
 ---
 name: project-fast-status
-description: Mandatory fast-flow tracker that updates status.json after each fast stage and before handoff or escalation
+description: Use when fast planning must update `status.json` at flow start, after each declared fast stage, or before handoff or escalation
 ---
 
 <purpose>
-  <item>Use `status.json` as the single source of truth for fast-planning phase and stage</item>
-  <item>Strictly track progress, blockers, gate decision, and next action</item>
-  <item>Prevent moving to the next fast-flow step without a status update</item>
+  <item>Keep `status.json` current for fast-planning state and readiness.</item>
 </purpose>
 
-<mandatory_usage>
-  <rule importance="critical">This skill is mandatory for fast planning</rule>
-  <rule importance="critical">Run at the start of fast flow to initialize `status.json`</rule>
-  <rule importance="critical">Run after every step: init, pulse-scan, stack-pick, proto-spec, task-blast</rule>
-  <rule importance="critical">Run at the end of fast flow for the final gate decision</rule>
-  <rule importance="high">If `status.json` is not updated, the step is considered incomplete</rule>
-</mandatory_usage>
-
 <when_to_use>
-  <item importance="critical">Fast planning start (create initial status)</item>
-  <item importance="critical">After each fast-flow stage is completed</item>
-  <item importance="critical">Before handoff to implementation or escalation to standard flow</item>
+  <item importance="critical">At fast-planning start to initialize `status.json`.</item>
+  <item importance="critical">After each fast stage: init, pulse-scan, stack-pick, proto-spec, task-blast.</item>
+  <item importance="critical">Before implementation handoff or escalation to standard planning to record the gate.</item>
 </when_to_use>
 
-<inputs>
-  <required>Current fast-flow step (init, pulse-scan, stack-pick, proto-spec, task-blast)</required>
-  <required>Actual step result: done/partial/blocked</required>
-  <required>Short reasons and blockers list (if any)</required>
-  <optional>Risks, corrective actions, recheck criteria</optional>
-</inputs>
+<when_not_to_use>
+  <item importance="critical">Do not use outside the declared project phase or flow step.</item>
+  <item importance="high">Do not use as a replacement for implementation, delivery execution, or runtime operation.</item>
+</when_not_to_use>
+
+<required_preload>
+  <item>shared-base-rules</item>
+  <item>shared-docs-paths</item>
+</required_preload>
+
+<input_requirements>
+  <required>Current fast stage and actual result: done, partial, or blocked.</required>
+  <required>Concrete reasons, blockers, and one executable `next_action`.</required>
+  <optional>Artifact references that explain the state change.</optional>
+  <optional>`corrective_actions`, `recheck_criteria`, `owner`, or `unblock_plan` for non-pass or blocked outcomes.</optional>
+</input_requirements>
 
 <status_file_contract>
   <rule importance="critical">File: `status.json`</rule>
   <rule importance="critical">Format: valid JSON without comments</rule>
-  <rule importance="critical">Updated atomically on every run of this skill</rule>
   <required_fields>
     <field>phase</field>
     <field>stage</field>
@@ -45,70 +44,41 @@ description: Mandatory fast-flow tracker that updates status.json after each fas
     <field>updated_at</field>
   </required_fields>
   <conditional_fields>
-    <item>If gate != PASS: `corrective_actions` and `recheck_criteria` are required</item>
-    <item>If step_status = blocked: `owner` and `unblock_plan` are required</item>
+    <item>If `gate` != `PASS`, add `corrective_actions` and `recheck_criteria`.</item>
+    <item>If `step_status` = `blocked`, add `owner` and `unblock_plan`.</item>
   </conditional_fields>
 </status_file_contract>
 
 <allowed_values>
-  <phase>
-    <item>fast-planning</item>
-  </phase>
+  <phase><item>fast-planning</item></phase>
   <stage>
-    <item>init</item>
-    <item>pulse-scan</item>
-    <item>stack-pick</item>
-    <item>proto-spec</item>
-    <item>task-blast</item>
-    <item>finalize</item>
+    <item>init</item><item>pulse-scan</item><item>stack-pick</item>
+    <item>proto-spec</item><item>task-blast</item><item>finalize</item>
   </stage>
-  <step_status>
-    <item>done</item>
-    <item>partial</item>
-    <item>blocked</item>
-  </step_status>
-  <gate>
-    <item>PASS</item>
-    <item>CONCERNS</item>
-    <item>FAIL</item>
-  </gate>
+  <step_status><item>done</item><item>partial</item><item>blocked</item></step_status>
+  <gate><item>PASS</item><item>CONCERNS</item><item>FAIL</item></gate>
 </allowed_values>
 
-<method>
-  <step>Check `status.json`; if missing, create it with a base structure</step>
-  <step>Set current `phase` and `stage` according to the actual step</step>
-  <step>Update `step_status`, `reasons`, `blockers`, and `next_action`</step>
-  <step>If this is fast-flow finalization, set `gate` based on all stage outcomes</step>
-  <step>For `CONCERNS` or `FAIL`, add `corrective_actions` and `recheck_criteria`</step>
-  <step>Update `updated_at` and save valid JSON</step>
-</method>
+<workflow>
+  <step>Create `status.json` if missing, then set `phase` to `fast-planning` and `stage` to the current fast stage.</step>
+  <step>Update `step_status`, `gate`, `reasons`, `blockers`, and `next_action` from the real stage outcome only.</step>
+  <step>Add `corrective_actions` and `recheck_criteria` when `gate` != `PASS`, and `owner` plus `unblock_plan` when `step_status` = `blocked`.</step>
+  <step>On finalization or escalation, set the gate from the full fast-flow state, make the next handoff explicit, update `updated_at`, and save valid JSON.</step>
+</workflow>
 
-<output_format>
-  <section>phase</section>
-  <section>stage</section>
-  <section>step_status</section>
-  <section>gate</section>
-  <section>reasons</section>
-  <section>blockers</section>
-  <section>next_action</section>
-  <section>corrective_actions (if gate != PASS)</section>
-  <section>recheck_criteria (if gate != PASS)</section>
-  <section>updated_at</section>
-</output_format>
+<output_requirements>
+  <requirement>Produce a valid `status.json` with all required fields for the current fast-planning state.</requirement>
+  <requirement>For non-pass or blocked results, include concrete recovery fields instead of vague notes.</requirement>
+</output_requirements>
 
 <quality_rules>
-  <rule importance="critical">`status.json` always reflects the actual current state</rule>
-  <rule importance="critical">Do not move to the next stage without recording the current result</rule>
-  <rule importance="high">`next_action` is specific and executable as one next step</rule>
-  <rule importance="high">Reasons and blockers are verifiable and not vague</rule>
+  <rule importance="critical">If `status.json` is not updated, the fast stage is incomplete.</rule>
+  <rule importance="critical">Do not set `PASS` when critical blockers exist.</rule>
+  <rule importance="high">`next_action` must be specific, and non-pass or blocked states must include recovery details.</rule>
 </quality_rules>
 
-<do_not>
-  <item importance="critical">Do not leave `status.json` outdated after step completion</item>
-  <item importance="critical">Do not set `PASS` when critical blockers exist</item>
-  <item importance="high">Do not write free text instead of structured JSON fields</item>
-</do_not>
-
-<minimal_json_example>
-  <item>{"phase":"fast-planning","stage":"proto-spec","step_status":"done","gate":"CONCERNS","reasons":["NFR is only partially refined"],"blockers":["No confirmation for integration X"],"next_action":"Close integration risk and update proto-spec","corrective_actions":["Run API X contract verification"],"recheck_criteria":["Integration risk is closed","AC remain unchanged"],"updated_at":"2026-02-09T12:00:00Z"}</item>
-</minimal_json_example>
+<validation>
+  <item importance="critical">`status.json` exists, is valid JSON, and contains the required and conditional fields for the recorded state.</item>
+  <item importance="critical">The recorded phase, stage, status, gate, blockers, and next action match the real fast-planning outcome.</item>
+  <item importance="high">The handoff to implementation or escalation to standard planning is explicit when applicable.</item>
+</validation>

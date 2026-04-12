@@ -1,0 +1,27 @@
+{
+  "skill": "planning-task-classifier",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Before we plan the auth work, classify whether this request is a bug, feature, refactor, or migration, explain the signals, and tell me what the plan should emphasize.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We need to add dual-write and backfill during a schema transition. Decide whether this is really a migration or something else, explain why, and highlight the planning focus.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define what is in scope, out of scope, and which assumptions still matter before we implement the billing rewrite.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "List the exact backend files, frontend modules, and config files we will edit for the billing rewrite, with the intended change in each one.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Build a testing strategy for the billing rewrite with test types, key scenarios, and acceptance signals.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "testing-aqa",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Add Playwright tests for the checkout happy path and failed card payment, capture traces on failure, and keep test data isolated.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Stabilize flaky Cypress tests for product search by replacing sleeps with state-based waits and cleaning up shared fixtures.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design API regression tests for order creation and cancellation with cleanup strategy and CI artifacts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Manually test the checkout flow in Chrome and list UX bugs you notice.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Implement the missing checkout API endpoint and then update the backend docs.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Plan the QA roadmap for next quarter and prioritize automation investments.",
+      "shouldTrigger": false
+    }
+  ]
+}

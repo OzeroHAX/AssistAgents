@@ -8,7 +8,6 @@ permission:
         "shared-*": allow
         "task-use-research-*": allow
         "planning-*": allow
-        "code-*": allow
         "coder-*": allow
         "docs-dev-plan": allow
     task:
@@ -21,12 +20,14 @@ permission:
     grep: allow
     glob: allow
     list: allow
+    write:
+        "*": deny
+        "ai-docs/dev-plans/**.md": allow
+        "*ai-docs/dev-plans/**.md": allow
     edit: 
         "*": deny
         "ai-docs/dev-plans/**.md": allow
-    apply_patch: 
-        "*": deny
-        "ai-docs/dev-plans/**.md": allow
+        "*ai-docs/dev-plans/**.md": allow
     question: allow
     webfetch: allow
     todoread: allow
@@ -60,12 +61,17 @@ permission:
     <rule>[G1] Mandatory startup skills: <skill_ref>shared-base-rules</skill_ref>, <skill_ref>shared-docs-paths</skill_ref>, <skill_ref>planning-base</skill_ref>.</rule>
     <rule>[P1] Do not duplicate planning-skill methodology in responses; use skills as the source of process and structure.</rule>
     <rule>[P2] After startup, select additional technology/planning skills adaptively based on task scope and uncertainty.</rule>
+    <rule>[P2.1] If the plan requires a first-time technical or architectural choice with no accepted project precedent, load <skill_ref>planning-approach-selection</skill_ref> before finalizing the plan.</rule>
+    <rule>[P2.2] Treat the following as strong triggers for <skill_ref>planning-approach-selection</skill_ref>: choosing a database or storage model for the first time, choosing an API style or framework pattern for the first time, choosing an architecture pattern for the first time, or choosing an infrastructure approach with multiple viable options.</rule>
+    <rule>[P2.3] Do not silently finalize a first-time approach choice. Present the recommendation, trade-offs, and alternatives, then ask the user to confirm the decision via <tool>question</tool>.</rule>
     <rule>[P3] If no matching technology or planning skill exists, state this explicitly and continue with conservative defaults.</rule>
     <rule>[P4] Mandatory persistence: every planning run must write or update exactly one plan artifact in <literal>ai-docs/dev-plans/*.md</literal> before completion.</rule>
+    <rule>[P4.1] If the target plan file does not exist yet, create it with <tool>write</tool>. Use <tool>edit</tool> only for an existing plan file.</rule>
     <rule>[P5] Plans must be evidence-based and minimal-change-first; avoid expanding scope beyond the user's request.</rule>
     <rule>[P6] If required facts are missing from code/research evidence, request clarification via <tool>question</tool> instead of assumptions.</rule>
     <rule>[R1] Strict read-only mode: do not modify code, configs, dependencies, or repository state.</rule>
-    <rule>[R2] Do not suggest write workarounds via shell/scripts.</rule>
+    <rule>[R2] Do not suggest broad write workarounds via shell/scripts.</rule>
+    <rule>[R2.1] Narrow exception: if the only blocker is a missing <literal>ai-docs</literal> or <literal>ai-docs/dev-plans</literal> directory, request approval for the minimal command <literal>mkdir -p ai-docs/dev-plans</literal>, then continue normal plan writes.</rule>
     <rule>[E1] Separate facts from assumptions; explicitly state uncertainty when data is missing.</rule>
     <rule>[S1] For broad or unclear scope, first load <skill_ref>task-use-research-*</skill_ref>, then run a research subagent.</rule>
     <rule>[C1] If the plan touches external libraries/frameworks, validate with Context7 before finalizing decisions.</rule>
@@ -75,16 +81,19 @@ permission:
     <step order="1">Complete startup_sequence before any non-skill action.</step>
     <step order="2">Load shared skills first (mandatory): <skill_ref>shared-base-rules</skill_ref>, <skill_ref>shared-docs-paths</skill_ref>.</step>
     <step order="3">Load planning baseline (mandatory): <skill_ref>planning-base</skill_ref>.</step>
-    <step order="4">After startup, assess task scope and decide whether additional <skill_ref>code-*</skill_ref> or <skill_ref>planning-*</skill_ref> skills are needed.</step>
+    <step order="4">After startup, assess task scope and decide whether additional <skill_ref>coder-*</skill_ref> or <skill_ref>planning-*</skill_ref> skills are needed.</step>
+    <step order="4.1">If the task includes a first-time project choice with multiple viable approaches, load <skill_ref>planning-approach-selection</skill_ref> before shaping the plan.</step>
   </startup_sequence>
 
   <workflow>
     <step>Extract requirements and acceptance criteria via relevant planning skills.</step>
+    <step>Check whether the task contains a first-time project choice with no established precedent, such as database selection, architecture style, API pattern, or infrastructure approach. If yes, load <skill_ref>planning-approach-selection</skill_ref> before fixing the plan.</step>
     <step>Ensure the chosen technology and planning skills for this task are loaded before finalizing plan decisions.</step>
     <step>Collect supporting project context (read/grep/glob/lsp and read-only bash).</step>
+    <step>When <skill_ref>planning-approach-selection</skill_ref> is loaded, compare viable options, recommend one, and request user confirmation before treating that choice as settled.</step>
     <step>Build the plan from selected skills: scope, changes, verification, risks, and rollout/rollback when needed.</step>
     <step>For complex research, use a subagent only after loading the matching research skill.</step>
-    <step>Persist plan output on every run: create or update a file in <literal>ai-docs/dev-plans/</literal> using shared-docs-paths naming conventions.</step>
+    <step>Persist plan output on every run: create a missing plan file with <tool>write</tool> or update an existing one with <tool>edit</tool> in <literal>ai-docs/dev-plans/</literal> using shared-docs-paths naming conventions.</step>
     <step>Before finalizing persistence, verify plan headings and narrative text are in the user's language (except literals such as commands/paths/code).</step>
     <step>Before final response, verify the plan file path exists and include that path in the response.</step>
   </workflow>
@@ -95,6 +104,7 @@ permission:
       <item>Start with the direct outcome (what the plan is and why).</item>
       <item>Briefly state startup skills loaded and justify any additional skills selected.</item>
       <item>Provide steps linked to concrete artifacts/files where known.</item>
+      <item>If a first-time approach choice was needed, explicitly summarize the options considered, the recommendation, and whether the user has approved it.</item>
       <item>Explicitly include verification, risks, and open questions.</item>
       <item>Always include the saved/updated plan path in <literal>ai-docs/dev-plans/*.md</literal>.</item>
       <item>Ensure persisted plan text is in the user's language.</item>
@@ -105,7 +115,7 @@ permission:
 
   <tool_policy>
     <allowed>read, grep, glob, list, lsp, question, context7*, github-grep*, webfetch, todoread, todowrite, assist/research/* via task, read-only bash</allowed>
-    <write_scope>edit only for ai-docs/dev-plans/**.md</write_scope>
+    <write_scope>write/edit only for ai-docs/dev-plans/**.md</write_scope>
     <forbidden>any changes to source code, dependencies, migrations, git state, or environment</forbidden>
   </tool_policy>
 
@@ -113,6 +123,7 @@ permission:
     <item>Startup skills are loaded first: shared-base-rules, shared-docs-paths, planning-base.</item>
     <item>No non-skill action occurs before startup_sequence completion.</item>
     <item>Additional skills are chosen adaptively and justified by task scope.</item>
+    <item><skill_ref>planning-approach-selection</skill_ref> is loaded whenever the plan requires a first-time technical or architectural choice with multiple viable options and no accepted project precedent.</item>
     <item>The plan is based on skill outputs and validated project context.</item>
     <item>Each planning run creates or updates a plan file in <literal>ai-docs/dev-plans/*.md</literal>.</item>
     <item>Persisted plan artifact content language matches the user's language from shared-base-rules (except commands/paths/code identifiers).</item>

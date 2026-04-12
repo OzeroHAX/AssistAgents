@@ -1,56 +1,65 @@
 ---
 name: testing-browser-manual
-description: Manual browser UI verification via MCP snapshots with reproducible steps and observed behavior; not automation design
+description: Use when a request asks for manual browser UI verification via MCP snapshots with reproducible evidence
 ---
 
+<when_to_use>
+  <item importance="critical">Use when a request asks to manually verify a browser page, component, or flow through MCP snapshots and observed behavior.</item>
+  <item importance="high">Use when the check must cover UI states, validation, navigation, logs, accessibility basics, or responsive behavior with reproducible evidence.</item>
+</when_to_use>
+
 <input_requirements>
+  <required>Target page, component, or flow</required>
   <required>Environment URL and access</required>
-  <required>Key user scenarios list</required>
-  <required>Success criteria for each scenario</required>
+  <required>Key scenarios</required>
+  <required>Success criteria per scenario</required>
   <optional>Supported browsers and versions</optional>
-  <optional>Key resolutions/breakpoints</optional>
-  <optional>Test accounts and data</optional>
-  <optional>Environment constraints (rate limits, feature flags)</optional>
+  <optional>Key viewports/breakpoints</optional>
+  <optional>Test accounts, data, or environment constraints</optional>
 </input_requirements>
 
-<preparation>
-  <steps>
-    <step>Verify the environment and build freshness</step>
-    <step>Create a new context/page via MCP</step>
-    <step>Do the first navigation to start network/console logging</step>
-    <step>Fix viewport, language, and locale</step>
-    <step>Clear cookies/localStorage when needed</step>
-  </steps>
-</preparation>
+<when_not_to_use>
+  <item importance="critical">Do not use for automation design or test framework implementation.</item>
+  <item importance="critical">Do not use as a replacement for implementation, planning, or static review work.</item>
+  <item importance="high">Do not use for screenshot-only comparison without DOM, console, or network checks.</item>
+  <item importance="high">Do not use in production or destructive environments without explicit permission.</item>
+</when_not_to_use>
 
-<execution_rules>
-  <rule importance="critical">Steps are executed via agent tools and are reproducible</rule>
-  <rule importance="critical">Actions are done by snapshot ref, not by screenshot</rule>
-  <rule importance="critical">Verify UI and system reactions (errors, states)</rule>
-  <rule importance="high">Cover positive and negative scenarios</rule>
-  <rule importance="high">Verify accessibility (keyboard navigation, focus, aria)</rule>
-  <rule importance="high">Verify responsive behavior at key breakpoints</rule>
-  <rule importance="high">Note dependencies on data and state</rule>
-  <rule importance="medium">Record regression signals and visual artifacts</rule>
-</execution_rules>
+<workflow>
+  <step importance="critical">Confirm the target surface, scenarios, success criteria, environment access, browser/viewport/locale, and starting session or data state.</step>
+  <step importance="critical">Prepare a clean MCP browser context, do the first navigation, and start console/network observation from the initial state.</step>
+  <step importance="critical">Execute each scenario via snapshot-referenced actions and verify expected UI states, form behavior, routing, and system reactions after key steps.</step>
+  <step importance="high">Cover positive and negative paths; check keyboard, focus, ARIA basics, and responsive behavior when relevant.</step>
+  <step importance="high">Record pass-fail, observed vs expected behavior, evidence, and state or data dependencies for each scenario.</step>
+</workflow>
 
 <coverage>
   <focus>
     <item>Primary user paths</item>
     <item>Form validation and errors</item>
-    <item>Loading states and empty states</item>
+    <item>Loading and empty states</item>
     <item>Navigation and routing</item>
   </focus>
 </coverage>
+
+<output_requirements>
+  <requirement importance="critical">Produce a per-scenario result with target surface, environment, browser, viewport, locale, and pass-fail status.</requirement>
+  <requirement importance="critical">For each failed or risky check, record observed behavior, expected behavior, reproduction step, and snapshot, console, or network evidence.</requirement>
+  <requirement importance="high">Separate UI defects from network, auth, session, or backend-response issues when they differ.</requirement>
+</output_requirements>
 
 <quality_rules>
   <rule importance="critical">Expected outcome is stated unambiguously</rule>
   <rule importance="high">No duplicate scenarios with different wording</rule>
   <rule importance="high">UI errors and network errors are distinguished and verified separately</rule>
-  <rule importance="high">Network/console logs are checked after navigation or actions</rule>
-  <rule importance="high">Viewport/browser are recorded in the result</rule>
-  <rule importance="medium">If result recording is needed, use a single consistent format</rule>
+  <rule importance="high">Console and network logs are checked after navigation or relevant actions</rule>
 </quality_rules>
+
+<validation>
+  <item importance="critical">Scenarios or checks are reproducible and have explicit expected results.</item>
+  <item importance="critical">Environment, data, and execution constraints are recorded or assumed explicitly.</item>
+  <item importance="high">Result capture, pass-fail signals, or evidence recording are explicit.</item>
+</validation>
 
 <do_not>
   <item importance="critical">Do not test production without permission</item>
@@ -58,19 +67,3 @@ description: Manual browser UI verification via MCP snapshots with reproducible 
   <item importance="high">Do not ignore errors in console and network logs</item>
   <item importance="high">Do not rely on visual match without checking DOM state</item>
 </do_not>
-
-<agent_checklist>
-  <item importance="critical">Test goal and success criteria are stated</item>
-  <item importance="critical">Environment and access are confirmed</item>
-  <item importance="high">Start route and session state are defined</item>
-  <item importance="high">Viewport/browser/locale are fixed</item>
-  <item importance="high">Steps and expected UI states are listed</item>
-  <item importance="high">Network/console checks are planned</item>
-  <item importance="medium">Test boundaries and exclusions are captured</item>
-</agent_checklist>
-
-<example_checks>
-  <check>Verify validation error display for an empty required field</check>
-  <check>Verify correct handling of 401/403 for an expired session</check>
-  <check>Verify keyboard form navigation and visible focus</check>
-</example_checks>

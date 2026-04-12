@@ -1,0 +1,31 @@
+{
+  "skill": "docs-project-use-case",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "I need the contract for a project use-case document under ai-docs/project/use-cases/: what sections and traceability to PRD should it include?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review whether this project use-case draft has a clear goal, actors, main flow, alternate/error flows, and PRD traceability.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What should a project use-case file contain so another authoring skill can use it as the document standard?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement the checkout flow described by the use case and add the missing API endpoint.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create or revise the full project use-case set from PRD and personas before epic planning.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write the personas document for the new marketplace project.",
+      "shouldTrigger": false
+    }
+  ]
+}

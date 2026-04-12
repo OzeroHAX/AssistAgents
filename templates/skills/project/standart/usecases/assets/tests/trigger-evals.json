@@ -1,0 +1,31 @@
+{
+  "skill": "project-standart-usecases",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "Using the PRD and personas, create standard discovery use cases for checkout before we break the work into epics.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Update the existing checkout use cases with my remarks: fix the failure flow, add a guest checkout scenario, and remove the obsolete coupon path.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "I changed the onboarding assumptions. Please revise the current use-case docs, delete the abandoned admin scenario, and keep PRD traceability intact.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Implement the checkout flow in the app and wire the API endpoints.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Break the approved requirements into epics and order them by delivery risk.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write or refresh the project brief from the repository evidence and competitor links.",
+      "shouldTrigger": false
+    }
+  ]
+}

@@ -1,7 +1,13 @@
 ---
 name: shared-base-rules
-description: Mandatory baseline rules for any agent. Must be loaded before any work
+description: Mandatory baseline rules for any agent. Must be loaded before any work.
 ---
+
+<loading_policy>
+    <rule importance="critical">Always load this skill before any work.</rule>
+    <rule importance="critical">Treat this skill as mandatory shared bootstrap context, not as an optional task skill.</rule>
+    <rule importance="high">Downstream skills may assume the rendered user profile and baseline rules are already available.</rule>
+</loading_policy>
 
 <user>
     <language>{{response_language}}</language>
@@ -15,6 +21,12 @@ description: Mandatory baseline rules for any agent. Must be loaded before any w
     </tooling>
     <communication_style>{{user_communication_style}}</communication_style>
 </user>
+
+<validation>
+  <item importance="critical">This skill is loaded before any other work starts.</item>
+  <item importance="critical">Rendered user settings are available to downstream agents and skills.</item>
+  <item importance="high">The skill is treated as mandatory shared bootstrap context, not as an optional artifact-producing skill.</item>
+</validation>
 
 <base_rules>
     <rule importance="critical">You must load specific skill for decsription usage subagent before launch it</rule>

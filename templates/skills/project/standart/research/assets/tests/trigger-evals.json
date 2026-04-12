@@ -1,0 +1,27 @@
+{
+  "skill": "project-standart-research",
+  "threshold": 0.5,
+  "runsPerQuery": 3,
+  "queries": [
+    {
+      "query": "We finished the brief. Research EU AI Act constraints that could change scope or architecture and write a dated research summary before we continue.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "After the brief, investigate Stripe Connect KYC and compliance requirements that may affect PRD and architecture, then capture the findings in a research document.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Draft the architecture document for the current PRD and integration plan.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Create the project brief from the README, mission, and market context.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Search the web for general React performance best practices.",
+      "shouldTrigger": false
+    }
+  ]
+}

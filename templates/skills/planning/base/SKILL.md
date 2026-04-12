@@ -13,6 +13,10 @@ description: Apply shared planning baseline (format, verifiability, assumptions)
   <item importance="high">When the task is ambiguous and questions/assumptions must be captured</item>
 </when_to_use>
 
+<when_not_to_use>
+  <item importance="critical">Do not use to implement changes or write production code.</item>
+  <item importance="high">Do not use when another narrower planning skill already covers the exact question.</item>
+</when_not_to_use>
 <core_principles>
   <rule importance="critical">Separate facts, assumptions, and decisions</rule>
   <rule importance="critical">The plan must be verifiable: every step can be confirmed by a test/observation</rule>
@@ -39,6 +43,11 @@ description: Apply shared planning baseline (format, verifiability, assumptions)
   <rule importance="medium">Open questions are explicitly listed and affect the plan</rule>
 </quality_rules>
 
+<validation>
+  <item importance="critical">The output contains the required planning sections and is tied to task inputs or constraints.</item>
+  <item importance="critical">Verification, next-step criteria, or rollback implications are explicit where relevant.</item>
+  <item importance="high">The plan remains within the selected planning concern and does not broaden scope without evidence.</item>
+</validation>
 <do_not>
   <item importance="critical">Do not produce a plan built on hidden assumptions</item>
   <item importance="critical">Do not mix independent goals into one change-set without a reason</item>
